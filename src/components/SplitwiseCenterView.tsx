@@ -16,6 +16,7 @@ interface SplitwiseCenterViewProps {
   onOpenSettleUp: () => void;
   onEditExpense: (expense: Expense) => void;
   onDeleteExpense: (id: string) => void;
+  onLoadSample?: () => void;
 }
 
 export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
@@ -30,6 +31,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   onOpenSettleUp,
   onEditExpense,
   onDeleteExpense,
+  onLoadSample,
 }) => {
   const [internalTab, setInternalTab] = useState<'expenses' | 'debts' | 'breakdown'>('expenses');
   const [searchTerm, setSearchTerm] = useState('');
@@ -124,10 +126,10 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
         </div>
 
         {/* Action Buttons: Add an expense & Settle up */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={onOpenAddExpense}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95"
+            className="whitespace-nowrap flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95 shrink-0"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>Add an expense</span>
@@ -135,7 +137,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
           <button
             onClick={onOpenSettleUp}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95"
+            className="whitespace-nowrap flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95 shrink-0"
           >
             <Check className="w-4 h-4 stroke-[3]" />
             <span>Settle up</span>
@@ -258,12 +260,29 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
           {/* Expenses List */}
           {filtered.length === 0 ? (
-            <div className="text-center py-16 px-4">
-              <div className="text-4xl mb-2">🌴</div>
-              <h3 className="font-bold text-slate-700 text-sm">No expenses found</h3>
-              <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-                No bills match your current filter. Click "+ Add an expense" to add one!
+            <div className="text-center py-16 px-4 space-y-3">
+              <div className="text-5xl mb-1">🚗🏖️</div>
+              <h3 className="font-extrabold text-slate-800 text-base">No expenses recorded yet</h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Start recording your car fuel, highway food, and villa bills for the Goa trip!
               </p>
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                <button
+                  onClick={onOpenAddExpense}
+                  className="px-4 py-2 rounded-lg bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs shadow-xs transition"
+                >
+                  + Add an expense
+                </button>
+                {onLoadSample && (
+                  <button
+                    onClick={onLoadSample}
+                    className="px-4 py-2 rounded-lg bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Load Goa Road Trip Bills</span>
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <div className="divide-y divide-slate-100">

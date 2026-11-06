@@ -23,7 +23,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
 }) => {
   return (
     <nav className="bg-[#5bc5a7] text-white shadow-md sticky top-0 z-40">
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 h-13 sm:h-14 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
         {/* Left: Splitwise Logo & Title */}
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/20 flex items-center justify-center p-1 shadow-inner shrink-0">

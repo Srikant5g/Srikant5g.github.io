@@ -102,3 +102,4 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
     </div>
   );
 };
+

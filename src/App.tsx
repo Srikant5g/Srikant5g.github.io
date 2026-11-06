@@ -179,7 +179,7 @@ export function App() {
       />
 
       {/* Main 3-Column Splitwise Layout (Desktop) / Native App Flow (Mobile) */}
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-6 w-full flex-1 flex flex-col md:flex-row gap-5 lg:gap-6 items-start">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 w-full flex-1 flex flex-col md:flex-row gap-5 lg:gap-6 items-start">
         {/* Column 1: Left Navigation & 7 Friends List (Desktop only) */}
         <SplitwiseLeftSidebar
           members={members}
@@ -223,6 +223,7 @@ export function App() {
             onOpenSettleUp={() => setIsSettleUpModalOpen(true)}
             onEditExpense={handleEditExpense}
             onDeleteExpense={handleDeleteExpense}
+            onLoadSample={handleLoadSample}
           />
         )}
 
@@ -243,6 +244,7 @@ export function App() {
               onOpenSettleUp={() => setIsSettleUpModalOpen(true)}
               onEditExpense={handleEditExpense}
               onDeleteExpense={handleDeleteExpense}
+              onLoadSample={handleLoadSample}
             />
           )}
         </div>
