@@ -136,6 +136,9 @@ export const PinModal: React.FC<PinModalProps> = ({
         {/* PIN Input Section */}
         <div className="p-5 flex flex-col items-center">
           {/* Hidden native input for physical keyboard entry */}
+          <label htmlFor="pin-code-input" className="sr-only">
+            Security PIN code
+          </label>
           <input
             id="pin-code-input"
             name="pin"

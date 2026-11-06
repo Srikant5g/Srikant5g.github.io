@@ -294,10 +294,13 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           {/* Category & Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+              <label htmlFor="expense-category-select" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
                 Category
               </label>
               <select
+                id="expense-category-select"
+                name="category"
+                aria-label="Expense Category"
                 value={category}
                 onChange={(e) => setCategory(e.target.value as Category)}
                 className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-[#5bc5a7]"
@@ -397,6 +400,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
                     {splitMode === 'CUSTOM' && isIncluded && (
                       <div className="mt-1.5 pt-1 border-t border-slate-200">
+                        <label htmlFor={`custom-split-${member.id}`} className="sr-only">
+                          Custom split amount for {member.name}
+                        </label>
                         <input
                           id={`custom-split-${member.id}`}
                           name={`custom_split_${member.id}`}

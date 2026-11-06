@@ -86,6 +86,9 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Active User Switcher */}
           <div className="flex items-center bg-black/15 hover:bg-black/25 px-2 py-1 rounded-lg text-xs font-semibold border border-white/20 transition">
+            <label htmlFor="navbar-active-user-select" className="sr-only">
+              Switch active friend
+            </label>
             <select
               id="navbar-active-user-select"
               name="activeUser"

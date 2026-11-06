@@ -104,6 +104,9 @@ export const MemberModal: React.FC<MemberModalProps> = ({
 
                 {/* Editable UPI ID */}
                 <div className="w-full sm:w-56 shrink-0">
+                  <label htmlFor={`member-upi-${member.id}`} className="sr-only">
+                    UPI ID for {member.name}
+                  </label>
                   <input
                     id={`member-upi-${member.id}`}
                     name={`upi_${member.id}`}

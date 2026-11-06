@@ -74,7 +74,7 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
                 </div>
                 <div className="min-w-0">
                   <h4 className="font-semibold text-slate-800 text-sm truncate">
-                    {member.name} {isMe && <span className="text-slate-400 font-normal">(you)</span>}
+                    {member.name}{isMe && <span className="text-slate-400 font-normal ml-1"> (you)</span>}
                   </h4>
                   {member.upiId && (
                     <div className="flex items-center gap-1.5 mt-0.5">

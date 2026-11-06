@@ -247,6 +247,9 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
           <div className="p-3.5 sm:p-4 bg-[#fafafa] border-b border-slate-100 space-y-2.5">
             {/* Search Input */}
             <div className="relative w-full">
+              <label htmlFor="desktop-search-bills" className="sr-only">
+                Search bills by title, category, or friend
+              </label>
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 id="desktop-search-bills"

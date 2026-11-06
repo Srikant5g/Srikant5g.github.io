@@ -151,6 +151,9 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
 
       {/* 3. Search Bar */}
       <div className="relative">
+        <label htmlFor="mobile-search-bills" className="sr-only">
+          Search bills, food, petrol...
+        </label>
         <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           id="mobile-search-bills"

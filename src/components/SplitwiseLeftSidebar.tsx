@@ -134,7 +134,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
                     {member.name.charAt(0)}
                   </div>
                   <span className="truncate">
-                    {member.name} {isMe && <span className="text-slate-400 font-normal">(you)</span>}
+                    {member.name}{isMe && <span className="text-slate-400 font-normal ml-1"> (you)</span>}
                   </span>
                 </div>
 
