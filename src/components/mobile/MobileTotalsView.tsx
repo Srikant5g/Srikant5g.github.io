@@ -129,3 +129,4 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
     </div>
   );
 };
+

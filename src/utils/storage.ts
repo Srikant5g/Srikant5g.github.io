@@ -1,10 +1,12 @@
 import type { Member, Expense, TripSettings } from '../types';
-import { DEFAULT_MEMBERS, DEFAULT_TRIP_SETTINGS, SAMPLE_GOA_EXPENSES } from './sampleData';
+import { DEFAULT_MEMBERS, DEFAULT_TRIP_SETTINGS } from './sampleData';
 
 const STORAGE_KEYS = {
   MEMBERS: 'goa_splitwise_members_v1',
   EXPENSES: 'goa_splitwise_expenses_v1',
   SETTINGS: 'goa_splitwise_settings_v1',
+  UPDATED_AT: 'goa_splitwise_updated_at_v1',
+  IS_INITIALIZED: 'goa_splitwise_initialized_v1',
 };
 
 export function loadTripSettings(): TripSettings {
@@ -45,29 +47,72 @@ export function saveMembers(members: Member[]) {
   }
 }
 
+export function isTripInitialized(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.IS_INITIALIZED) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setTripInitialized(val: boolean) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.IS_INITIALIZED, val ? 'true' : 'false');
+  } catch (e) {
+    console.error('Failed to set trip initialized', e);
+  }
+}
+
+export function getLastUpdatedAt(): number {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.UPDATED_AT);
+    return raw ? parseInt(raw, 10) || 0 : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function setLastUpdatedAt(ts: number) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.UPDATED_AT, ts.toString());
+  } catch (e) {
+    console.error('Failed to set updated at', e);
+  }
+}
+
 export function loadExpenses(): Expense[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-    if (raw) {
+    if (raw !== null) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) return parsed;
+    }
+    // If explicitly initialized and empty, return empty array
+    if (isTripInitialized()) {
+      return [];
     }
   } catch (e) {
     console.error('Failed to load expenses', e);
   }
-  return SAMPLE_GOA_EXPENSES;
+  // For fresh first-time sessions, load empty or sample
+  return [];
 }
 
 export function saveExpenses(expenses: Expense[]) {
   try {
     localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(expenses));
+    setTripInitialized(true);
   } catch (e) {
     console.error('Failed to save expenses', e);
   }
 }
 
 export function clearTripData() {
-  localStorage.removeItem(STORAGE_KEYS.MEMBERS);
-  localStorage.removeItem(STORAGE_KEYS.EXPENSES);
-  localStorage.removeItem(STORAGE_KEYS.SETTINGS);
+  try {
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.UPDATED_AT, Date.now().toString());
+    setTripInitialized(true);
+  } catch (e) {
+    console.error('Failed to clear trip data', e);
+  }
 }

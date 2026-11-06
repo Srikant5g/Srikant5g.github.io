@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Member } from '../types';
-import { Users, Share2, Sparkles, RotateCcw } from 'lucide-react';
+import type { SyncStatus } from '../utils/cloudSync';
+import { Users, Share2, Sparkles, RotateCcw, RefreshCw } from 'lucide-react';
 
 interface SplitwiseNavbarProps {
   members: Member[];
@@ -10,6 +11,8 @@ interface SplitwiseNavbarProps {
   onOpenShare: () => void;
   onResetData: () => void;
   onLoadSample: () => void;
+  syncStatus?: SyncStatus;
+  onManualSync?: () => void;
 }
 
 export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
@@ -20,12 +23,14 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   onOpenShare,
   onResetData,
   onLoadSample,
+  syncStatus = 'synced',
+  onManualSync,
 }) => {
   return (
     <nav className="bg-[#5bc5a7] text-white shadow-md sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
         {/* Left: GoaTab Logo & Title */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center p-1.5 shadow-inner shrink-0 border border-white/30">
             <svg
               viewBox="0 0 32 32"
@@ -55,6 +60,24 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
               🚗 Road Trip 2026
             </span>
           </div>
+
+          {/* Real-time Cloud Sync Pill */}
+          <button
+            onClick={onManualSync}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 hover:bg-white/25 transition text-[10px] font-medium border border-white/20 text-white ml-1"
+            title="Real-time Cloud Sync active across Mac, Mobile & All Tabs (Click to refresh)"
+          >
+            {syncStatus === 'syncing' ? (
+              <RefreshCw className="w-2.5 h-2.5 animate-spin text-amber-200" />
+            ) : syncStatus === 'error' ? (
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
+            ) : (
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 shadow-[0_0_6px_rgba(110,231,183,0.9)] animate-pulse" />
+            )}
+            <span className="hidden xs:inline">
+              {syncStatus === 'syncing' ? 'Syncing...' : 'Live Sync'}
+            </span>
+          </button>
         </div>
 
         {/* Right: User Switcher & Actions */}
@@ -108,7 +131,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
             <button
               onClick={onResetData}
               className="hover:underline opacity-90 hover:opacity-100 flex items-center gap-1"
-              title="Reset all bills"
+              title="Reset all bills (Requires PIN 0852)"
             >
               <RotateCcw className="w-3 h-3" />
               Reset

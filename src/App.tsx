@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import type { Member, Expense, TripSettings } from './types';
 import {
   loadMembers,
@@ -7,9 +7,18 @@ import {
   saveExpenses,
   loadTripSettings,
   saveTripSettings,
+  getLastUpdatedAt,
+  setLastUpdatedAt,
 } from './utils/storage';
+import {
+  pullFromCloud,
+  pushToCloud,
+  listenToCloudEvents,
+  subscribeToTabs,
+  type SyncStatus,
+} from './utils/cloudSync';
 import { SAMPLE_GOA_EXPENSES, DEFAULT_MEMBERS } from './utils/sampleData';
-import { calculateBalances, calculateSettlements } from './utils/settlement';
+import { calculateBalances, calculateSettlements, formatCurrency } from './utils/settlement';
 import { SplitwiseNavbar } from './components/SplitwiseNavbar';
 import { SplitwiseLeftSidebar } from './components/SplitwiseLeftSidebar';
 import { SplitwiseCenterView } from './components/SplitwiseCenterView';
@@ -23,11 +32,13 @@ import { ExpenseModal } from './components/ExpenseModal';
 import { SettleUpModal } from './components/SettleUpModal';
 import { MemberModal } from './components/MemberModal';
 import { WhatsAppShareModal } from './components/WhatsAppShareModal';
+import { PinModal } from './components/PinModal';
 
 export function App() {
   const [members, setMembers] = useState<Member[]>(() => loadMembers());
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
   const [settings] = useState<TripSettings>(() => loadTripSettings());
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>('synced');
 
   // Active viewing member
   const [currentUserId, setCurrentUserId] = useState<string>(
@@ -46,15 +57,125 @@ export function App() {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
-  // Sync to localStorage
-  useEffect(() => {
-    saveMembers(members);
-  }, [members]);
+  // PIN Protection State (0852)
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [pendingPinAction, setPendingPinAction] = useState<{
+    type: 'delete_expense' | 'reset_all';
+    expenseId?: string;
+    actionTitle: string;
+    actionDescription: string;
+  } | null>(null);
 
-  useEffect(() => {
-    saveExpenses(expenses);
-  }, [expenses]);
+  // Timestamp tracking for cloud & tab reconciliation
+  const lastUpdatedRef = useRef<number>(getLastUpdatedAt());
 
+  const applyRemoteData = (
+    cloudExpenses: Expense[],
+    cloudMembers?: Member[],
+    remoteUpdatedAt?: number
+  ) => {
+    if (remoteUpdatedAt && remoteUpdatedAt > lastUpdatedRef.current) {
+      lastUpdatedRef.current = remoteUpdatedAt;
+      setLastUpdatedAt(remoteUpdatedAt);
+      setExpenses(cloudExpenses);
+      saveExpenses(cloudExpenses);
+      if (cloudMembers && cloudMembers.length > 0) {
+        setMembers(cloudMembers);
+        saveMembers(cloudMembers);
+      }
+      setSyncStatus('synced');
+    }
+  };
+
+  const syncToCloud = async (
+    newExpenses: Expense[],
+    newMembers: Member[],
+    isCleared: boolean = false
+  ) => {
+    const now = Date.now();
+    lastUpdatedRef.current = now;
+    setLastUpdatedAt(now);
+    setSyncStatus('syncing');
+
+    try {
+      const ok = await pushToCloud(newExpenses, newMembers, now, isCleared);
+      setSyncStatus(ok ? 'synced' : 'error');
+    } catch {
+      setSyncStatus('error');
+    }
+  };
+
+  // Cloud & Cross-Tab Realtime Synchronization Lifecycle
+  useEffect(() => {
+    // 1. Initial Cloud Fetch on Mount
+    setSyncStatus('syncing');
+    pullFromCloud().then((cloudData) => {
+      if (cloudData) {
+        // If cloud data is newer or explicitly cleared, adopt cloud state
+        if (cloudData.updatedAt >= lastUpdatedRef.current || cloudData.isCleared) {
+          lastUpdatedRef.current = cloudData.updatedAt;
+          setLastUpdatedAt(cloudData.updatedAt);
+          setExpenses(cloudData.expenses || []);
+          saveExpenses(cloudData.expenses || []);
+          if (cloudData.members && cloudData.members.length > 0) {
+            setMembers(cloudData.members);
+            saveMembers(cloudData.members);
+          }
+        }
+        setSyncStatus('synced');
+      } else {
+        setSyncStatus('synced');
+      }
+    });
+
+    // 2. Cross-Tab Live Sync on same device (0ms latency)
+    const unsubTabs = subscribeToTabs((payload) => {
+      if (payload.updatedAt > lastUpdatedRef.current) {
+        applyRemoteData(payload.expenses, payload.members, payload.updatedAt);
+      }
+    });
+
+    // 3. Remote Cloud SSE Push Listener via ntfy (sub-second cross-device)
+    const unsubSSE = listenToCloudEvents((remotePayload) => {
+      if (remotePayload && remotePayload.updatedAt > lastUpdatedRef.current) {
+        applyRemoteData(remotePayload.expenses, remotePayload.members, remotePayload.updatedAt);
+      }
+    });
+
+    // 4. On Window Focus / Visibility Change (Mobile browser wake-up)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        pullFromCloud().then((cloudData) => {
+          if (cloudData && cloudData.updatedAt > lastUpdatedRef.current) {
+            applyRemoteData(cloudData.expenses, cloudData.members, cloudData.updatedAt);
+          }
+        });
+      }
+    };
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleVisibilityChange);
+
+    // 5. Periodic Polling fallback (every 8s while tab is visible)
+    const pollInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        pullFromCloud().then((cloudData) => {
+          if (cloudData && cloudData.updatedAt > lastUpdatedRef.current) {
+            applyRemoteData(cloudData.expenses, cloudData.members, cloudData.updatedAt);
+          }
+        });
+      }
+    }, 8000);
+
+    return () => {
+      unsubTabs();
+      unsubSSE();
+      window.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
+      clearInterval(pollInterval);
+    };
+  }, []);
+
+  // Save Settings to local storage
   useEffect(() => {
     saveTripSettings(settings);
   }, [settings]);
@@ -75,21 +196,38 @@ export function App() {
     [members, balances]
   );
 
+  // Manual Sync trigger
+  const handleManualSync = () => {
+    setSyncStatus('syncing');
+    pullFromCloud().then((cloudData) => {
+      if (cloudData) {
+        lastUpdatedRef.current = cloudData.updatedAt;
+        setLastUpdatedAt(cloudData.updatedAt);
+        setExpenses(cloudData.expenses || []);
+        saveExpenses(cloudData.expenses || []);
+        if (cloudData.members && cloudData.members.length > 0) {
+          setMembers(cloudData.members);
+          saveMembers(cloudData.members);
+        }
+      }
+      setSyncStatus('synced');
+    });
+  };
+
   // Expense Handlers
   const handleSaveExpense = (
     expenseData: Omit<Expense, 'id' | 'createdAt'>,
     editId?: string
   ) => {
+    let updated: Expense[];
     if (editId) {
-      setExpenses((prev) =>
-        prev.map((e) =>
-          e.id === editId
-            ? {
-                ...e,
-                ...expenseData,
-              }
-            : e
-        )
+      updated = expenses.map((e) =>
+        e.id === editId
+          ? {
+              ...e,
+              ...expenseData,
+            }
+          : e
       );
     } else {
       const newExpense: Expense = {
@@ -97,8 +235,12 @@ export function App() {
         id: `exp_${Date.now()}`,
         createdAt: Date.now(),
       };
-      setExpenses((prev) => [newExpense, ...prev]);
+      updated = [newExpense, ...expenses];
     }
+
+    setExpenses(updated);
+    saveExpenses(updated);
+    syncToCloud(updated, members);
     setEditingExpense(null);
   };
 
@@ -107,10 +249,46 @@ export function App() {
     setIsExpenseModalOpen(true);
   };
 
+  // PIN-Protected Single Bill Deletion (PIN: 0852)
   const handleDeleteExpense = (id: string) => {
-    if (window.confirm('Delete this bill?')) {
-      setExpenses((prev) => prev.filter((e) => e.id !== id));
+    const target = expenses.find((e) => e.id === id);
+    const billTitle = target ? `"${target.title}" (${formatCurrency(target.amount)})` : 'this bill';
+    setPendingPinAction({
+      type: 'delete_expense',
+      expenseId: id,
+      actionTitle: 'Delete Expense',
+      actionDescription: `Enter Security PIN (0852) to delete ${billTitle}`,
+    });
+    setIsPinModalOpen(true);
+  };
+
+  // PIN-Protected Clear / Reset All Data (PIN: 0852)
+  const handleResetData = () => {
+    setPendingPinAction({
+      type: 'reset_all',
+      actionTitle: 'Clear All Expenses',
+      actionDescription: `Enter Security PIN (0852) to permanently clear all ${expenses.length} bills and sync across devices`,
+    });
+    setIsPinModalOpen(true);
+  };
+
+  // When PIN (0852) is correctly entered
+  const handlePinSuccess = () => {
+    if (!pendingPinAction) return;
+
+    if (pendingPinAction.type === 'delete_expense' && pendingPinAction.expenseId) {
+      const updated = expenses.filter((e) => e.id !== pendingPinAction.expenseId);
+      setExpenses(updated);
+      saveExpenses(updated);
+      syncToCloud(updated, members);
+    } else if (pendingPinAction.type === 'reset_all') {
+      setExpenses([]);
+      setSelectedFriendId(null);
+      saveExpenses([]);
+      syncToCloud([], members, true);
     }
+
+    setPendingPinAction(null);
   };
 
   const handleRecordPayment = (fromId: string, toId: string, amount: number) => {
@@ -130,16 +308,10 @@ export function App() {
       createdAt: Date.now(),
     };
 
-    setExpenses((prev) => [paymentExpense, ...prev]);
-  };
-
-  const handleResetData = () => {
-    if (
-      window.confirm('Are you sure you want to clear all bills and start fresh?')
-    ) {
-      setExpenses([]);
-      setSelectedFriendId(null);
-    }
+    const updated = [paymentExpense, ...expenses];
+    setExpenses(updated);
+    saveExpenses(updated);
+    syncToCloud(updated, members);
   };
 
   const handleLoadSample = () => {
@@ -150,8 +322,17 @@ export function App() {
     ) {
       setExpenses(SAMPLE_GOA_EXPENSES);
       setMembers(DEFAULT_MEMBERS);
+      saveExpenses(SAMPLE_GOA_EXPENSES);
+      saveMembers(DEFAULT_MEMBERS);
       setSelectedFriendId(null);
+      syncToCloud(SAMPLE_GOA_EXPENSES, DEFAULT_MEMBERS);
     }
+  };
+
+  const handleSaveMembers = (updatedMembers: Member[]) => {
+    setMembers(updatedMembers);
+    saveMembers(updatedMembers);
+    syncToCloud(expenses, updatedMembers);
   };
 
   // Map mobile tab to center view sub-tabs
@@ -170,7 +351,7 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#f6f6f6] text-[#333333] flex flex-col font-sans pb-16 md:pb-0">
-      {/* Authentic Splitwise Navigation Bar */}
+      {/* Authentic GoaTab Navigation Bar with Live Cloud Sync */}
       <SplitwiseNavbar
         members={members}
         currentUserId={currentUserId}
@@ -179,9 +360,11 @@ export function App() {
         onOpenShare={() => setIsShareModalOpen(true)}
         onResetData={handleResetData}
         onLoadSample={handleLoadSample}
+        syncStatus={syncStatus}
+        onManualSync={handleManualSync}
       />
 
-      {/* Main 3-Column Splitwise Layout (Desktop) / Native App Flow (Mobile) */}
+      {/* Main Layout (Desktop 3-Column / Mobile Native Tabs) */}
       <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 w-full flex-1 flex flex-col md:flex-row gap-5 lg:gap-6 items-start">
         {/* Column 1: Left Navigation & 7 Friends List (Desktop only) */}
         <SplitwiseLeftSidebar
@@ -267,7 +450,7 @@ export function App() {
           />
         </div>
 
-        {/* Column 3: Right Sidebar (Totals, Debts & Road Trip Presets - Desktop only) */}
+        {/* Column 3: Right Sidebar (Desktop only) */}
         <SplitwiseRightSidebar
           balances={balances}
           totalSpend={totalSpend}
@@ -317,7 +500,7 @@ export function App() {
         isOpen={isMemberModalOpen}
         onClose={() => setIsMemberModalOpen(false)}
         members={members}
-        onSaveMembers={setMembers}
+        onSaveMembers={handleSaveMembers}
       />
 
       <WhatsAppShareModal
@@ -327,6 +510,18 @@ export function App() {
         balances={balances}
         settlements={settlements}
         totalSpend={totalSpend}
+      />
+
+      {/* PIN Security Modal (PIN: 0852) */}
+      <PinModal
+        isOpen={isPinModalOpen}
+        onClose={() => {
+          setIsPinModalOpen(false);
+          setPendingPinAction(null);
+        }}
+        onSuccess={handlePinSuccess}
+        actionTitle={pendingPinAction?.actionTitle}
+        actionDescription={pendingPinAction?.actionDescription}
       />
     </div>
   );
