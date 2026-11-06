@@ -34,7 +34,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     title: 'Car Diesel Full Tank (Start of Road Trip)',
     amount: 5800,
     date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
-    paidById: 'm1', // Srikant paid
+    paidById: 'm1', // Srikanth G paid
     category: 'Petrol & Diesel',
     splitMode: 'EQUAL',
     splitMemberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
@@ -46,7 +46,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     title: 'Highway Fastag & Toll Plazas',
     amount: 1450,
     date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
-    paidById: 'm1', // Srikant paid
+    paidById: 'm1', // Srikanth G paid
     category: 'Tolls & Fastag',
     splitMode: 'EQUAL',
     splitMemberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
@@ -58,7 +58,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     title: 'Highway Breakfast & Masala Chai',
     amount: 1260,
     date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
-    paidById: 'm2', // Aakash paid
+    paidById: 'm2', // Sajjad Hussain paid
     category: 'Breakfast',
     splitMode: 'EQUAL',
     splitMemberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
@@ -70,7 +70,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     title: 'Highway Dhabha Lunch',
     amount: 3850,
     date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
-    paidById: 'm3', // Rohan paid
+    paidById: 'm3', // Raghavendra G paid
     category: 'Lunch',
     splitMode: 'EQUAL',
     splitMemberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
@@ -82,7 +82,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     title: 'Ghats Evening Snacks & Chai',
     amount: 700,
     date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
-    paidById: 'm4', // Sneha paid
+    paidById: 'm4', // Mohan Reddy P paid
     category: 'Snacks & Chai',
     splitMode: 'EQUAL',
     splitMemberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
@@ -94,7 +94,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     title: 'Villa Stay in Vagator (Advance)',
     amount: 24500,
     date: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0],
-    paidById: 'm5', // Vikram paid
+    paidById: 'm5', // Md Rabbani paid
     category: 'Stay & Hotel',
     splitMode: 'EQUAL',
     splitMemberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
@@ -106,7 +106,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     title: 'Alcohol, Beers & Mixer Stock for Villa',
     amount: 6300,
     date: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0],
-    paidById: 'm3', // Rohan paid
+    paidById: 'm3', // Raghavendra G paid
     category: 'Alcohol & Drinks',
     splitMode: 'EQUAL',
     // Split among 5 who drink
@@ -119,7 +119,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     title: 'Goa Shack Dinner & Seafood at Anjuna',
     amount: 7700,
     date: new Date().toISOString().split('T')[0],
-    paidById: 'm6', // Pooja paid
+    paidById: 'm6', // Harsha N paid
     category: 'Dinner',
     splitMode: 'EQUAL',
     splitMemberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],

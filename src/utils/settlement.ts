@@ -136,3 +136,28 @@ export function formatCurrency(amount: number, currency = '₹'): string {
   });
   return `${isNegative ? '-' : ''}${currency}${formatted}`;
 }
+
+/**
+ * Robust timezone-independent date formatter for YYYY-MM-DD
+ */
+export function formatExpenseDate(dateStr: string): { month: string; day: string } {
+  const MONTH_NAMES = [
+    'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+  ];
+  try {
+    const parts = (dateStr || '').split('-');
+    if (parts.length >= 3) {
+      const mIdx = parseInt(parts[1], 10) - 1;
+      const day = parts[2].padStart(2, '0');
+      return {
+        month: MONTH_NAMES[mIdx] || 'NOV',
+        day: day,
+      };
+    }
+  } catch {
+    // fallback
+  }
+  return { month: 'NOV', day: '01' };
+}
+

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Expense, Member, Category } from '../../types';
-import { formatCurrency } from '../../utils/settlement';
+import { formatCurrency, formatExpenseDate } from '../../utils/settlement';
 import { CATEGORY_ICONS } from '../../utils/sampleData';
 import { Search, Plus, Edit3, Trash2, X } from 'lucide-react';
 
@@ -44,16 +44,17 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
     const isPayer = e.paidById === currentUserId;
     const isSplitter = e.splitMemberIds.includes(currentUserId);
     const splitCount = e.splitMemberIds.length;
-    const share = splitCount > 0 ? e.amount / splitCount : 0;
+    const userShare =
+      e.splitMode === 'CUSTOM' && e.customSplits
+        ? e.customSplits[currentUserId] || 0
+        : isSplitter && splitCount > 0
+        ? e.amount / splitCount
+        : 0;
 
     if (isPayer) {
-      if (isSplitter) {
-        youAreOwedTotal += e.amount - share;
-      } else {
-        youAreOwedTotal += e.amount;
-      }
+      youAreOwedTotal += e.amount - userShare;
     } else if (isSplitter) {
-      youOweTotal += share;
+      youOweTotal += userShare;
     }
   });
 
@@ -152,10 +153,13 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
       <div className="relative">
         <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
+          id="mobile-search-bills"
+          name="search"
           type="text"
           placeholder="Search bills, food, petrol..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          aria-label="Search bills, food, petrol..."
           className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#5bc5a7] shadow-2xs"
         />
         {searchTerm && (
@@ -246,16 +250,16 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
             const isPayer = expense.paidById === currentUserId;
             const isSplitter = expense.splitMemberIds.includes(currentUserId);
             const splitCount = expense.splitMemberIds.length;
-            const sharePerPerson = splitCount > 0 ? expense.amount / splitCount : 0;
+            const userShare =
+              expense.splitMode === 'CUSTOM' && expense.customSplits
+                ? expense.customSplits[currentUserId] || 0
+                : isSplitter && splitCount > 0
+                ? expense.amount / splitCount
+                : 0;
             const catMeta =
               CATEGORY_ICONS[expense.category] || CATEGORY_ICONS['Misc'];
 
-            // Date format
-            const dateObj = new Date(expense.date);
-            const month = dateObj
-              .toLocaleString('en-US', { month: 'short' })
-              .toUpperCase();
-            const day = dateObj.getDate().toString().padStart(2, '0');
+            const { month, day } = formatExpenseDate(expense.date);
 
             // Personal lend/borrow
             let statusLabel = 'not involved';
@@ -265,10 +269,10 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
             if (isPayer) {
               isLent = true;
               statusLabel = 'you lent';
-              statusAmount = isSplitter ? expense.amount - sharePerPerson : expense.amount;
+              statusAmount = expense.amount - userShare;
             } else if (isSplitter) {
               statusLabel = 'you borrowed';
-              statusAmount = sharePerPerson;
+              statusAmount = userShare;
             }
 
             return (

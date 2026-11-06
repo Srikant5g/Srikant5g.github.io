@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Expense, Member, DebtTransaction, Category } from '../types';
-import { formatCurrency } from '../utils/settlement';
+import { formatCurrency, formatExpenseDate } from '../utils/settlement';
 import { CATEGORY_ICONS } from '../utils/sampleData';
 import { Plus, Check, ArrowRight, Trash2, Edit3, QrCode, Search, Sparkles, X } from 'lucide-react';
 
@@ -59,16 +59,17 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
     const isPayer = e.paidById === currentUserId;
     const isSplitter = e.splitMemberIds.includes(currentUserId);
     const splitCount = e.splitMemberIds.length;
-    const share = splitCount > 0 ? e.amount / splitCount : 0;
+    const userShare =
+      e.splitMode === 'CUSTOM' && e.customSplits
+        ? e.customSplits[currentUserId] || 0
+        : isSplitter && splitCount > 0
+        ? e.amount / splitCount
+        : 0;
 
     if (isPayer) {
-      if (isSplitter) {
-        youAreOwedTotal += e.amount - share;
-      } else {
-        youAreOwedTotal += e.amount;
-      }
+      youAreOwedTotal += e.amount - userShare;
     } else if (isSplitter) {
-      youOweTotal += share;
+      youOweTotal += userShare;
     }
   });
 
@@ -248,10 +249,13 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             <div className="relative w-full">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
+                id="desktop-search-bills"
+                name="search"
                 type="text"
                 placeholder="Search bills by title, category, or friend..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Search bills by title, category, or friend"
                 className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-9 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#5bc5a7] focus:ring-2 focus:ring-[#5bc5a7]/15 transition"
               />
               {searchTerm && (
@@ -331,17 +335,18 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                 const isPayer = expense.paidById === currentUserId;
                 const isSplitter = expense.splitMemberIds.includes(currentUserId);
                 const splitCount = expense.splitMemberIds.length;
-                const sharePerPerson = splitCount > 0 ? expense.amount / splitCount : 0;
+                const userShare =
+                  expense.splitMode === 'CUSTOM' && expense.customSplits
+                    ? expense.customSplits[currentUserId] || 0
+                    : isSplitter && splitCount > 0
+                    ? expense.amount / splitCount
+                    : 0;
                 const catMeta = CATEGORY_ICONS[expense.category] || {
                   icon: '📝',
                   color: 'bg-slate-100 text-slate-700',
                 };
 
-                const dateObj = new Date(expense.date);
-                const month = dateObj
-                  .toLocaleString('en-US', { month: 'short' })
-                  .toUpperCase();
-                const day = dateObj.getDate().toString().padStart(2, '0');
+                const { month, day } = formatExpenseDate(expense.date);
 
                 // Personal lend / borrow
                 let statusLabel = 'not involved';
@@ -351,10 +356,10 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                 if (isPayer) {
                   isLent = true;
                   statusLabel = 'you lent';
-                  statusAmount = isSplitter ? expense.amount - sharePerPerson : expense.amount;
+                  statusAmount = expense.amount - userShare;
                 } else if (isSplitter) {
                   statusLabel = 'you borrowed';
-                  statusAmount = sharePerPerson;
+                  statusAmount = userShare;
                 }
 
                 return (

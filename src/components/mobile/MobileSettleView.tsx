@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { DebtTransaction } from '../../types';
 import { formatCurrency } from '../../utils/settlement';
+import { copyToClipboard } from '../../utils/clipboard';
 import { QrCode, ArrowRight, Check, Sparkles, Copy } from 'lucide-react';
 
 interface MobileSettleViewProps {
@@ -19,9 +20,9 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
     setCompletedMap((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleCopy = (tx: DebtTransaction) => {
+  const handleCopy = async (tx: DebtTransaction) => {
     if (!tx.toUpiId) return;
-    navigator.clipboard.writeText(tx.toUpiId);
+    await copyToClipboard(tx.toUpiId);
     setCopiedId(tx.id);
     setTimeout(() => setCopiedId(null), 2000);
   };

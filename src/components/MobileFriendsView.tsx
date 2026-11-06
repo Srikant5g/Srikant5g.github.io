@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Member, MemberBalance } from '../types';
 import { formatCurrency } from '../utils/settlement';
+import { copyToClipboard } from '../utils/clipboard';
 import { ArrowDownLeft, ArrowUpRight, CheckCircle2, Copy, Check } from 'lucide-react';
 
 interface MobileFriendsViewProps {
@@ -24,9 +25,9 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
   const balanceMap = new Map<string, number>();
   balances.forEach((b) => balanceMap.set(b.memberId, b.netBalance));
 
-  const handleCopyUpi = (e: React.MouseEvent, memberId: string, upi: string) => {
+  const handleCopyUpi = async (e: React.MouseEvent, memberId: string, upi: string) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(upi);
+    await copyToClipboard(upi);
     setCopiedId(memberId);
     setTimeout(() => setCopiedId(null), 2000);
   };

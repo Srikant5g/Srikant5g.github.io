@@ -87,8 +87,11 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
           {/* Active User Switcher */}
           <div className="flex items-center bg-black/15 hover:bg-black/25 px-2 py-1 rounded-lg text-xs font-semibold border border-white/20 transition">
             <select
+              id="navbar-active-user-select"
+              name="activeUser"
               value={currentUserId}
               onChange={(e) => onSelectCurrentUser(e.target.value)}
+              aria-label="Switch active friend"
               className="bg-transparent text-white font-bold cursor-pointer focus:outline-none text-xs"
             >
               {members.map((m) => (

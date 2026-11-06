@@ -105,10 +105,13 @@ export const MemberModal: React.FC<MemberModalProps> = ({
                 {/* Editable UPI ID */}
                 <div className="w-full sm:w-56 shrink-0">
                   <input
+                    id={`member-upi-${member.id}`}
+                    name={`upi_${member.id}`}
                     type="text"
                     value={member.upiId || ''}
                     onChange={(e) => handleUpdateUpi(member.id, e.target.value)}
                     placeholder="UPI ID (e.g. name@okhdfc)"
+                    aria-label={`UPI ID for ${member.name}`}
                     className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 font-mono focus:outline-none focus:border-[#5bc5a7] focus:ring-1 focus:ring-[#5bc5a7]"
                   />
                 </div>

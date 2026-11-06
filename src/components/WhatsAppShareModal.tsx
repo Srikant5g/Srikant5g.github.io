@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { MemberBalance, DebtTransaction, TripSettings } from '../types';
 import { formatCurrency } from '../utils/settlement';
+import { copyToClipboard } from '../utils/clipboard';
 import { X, Copy, Check, MessageSquare } from 'lucide-react';
 
 interface WhatsAppShareModalProps {
@@ -60,8 +61,8 @@ ${settlementLines.join('\n')}
 
 ✨ _Generated with GoaTab 🚗🏖️_`;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(messageText);
+  const handleCopy = async () => {
+    await copyToClipboard(messageText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

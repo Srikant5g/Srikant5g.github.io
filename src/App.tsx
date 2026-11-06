@@ -90,11 +90,13 @@ export function App() {
   const applyRemoteData = (
     cloudExpenses: Expense[],
     cloudMembers?: Member[],
-    remoteUpdatedAt?: number
+    remoteUpdatedAt?: number,
+    isCleared?: boolean
   ) => {
-    if (remoteUpdatedAt && remoteUpdatedAt > lastUpdatedRef.current) {
-      lastUpdatedRef.current = remoteUpdatedAt;
-      setLastUpdatedAt(remoteUpdatedAt);
+    if ((remoteUpdatedAt && remoteUpdatedAt > lastUpdatedRef.current) || isCleared) {
+      const ts = remoteUpdatedAt || Date.now();
+      lastUpdatedRef.current = ts;
+      setLastUpdatedAt(ts);
       setExpenses(cloudExpenses);
       saveExpenses(cloudExpenses);
       if (cloudMembers && cloudMembers.length > 0) {
@@ -127,7 +129,6 @@ export function App() {
   // Cloud & Cross-Tab Realtime Synchronization Lifecycle
   useEffect(() => {
     // 1. Initial Cloud Fetch on Mount
-    setSyncStatus('syncing');
     pullFromCloud().then((cloudData) => {
       if (cloudData) {
         // If cloud data is newer or explicitly cleared, adopt cloud state
@@ -148,26 +149,46 @@ export function App() {
       }
     });
 
-    // 2. Cross-Tab Live Sync on same device (0ms latency)
+    // 2. Cross-Tab Live Sync on same device (0ms latency via BroadcastChannel)
     const unsubTabs = subscribeToTabs((payload) => {
-      if (payload.updatedAt > lastUpdatedRef.current) {
-        applyRemoteData(payload.expenses, payload.members, payload.updatedAt);
+      if (payload.updatedAt > lastUpdatedRef.current || payload.isCleared) {
+        applyRemoteData(payload.expenses, payload.members, payload.updatedAt, payload.isCleared);
       }
     });
 
-    // 3. Remote Cloud SSE Push Listener via ntfy (sub-second cross-device)
+    // 3. Native Browser Storage Event for Instant Cross-Tab Sync
+    const handleStorageChange = (e: StorageEvent) => {
+      if (
+        e.key === 'goa_splitwise_expenses_v1' ||
+        e.key === 'goa_splitwise_members_v1' ||
+        e.key === 'goa_splitwise_updated_at_v1'
+      ) {
+        const freshExpenses = loadExpenses();
+        const freshMembers = loadMembers();
+        const freshUpdatedAt = getLastUpdatedAt();
+        if (freshUpdatedAt >= lastUpdatedRef.current) {
+          lastUpdatedRef.current = freshUpdatedAt;
+          setExpenses(freshExpenses);
+          setMembers(freshMembers);
+          setSyncStatus('synced');
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    // 4. Remote Cloud SSE Push Listener via ntfy (sub-second cross-device)
     const unsubSSE = listenToCloudEvents((remotePayload) => {
-      if (remotePayload && remotePayload.updatedAt > lastUpdatedRef.current) {
-        applyRemoteData(remotePayload.expenses, remotePayload.members, remotePayload.updatedAt);
+      if (remotePayload && (remotePayload.updatedAt > lastUpdatedRef.current || remotePayload.isCleared)) {
+        applyRemoteData(remotePayload.expenses, remotePayload.members, remotePayload.updatedAt, remotePayload.isCleared);
       }
     });
 
-    // 4. On Window Focus / Visibility Change (Mobile browser wake-up)
+    // 5. On Window Focus / Visibility Change (Mobile browser wake-up)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         pullFromCloud().then((cloudData) => {
-          if (cloudData && cloudData.updatedAt > lastUpdatedRef.current) {
-            applyRemoteData(cloudData.expenses, cloudData.members, cloudData.updatedAt);
+          if (cloudData && (cloudData.updatedAt > lastUpdatedRef.current || cloudData.isCleared)) {
+            applyRemoteData(cloudData.expenses, cloudData.members, cloudData.updatedAt, cloudData.isCleared);
           }
         });
       }
@@ -175,12 +196,12 @@ export function App() {
     window.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('focus', handleVisibilityChange);
 
-    // 5. Periodic Polling fallback (every 8s while tab is visible)
+    // 6. Periodic Polling fallback (every 8s while tab is visible)
     const pollInterval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         pullFromCloud().then((cloudData) => {
-          if (cloudData && cloudData.updatedAt > lastUpdatedRef.current) {
-            applyRemoteData(cloudData.expenses, cloudData.members, cloudData.updatedAt);
+          if (cloudData && (cloudData.updatedAt > lastUpdatedRef.current || cloudData.isCleared)) {
+            applyRemoteData(cloudData.expenses, cloudData.members, cloudData.updatedAt, cloudData.isCleared);
           }
         });
       }
@@ -189,6 +210,7 @@ export function App() {
     return () => {
       unsubTabs();
       unsubSSE();
+      window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('focus', handleVisibilityChange);
       clearInterval(pollInterval);
@@ -511,6 +533,7 @@ export function App() {
         members={members}
         editingExpense={editingExpense}
         onDeleteExpense={handleDeleteExpense}
+        currentUserId={currentUserId}
       />
 
       <SettleUpModal

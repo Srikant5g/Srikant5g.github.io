@@ -11,6 +11,7 @@ interface ExpenseModalProps {
   members: Member[];
   editingExpense?: Expense | null;
   onDeleteExpense?: (id: string) => void;
+  currentUserId?: string;
 }
 
 const PRESETS = [
@@ -32,17 +33,18 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   members,
   editingExpense,
   onDeleteExpense,
+  currentUserId,
 }) => {
   const [title, setTitle] = useState('');
   const [amountStr, setAmountStr] = useState('');
-  const [paidById, setPaidById] = useState(members[0]?.id || '');
+  const [paidById, setPaidById] = useState(currentUserId || members[0]?.id || '');
   const [category, setCategory] = useState<Category>('Petrol & Diesel');
   const [splitMode, setSplitMode] = useState<SplitMode>('EQUAL');
   const [splitMemberIds, setSplitMemberIds] = useState<string[]>(
     members.map((m) => m.id)
   );
   const [customSplits, setCustomSplits] = useState<Record<string, string>>({});
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -69,7 +71,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     } else {
       setTitle('');
       setAmountStr('');
-      setPaidById(members[0]?.id || '');
+      setPaidById(currentUserId || members[0]?.id || '');
       setCategory('Petrol & Diesel');
       setSplitMode('EQUAL');
       setSplitMemberIds(members.map((m) => m.id));
@@ -78,7 +80,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       setNotes('');
     }
     setError(null);
-  }, [isOpen, editingExpense, members]);
+  }, [isOpen, editingExpense, members, currentUserId]);
 
   if (!isOpen) return null;
 
@@ -220,10 +222,12 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           {/* Description & Amount Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+              <label htmlFor="expense-title-input" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
                 Description
               </label>
               <input
+                id="expense-title-input"
+                name="title"
                 type="text"
                 placeholder="e.g. Highway Diesel Full Tank"
                 value={title}
@@ -234,7 +238,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+              <label htmlFor="expense-amount-input" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
                 Amount (₹)
               </label>
               <div className="relative">
@@ -242,6 +246,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                   ₹
                 </span>
                 <input
+                  id="expense-amount-input"
+                  name="amount"
                   type="number"
                   step="any"
                   placeholder="0.00"
@@ -305,10 +311,12 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+              <label htmlFor="expense-date-input" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
                 Date
               </label>
               <input
+                id="expense-date-input"
+                name="date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
@@ -390,8 +398,11 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                     {splitMode === 'CUSTOM' && isIncluded && (
                       <div className="mt-1.5 pt-1 border-t border-slate-200">
                         <input
+                          id={`custom-split-${member.id}`}
+                          name={`custom_split_${member.id}`}
                           type="number"
                           placeholder="₹ Amount"
+                          aria-label={`Custom split amount for ${member.name}`}
                           value={customSplits[member.id] || ''}
                           onChange={(e) =>
                             setCustomSplits({
@@ -420,10 +431,12 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+            <label htmlFor="expense-notes-input" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
               Notes (Optional)
             </label>
             <input
+              id="expense-notes-input"
+              name="notes"
               type="text"
               placeholder="e.g. Paid at Shell petrol pump on highway"
               value={notes}

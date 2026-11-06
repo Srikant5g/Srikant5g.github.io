@@ -16,15 +16,16 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
   settlements,
   onRecordPayment,
 }) => {
-  const [selectedTx, setSelectedTx] = useState<DebtTransaction | null>(
-    settlements[0] || null
-  );
+  const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
+  const activeTx =
+    settlements.find((s) => s.id === selectedTxId) || settlements[0] || null;
+
   const handleSettle = () => {
-    if (!selectedTx) return;
-    onRecordPayment(selectedTx.fromId, selectedTx.toId, selectedTx.amount);
+    if (!activeTx) return;
+    onRecordPayment(activeTx.fromId, activeTx.toId, activeTx.amount);
     onClose();
   };
 
@@ -65,9 +66,9 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
               <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                 {settlements.map((tx) => {
-                  const isSelected = selectedTx?.id === tx.id;
+                  const isSelected = activeTx?.id === tx.id;
                   const upiUrl = tx.toUpiId
-                    ? `upi://pay?pa=${tx.toUpiId}&pn=${encodeURIComponent(
+                    ? `upi://pay?pa=${encodeURIComponent(tx.toUpiId)}&pn=${encodeURIComponent(
                         tx.toName
                       )}&am=${tx.amount}&cu=INR&tn=GoaTripSettlement`
                     : null;
@@ -75,7 +76,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                   return (
                     <div
                       key={tx.id}
-                      onClick={() => setSelectedTx(tx)}
+                      onClick={() => setSelectedTxId(tx.id)}
                       className={`p-3 rounded-xl border cursor-pointer transition flex items-center justify-between ${
                         isSelected
                           ? 'border-[#5bc5a7] bg-[#5bc5a7]/10 ring-1 ring-[#5bc5a7]'
@@ -108,10 +109,10 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                 })}
               </div>
 
-              {selectedTx && (
+              {activeTx && (
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
                   <span>
-                    Paying <strong>{selectedTx.toName}</strong> {formatCurrency(selectedTx.amount)} will mark this debt as settled in your trip history.
+                    Paying <strong>{activeTx.toName}</strong> {formatCurrency(activeTx.amount)} will mark this debt as settled in your trip history.
                   </span>
                 </div>
               )}
