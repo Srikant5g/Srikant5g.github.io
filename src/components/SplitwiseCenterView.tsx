@@ -285,26 +285,41 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
           {/* Expenses List */}
           {filtered.length === 0 ? (
-            <div className="text-center py-16 px-4 space-y-3">
-              <div className="text-5xl mb-1">🚗🏖️</div>
-              <h3 className="font-extrabold text-slate-800 text-base">No expenses recorded yet</h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Start recording your car fuel, highway food, and villa bills for the Goa trip!
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+            <div className="py-8 px-4 text-center max-w-lg mx-auto space-y-4">
+              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900 relative">
+                <img
+                  src="/og-thumbnail.svg"
+                  alt="Welcome to Goa Road Trip 2026"
+                  className="w-full h-44 object-cover object-center"
+                />
+              </div>
+
+              <div>
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold uppercase tracking-wider">
+                  🚗 Goa Road Trip 2026
+                </span>
+                <h3 className="font-black text-slate-900 text-lg mt-1.5">
+                  Welcome to GoaTab! 🏖️
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
+                  Start logging your highway fuel, Fastag tolls, snacks, drinks, and villa stay for our 7 friends!
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
                 <button
                   onClick={onOpenAddExpense}
-                  className="px-4 py-2 rounded-xl bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs shadow-xs transition active:scale-95"
+                  className="px-5 py-2.5 rounded-xl bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95"
                 >
-                  + Add an expense
+                  + Add First Expense
                 </button>
                 {onLoadSample && (
                   <button
                     onClick={onLoadSample}
-                    className="px-4 py-2 rounded-xl bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5 active:scale-95"
+                    className="px-4 py-2.5 rounded-xl bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs sm:text-sm shadow-xs transition flex items-center gap-1.5 active:scale-95"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Load Goa Road Trip Bills</span>
+                    <span>Load Sample Bills</span>
                   </button>
                 )}
               </div>

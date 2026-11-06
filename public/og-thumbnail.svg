@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a3c36" />
+      <stop offset="50%" stop-color="#115e59" />
+      <stop offset="100%" stop-color="#042f2e" />
+    </linearGradient>
+
+    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="60%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.14)" />
+      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.04)" />
+    </linearGradient>
+
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5bc5a7" />
+      <stop offset="50%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#fbbf24" />
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="24" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGrad)" />
+
+  <!-- Subtle grid/pattern in background -->
+  <g opacity="0.07" stroke="#ffffff" stroke-width="1.5">
+    <line x1="0" y1="105" x2="1200" y2="105" />
+    <line x1="0" y1="210" x2="1200" y2="210" />
+    <line x1="0" y1="315" x2="1200" y2="315" />
+    <line x1="0" y1="420" x2="1200" y2="420" />
+    <line x1="0" y1="525" x2="1200" y2="525" />
+    <line x1="200" y1="0" x2="200" y2="630" />
+    <line x1="400" y1="0" x2="400" y2="630" />
+    <line x1="600" y1="0" x2="600" y2="630" />
+    <line x1="800" y1="0" x2="800" y2="630" />
+    <line x1="1000" y1="0" x2="1000" y2="630" />
+  </g>
+
+  <!-- Glowing Sun in Background -->
+  <circle cx="940" cy="220" r="140" fill="url(#sunGrad)" opacity="0.3" filter="url(#glow)" />
+  <circle cx="940" cy="220" r="95" fill="url(#sunGrad)" opacity="0.85" />
+
+  <!-- Ocean Waves Graphic on the Right -->
+  <path d="M 720 440 Q 860 410 1000 450 T 1200 430 L 1200 630 L 720 630 Z" fill="#0d9488" opacity="0.4" />
+  <path d="M 680 480 Q 840 450 1020 490 T 1200 470 L 1200 630 L 680 630 Z" fill="#14b8a6" opacity="0.3" />
+
+  <!-- Road Silhouette leading to Goa -->
+  <path d="M 540 630 L 760 380 L 810 380 L 780 630 Z" fill="#1e293b" opacity="0.85" />
+  <line x1="660" y1="630" x2="785" y2="380" stroke="#fde047" stroke-width="4" stroke-dasharray="24 16" opacity="0.8" />
+
+  <!-- Palm Tree 1 -->
+  <g transform="translate(1040, 160) scale(1.15)">
+    <path d="M 40 280 Q 25 180 30 90" stroke="#78350f" stroke-width="12" fill="none" stroke-linecap="round" />
+    <!-- Fronds -->
+    <path d="M 30 90 Q -30 60 -70 85" stroke="#10b981" stroke-width="6" fill="none" stroke-linecap="round" />
+    <path d="M 30 90 Q -20 20 -50 0" stroke="#059669" stroke-width="6" fill="none" stroke-linecap="round" />
+    <path d="M 30 90 Q 30 10 35 -30" stroke="#34d399" stroke-width="6" fill="none" stroke-linecap="round" />
+    <path d="M 30 90 Q 75 25 110 5" stroke="#10b981" stroke-width="6" fill="none" stroke-linecap="round" />
+    <path d="M 30 90 Q 90 70 125 95" stroke="#047857" stroke-width="6" fill="none" stroke-linecap="round" />
+    <!-- Coconuts -->
+    <circle cx="24" cy="98" r="6" fill="#a16207" />
+    <circle cx="36" cy="98" r="6" fill="#854d0e" />
+  </g>
+
+  <!-- Palm Tree 2 (Smaller) -->
+  <g transform="translate(1120, 240) scale(0.85)">
+    <path d="M 35 240 Q 20 150 25 70" stroke="#78350f" stroke-width="10" fill="none" stroke-linecap="round" />
+    <path d="M 25 70 Q -30 45 -60 65" stroke="#10b981" stroke-width="5" fill="none" stroke-linecap="round" />
+    <path d="M 25 70 Q 25 5 30 -25" stroke="#34d399" stroke-width="5" fill="none" stroke-linecap="round" />
+    <path d="M 25 70 Q 70 20 100 5" stroke="#059669" stroke-width="5" fill="none" stroke-linecap="round" />
+    <path d="M 25 70 Q 80 55 105 75" stroke="#047857" stroke-width="5" fill="none" stroke-linecap="round" />
+  </g>
+
+  <!-- Red Convertible Road Trip Car Graphic -->
+  <g transform="translate(685, 430) scale(0.72)" filter="url(#shadow)">
+    <!-- Car Body -->
+    <path d="M 30 65 C 50 65 70 45 110 40 L 170 38 L 220 5 L 320 5 L 350 40 L 410 45 C 440 50 450 65 450 78 L 450 95 C 450 102 445 106 435 106 L 385 106 C 385 85 365 70 345 70 C 325 70 305 85 305 106 L 165 106 C 165 85 145 70 125 70 C 105 70 85 85 85 106 L 40 106 C 30 106 20 98 20 88 Z" fill="#ef4444" />
+    <!-- Windshield -->
+    <polygon points="215,8 245,38 315,38 310,8" fill="#bae6fd" opacity="0.85" />
+    <!-- Luggage on Back -->
+    <rect x="130" y="18" width="55" height="22" rx="4" fill="#f59e0b" />
+    <rect x="145" y="4" width="45" height="16" rx="3" fill="#06b6d4" />
+    <line x1="140" y1="18" x2="140" y2="40" stroke="#78350f" stroke-width="2" />
+    <line x1="170" y1="18" x2="170" y2="40" stroke="#78350f" stroke-width="2" />
+    <!-- Wheels -->
+    <circle cx="125" cy="104" r="28" fill="#1e293b" />
+    <circle cx="125" cy="104" r="14" fill="#94a3b8" />
+    <circle cx="345" cy="104" r="28" fill="#1e293b" />
+    <circle cx="345" cy="104" r="14" fill="#94a3b8" />
+    <!-- Headlight -->
+    <polygon points="440,65 455,68 455,80 438,78" fill="#fef08a" />
+    <!-- Taillight -->
+    <rect x="20" y="68" width="10" height="14" rx="2" fill="#b91c1c" />
+  </g>
+
+  <!-- Left Content Card (Frosted Glass Panel) -->
+  <rect x="70" y="70" width="570" height="490" rx="28" fill="url(#cardGrad)" stroke="rgba(255, 255, 255, 0.18)" stroke-width="2" filter="url(#shadow)" />
+
+  <!-- Top Badge inside Card -->
+  <g transform="translate(110, 115)">
+    <rect width="210" height="34" rx="17" fill="rgba(255, 255, 255, 0.15)" stroke="rgba(255, 255, 255, 0.25)" />
+    <text x="16" y="22" fill="#fde047" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" letter-spacing="1.2">🚗 GOA ROAD TRIP 2026</text>
+  </g>
+
+  <!-- Main Headline -->
+  <text x="110" y="210" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" letter-spacing="-1">
+    Goa<tspan fill="#fde047">Tab</tspan> 🏖️
+  </text>
+  <text x="110" y="252" fill="#a7f3d0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700">
+    7 Friends • 1 Shared Tab • Instant UPI Settle
+  </text>
+
+  <!-- Divider -->
+  <line x1="110" y1="280" x2="590" y2="280" stroke="rgba(255, 255, 255, 0.18)" stroke-width="1.5" />
+
+  <!-- The 7 Friends Pills -->
+  <text x="110" y="315" fill="#e2e8f0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="800" letter-spacing="1">
+    OFFICIAL CREW (7 FIXED MEMBERS):
+  </text>
+
+  <!-- Row 1: Srikanth G, Sajjad Hussain, Raghavendra G -->
+  <g transform="translate(110, 332)">
+    <!-- Pill 1 -->
+    <rect x="0" y="0" width="135" height="30" rx="8" fill="rgba(20, 184, 166, 0.25)" stroke="#14b8a6" stroke-width="1" />
+    <circle cx="15" cy="15" r="9" fill="#14b8a6" />
+    <text x="15" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="900" text-anchor="middle">S</text>
+    <text x="32" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">Srikanth G</text>
+
+    <!-- Pill 2 -->
+    <rect x="145" y="0" width="155" height="30" rx="8" fill="rgba(16, 185, 129, 0.25)" stroke="#10b981" stroke-width="1" />
+    <circle cx="160" cy="15" r="9" fill="#10b981" />
+    <text x="160" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="900" text-anchor="middle">S</text>
+    <text x="177" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">Sajjad Hussain</text>
+
+    <!-- Pill 3 -->
+    <rect x="310" y="0" width="165" height="30" rx="8" fill="rgba(99, 102, 241, 0.25)" stroke="#6366f1" stroke-width="1" />
+    <circle cx="325" cy="15" r="9" fill="#6366f1" />
+    <text x="325" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="900" text-anchor="middle">R</text>
+    <text x="342" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">Raghavendra G</text>
+  </g>
+
+  <!-- Row 2: Mohan Reddy P, Md Rabbani, Harsha N, Arun U -->
+  <g transform="translate(110, 372)">
+    <!-- Pill 4 -->
+    <rect x="0" y="0" width="155" height="30" rx="8" fill="rgba(168, 85, 247, 0.25)" stroke="#a855f7" stroke-width="1" />
+    <circle cx="15" cy="15" r="9" fill="#a855f7" />
+    <text x="15" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="900" text-anchor="middle">M</text>
+    <text x="32" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">Mohan Reddy P</text>
+
+    <!-- Pill 5 -->
+    <rect x="165" y="0" width="135" height="30" rx="8" fill="rgba(245, 158, 11, 0.25)" stroke="#f59e0b" stroke-width="1" />
+    <circle cx="180" cy="15" r="9" fill="#f59e0b" />
+    <text x="180" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="900" text-anchor="middle">M</text>
+    <text x="197" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">Md Rabbani</text>
+
+    <!-- Pill 6 -->
+    <rect x="310" y="0" width="115" height="30" rx="8" fill="rgba(244, 63, 94, 0.25)" stroke="#f43f5e" stroke-width="1" />
+    <circle cx="325" cy="15" r="9" fill="#f43f5e" />
+    <text x="325" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="900" text-anchor="middle">H</text>
+    <text x="342" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">Harsha N</text>
+  </g>
+
+  <!-- Row 3: Arun U -->
+  <g transform="translate(110, 412)">
+    <rect x="0" y="0" width="110" height="30" rx="8" fill="rgba(6, 182, 212, 0.25)" stroke="#06b6d4" stroke-width="1" />
+    <circle cx="15" cy="15" r="9" fill="#06b6d4" />
+    <text x="15" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="10" font-weight="900" text-anchor="middle">A</text>
+    <text x="32" y="19" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">Arun U</text>
+  </g>
+
+  <!-- Bottom Features Bar inside Card -->
+  <g transform="translate(110, 465)">
+    <rect width="480" height="52" rx="14" fill="rgba(0, 0, 0, 0.25)" stroke="rgba(255, 255, 255, 0.15)" />
+    <!-- Bullet 1 -->
+    <text x="20" y="31" fill="#6ee7b7" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">⚡ Live Cross-Tab Sync</text>
+    <text x="175" y="31" fill="#cbd5e1" font-family="-apple-system, sans-serif" font-size="12">•</text>
+    <!-- Bullet 2 -->
+    <text x="195" y="31" fill="#6ee7b7" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">💳 1-Tap UPI</text>
+    <text x="290" y="31" fill="#cbd5e1" font-family="-apple-system, sans-serif" font-size="12">•</text>
+    <!-- Bullet 3 -->
+    <text x="310" y="31" fill="#fbbf24" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">🔒 PIN 0852 Protected</text>
+  </g>
+
+  <!-- Floating URL badge in top right -->
+  <g transform="translate(930, 45)">
+    <rect width="200" height="34" rx="17" fill="rgba(255, 255, 255, 0.18)" stroke="rgba(255, 255, 255, 0.3)" />
+    <text x="100" y="22" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700" text-anchor="middle">srikant5g.github.io</text>
+  </g>
+</svg>

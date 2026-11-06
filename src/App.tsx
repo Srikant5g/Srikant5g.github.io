@@ -34,6 +34,7 @@ import { SettleUpModal } from './components/SettleUpModal';
 import { MemberModal } from './components/MemberModal';
 import { WhatsAppShareModal } from './components/WhatsAppShareModal';
 import { PinModal } from './components/PinModal';
+import { WelcomeModal } from './components/WelcomeModal';
 
 export function App() {
   const [members, setMembers] = useState<Member[]>(() => loadMembers());
@@ -57,6 +58,22 @@ export function App() {
   const [isSettleUpModalOpen, setIsSettleUpModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(() => {
+    try {
+      return !localStorage.getItem('goatab_welcome_seen');
+    } catch {
+      return false;
+    }
+  });
+
+  const handleCloseWelcome = () => {
+    setIsWelcomeModalOpen(false);
+    try {
+      localStorage.setItem('goatab_welcome_seen', 'true');
+    } catch {
+      // ignore
+    }
+  };
 
   // PIN Protection State (0852)
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -366,6 +383,7 @@ export function App() {
         onLoadSample={handleLoadSample}
         syncStatus={syncStatus}
         onManualSync={handleManualSync}
+        onOpenWelcome={() => setIsWelcomeModalOpen(true)}
       />
 
       {/* Main Layout (Desktop 3-Column / Mobile Native Tabs) */}
@@ -528,6 +546,18 @@ export function App() {
         onSuccess={handlePinSuccess}
         actionTitle={pendingPinAction?.actionTitle}
         actionDescription={pendingPinAction?.actionDescription}
+      />
+
+      {/* Welcome & Road Trip Guide Modal */}
+      <WelcomeModal
+        isOpen={isWelcomeModalOpen}
+        onClose={handleCloseWelcome}
+        members={members}
+        onOpenShare={() => setIsShareModalOpen(true)}
+        onOpenAddExpense={() => {
+          setEditingExpense(null);
+          setIsExpenseModalOpen(true);
+        }}
       />
     </div>
   );

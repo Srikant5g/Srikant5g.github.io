@@ -13,6 +13,7 @@ interface SplitwiseNavbarProps {
   onLoadSample: () => void;
   syncStatus?: SyncStatus;
   onManualSync?: () => void;
+  onOpenWelcome: () => void;
 }
 
 export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
@@ -25,6 +26,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   onLoadSample,
   syncStatus = 'synced',
   onManualSync,
+  onOpenWelcome,
 }) => {
   return (
     <nav className="bg-[#5bc5a7] text-white shadow-md sticky top-0 z-40">
@@ -105,6 +107,16 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
           >
             <Users className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Friends ({members.length})</span>
+          </button>
+
+          {/* Welcome / Trip Guide Button */}
+          <button
+            onClick={onOpenWelcome}
+            className="p-1.5 sm:px-2.5 sm:py-1 rounded-lg bg-white/20 hover:bg-white/30 transition text-xs font-bold flex items-center gap-1 border border-white/25 shadow-2xs active:scale-95"
+            title="Open Goa Road Trip Welcome Guide & Thumbnail"
+          >
+            <span>🌴</span>
+            <span className="hidden sm:inline">Trip Guide</span>
           </button>
 
           {/* WhatsApp Share Button */}

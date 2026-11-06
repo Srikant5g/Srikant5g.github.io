@@ -193,28 +193,51 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
 
       {/* 5. Bills List */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center space-y-3">
-          <div className="text-4xl">🌴🚗</div>
-          <h3 className="font-bold text-slate-800 text-sm">No expenses found</h3>
-          <p className="text-xs text-slate-400 max-w-xs mx-auto">
-            {searchTerm || selectedCategory !== 'ALL' || selectedFriendId
-              ? 'Try resetting your filters or search keywords.'
-              : 'Add your first bill for petrol, highway food, or villa!'}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-            <button
-              onClick={onOpenAddExpense}
-              className="px-4 py-2 rounded-xl bg-[#ff652f] text-white font-bold text-xs shadow-xs"
-            >
-              + Add Bill
-            </button>
-            <button
-              onClick={onLoadSample}
-              className="px-4 py-2 rounded-xl bg-[#5bc5a7] text-white font-bold text-xs shadow-xs"
-            >
-              Load Road Trip Bills
-            </button>
-          </div>
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+          {expenses.length === 0 && !searchTerm && selectedCategory === 'ALL' && !selectedFriendId ? (
+            <div>
+              <div className="bg-[#0a3c36] relative overflow-hidden">
+                <img
+                  src="/og-thumbnail.svg"
+                  alt="Welcome to Goa Road Trip"
+                  className="w-full h-36 object-cover object-center"
+                />
+              </div>
+              <div className="p-5 text-center space-y-3">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 inline-block">
+                  🚗 Goa Road Trip 2026
+                </span>
+                <h3 className="font-black text-slate-900 text-base">
+                  Welcome to GoaTab! 🏖️
+                </h3>
+                <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+                  Start logging fuel, Fastag tolls, snacks, drinks, and villa bills for the 7 friends!
+                </p>
+                <div className="flex flex-col gap-2 pt-1">
+                  <button
+                    onClick={onOpenAddExpense}
+                    className="w-full py-2.5 rounded-xl bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs shadow-xs active:scale-95 transition"
+                  >
+                    + Add First Bill
+                  </button>
+                  <button
+                    onClick={onLoadSample}
+                    className="w-full py-2.5 rounded-xl bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs shadow-xs active:scale-95 transition flex items-center justify-center gap-1"
+                  >
+                    <span>Load Road Trip Bills</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="p-8 text-center space-y-3">
+              <div className="text-4xl">🌴🚗</div>
+              <h3 className="font-bold text-slate-800 text-sm">No expenses found</h3>
+              <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                Try resetting your filters or search keywords.
+              </p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="space-y-2.5">
