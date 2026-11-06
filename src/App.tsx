@@ -9,6 +9,7 @@ import {
   saveTripSettings,
   getLastUpdatedAt,
   setLastUpdatedAt,
+  enforceFixedMembers,
 } from './utils/storage';
 import {
   pullFromCloud,
@@ -80,8 +81,9 @@ export function App() {
       setExpenses(cloudExpenses);
       saveExpenses(cloudExpenses);
       if (cloudMembers && cloudMembers.length > 0) {
-        setMembers(cloudMembers);
-        saveMembers(cloudMembers);
+        const enforced = enforceFixedMembers(cloudMembers);
+        setMembers(enforced);
+        saveMembers(enforced);
       }
       setSyncStatus('synced');
     }
@@ -118,8 +120,9 @@ export function App() {
           setExpenses(cloudData.expenses || []);
           saveExpenses(cloudData.expenses || []);
           if (cloudData.members && cloudData.members.length > 0) {
-            setMembers(cloudData.members);
-            saveMembers(cloudData.members);
+            const enforced = enforceFixedMembers(cloudData.members);
+            setMembers(enforced);
+            saveMembers(enforced);
           }
         }
         setSyncStatus('synced');
@@ -330,9 +333,10 @@ export function App() {
   };
 
   const handleSaveMembers = (updatedMembers: Member[]) => {
-    setMembers(updatedMembers);
-    saveMembers(updatedMembers);
-    syncToCloud(expenses, updatedMembers);
+    const enforced = enforceFixedMembers(updatedMembers);
+    setMembers(enforced);
+    saveMembers(enforced);
+    syncToCloud(expenses, enforced);
   };
 
   // Map mobile tab to center view sub-tabs

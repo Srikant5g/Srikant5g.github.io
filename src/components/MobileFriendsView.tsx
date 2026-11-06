@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Member, MemberBalance } from '../types';
 import { formatCurrency } from '../utils/settlement';
-import { UserPlus, ArrowDownLeft, ArrowUpRight, CheckCircle2, Copy, Check } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CheckCircle2, Copy, Check } from 'lucide-react';
 
 interface MobileFriendsViewProps {
   members: Member[];
@@ -40,10 +40,10 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
         </div>
         <button
           onClick={onOpenMembers}
-          className="px-3 py-1.5 rounded-lg bg-[#5bc5a7] text-white text-xs font-bold flex items-center gap-1 shadow-2xs"
+          className="px-3 py-1.5 rounded-lg bg-[#5bc5a7] hover:bg-[#48b396] text-white text-xs font-bold flex items-center gap-1 shadow-2xs"
+          title="Configure UPI IDs for 1-click payments"
         >
-          <UserPlus className="w-3.5 h-3.5" />
-          <span>Edit</span>
+          <span>UPI IDs</span>
         </button>
       </div>
 

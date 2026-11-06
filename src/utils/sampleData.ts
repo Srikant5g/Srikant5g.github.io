@@ -19,13 +19,13 @@ export const AVATAR_COLORS = [
 ];
 
 export const DEFAULT_MEMBERS: Member[] = [
-  { id: 'm1', name: 'Srikant', avatarColor: 'bg-teal-500', upiId: 'srikant@upi' },
-  { id: 'm2', name: 'Aakash', avatarColor: 'bg-emerald-500', upiId: 'aakash@okhdfc' },
-  { id: 'm3', name: 'Rohan', avatarColor: 'bg-indigo-500', upiId: 'rohan@paytm' },
-  { id: 'm4', name: 'Sneha', avatarColor: 'bg-purple-500', upiId: 'sneha@ybl' },
-  { id: 'm5', name: 'Vikram', avatarColor: 'bg-amber-500', upiId: 'vikram@okaxis' },
-  { id: 'm6', name: 'Pooja', avatarColor: 'bg-rose-500', upiId: 'pooja@ibl' },
-  { id: 'm7', name: 'Aditya', avatarColor: 'bg-cyan-500', upiId: 'aditya@upi' },
+  { id: 'm1', name: 'Srikanth G', avatarColor: 'bg-teal-500', upiId: 'srikanth@upi' },
+  { id: 'm2', name: 'Sajjad Hussain', avatarColor: 'bg-emerald-500', upiId: 'sajjad@okhdfc' },
+  { id: 'm3', name: 'Raghavendra G', avatarColor: 'bg-indigo-500', upiId: 'raghavendra@paytm' },
+  { id: 'm4', name: 'Mohan Reddy P', avatarColor: 'bg-purple-500', upiId: 'mohan@ybl' },
+  { id: 'm5', name: 'Md Rabbani', avatarColor: 'bg-amber-500', upiId: 'rabbani@okaxis' },
+  { id: 'm6', name: 'Harsha N', avatarColor: 'bg-rose-500', upiId: 'harsha@ibl' },
+  { id: 'm7', name: 'Arun U', avatarColor: 'bg-cyan-500', upiId: 'arun@upi' },
 ];
 
 export const SAMPLE_GOA_EXPENSES: Expense[] = [

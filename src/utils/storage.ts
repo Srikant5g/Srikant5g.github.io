@@ -26,12 +26,27 @@ export function saveTripSettings(settings: TripSettings) {
   }
 }
 
+/**
+ * Enforce the 7 non-editable member names while preserving any custom UPI IDs
+ */
+export function enforceFixedMembers(members?: Member[]): Member[] {
+  return DEFAULT_MEMBERS.map((fixed) => {
+    const existing = members?.find((m) => m.id === fixed.id);
+    return {
+      ...fixed,
+      upiId: existing?.upiId || fixed.upiId,
+    };
+  });
+}
+
 export function loadMembers(): Member[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.MEMBERS);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return enforceFixedMembers(parsed);
+      }
     }
   } catch (e) {
     console.error('Failed to load members', e);
@@ -41,7 +56,8 @@ export function loadMembers(): Member[] {
 
 export function saveMembers(members: Member[]) {
   try {
-    localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(members));
+    const enforced = enforceFixedMembers(members);
+    localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(enforced));
   } catch (e) {
     console.error('Failed to save members', e);
   }

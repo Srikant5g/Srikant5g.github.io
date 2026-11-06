@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Member, MemberBalance } from '../types';
 import { formatCurrency } from '../utils/settlement';
-import { LayoutDashboard, Receipt, Activity, Plus, Tag } from 'lucide-react';
+import { LayoutDashboard, Receipt, Activity, Tag } from 'lucide-react';
 
 interface SplitwiseLeftSidebarProps {
   members: Member[];
@@ -102,10 +102,10 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
           <span>Friends ({members.length})</span>
           <button
             onClick={onOpenMembers}
-            className="text-[#5bc5a7] hover:underline font-bold flex items-center gap-0.5 text-xs"
+            className="text-[#5bc5a7] hover:underline font-bold text-xs"
+            title="Configure UPI IDs"
           >
-            <Plus className="w-3 h-3 stroke-[3]" />
-            <span>edit</span>
+            UPI IDs
           </button>
         </div>
 
