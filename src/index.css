@@ -37,3 +37,17 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(150, 150, 150, 0.5);
 }
+
+/* Welcome Progress Bar (2 seconds auto-dismiss) */
+@keyframes welcomeProgress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-welcome-progress {
+  animation: welcomeProgress 2s linear forwards;
+}

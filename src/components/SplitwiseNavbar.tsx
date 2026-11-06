@@ -122,7 +122,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
             title="Open Goa Road Trip Welcome Guide & Thumbnail"
           >
             <span>🌴</span>
-            <span className="hidden sm:inline">Trip Guide</span>
+            <span className="hidden sm:inline">Welcome</span>
           </button>
 
           {/* WhatsApp Share Button */}

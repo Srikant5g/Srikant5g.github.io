@@ -60,7 +60,7 @@ export function App() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(() => {
     try {
-      return !localStorage.getItem('goatab_welcome_seen');
+      return !sessionStorage.getItem('goatab_welcome_shown');
     } catch {
       return false;
     }
@@ -69,7 +69,7 @@ export function App() {
   const handleCloseWelcome = () => {
     setIsWelcomeModalOpen(false);
     try {
-      localStorage.setItem('goatab_welcome_seen', 'true');
+      sessionStorage.setItem('goatab_welcome_shown', 'true');
     } catch {
       // ignore
     }
@@ -581,7 +581,6 @@ export function App() {
       <WelcomeModal
         isOpen={isWelcomeModalOpen}
         onClose={handleCloseWelcome}
-        members={members}
         onOpenShare={() => setIsShareModalOpen(true)}
         onOpenAddExpense={() => {
           setEditingExpense(null);
