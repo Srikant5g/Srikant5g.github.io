@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Expense, Member, DebtTransaction, Category } from '../types';
 import { formatCurrency } from '../utils/settlement';
 import { CATEGORY_ICONS } from '../utils/sampleData';
-import { Plus, Check, ArrowRight, Trash2, Edit3, QrCode, Search } from 'lucide-react';
+import { Plus, Check, ArrowRight, Trash2, Edit3, QrCode, Search, Sparkles } from 'lucide-react';
 
 interface SplitwiseCenterViewProps {
   expenses: Expense[];
@@ -10,6 +10,8 @@ interface SplitwiseCenterViewProps {
   currentUserId: string;
   selectedFriendId: string | null;
   settlements: DebtTransaction[];
+  activeSubTab?: 'expenses' | 'debts' | 'breakdown';
+  onChangeSubTab?: (tab: 'expenses' | 'debts' | 'breakdown') => void;
   onOpenAddExpense: () => void;
   onOpenSettleUp: () => void;
   onEditExpense: (expense: Expense) => void;
@@ -22,19 +24,29 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   currentUserId,
   selectedFriendId,
   settlements,
+  activeSubTab = 'expenses',
+  onChangeSubTab,
   onOpenAddExpense,
   onOpenSettleUp,
   onEditExpense,
   onDeleteExpense,
 }) => {
-  const [activeTab, setActiveTab] = useState<'expenses' | 'debts' | 'breakdown'>('expenses');
+  const [internalTab, setInternalTab] = useState<'expenses' | 'debts' | 'breakdown'>('expenses');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+
+  const tab = onChangeSubTab ? activeSubTab : internalTab;
+  const setTab = (t: 'expenses' | 'debts' | 'breakdown') => {
+    if (onChangeSubTab) {
+      onChangeSubTab(t);
+    } else {
+      setInternalTab(t);
+    }
+  };
 
   const memberMap = new Map<string, Member>();
   members.forEach((m) => memberMap.set(m.id, m));
 
-  const currentUser = memberMap.get(currentUserId);
   const selectedFriend = selectedFriendId ? memberMap.get(selectedFriendId) : null;
 
   // Calculate currentUser's personal "you owe" and "you are owed"
@@ -48,15 +60,12 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
     const share = splitCount > 0 ? e.amount / splitCount : 0;
 
     if (isPayer) {
-      // You paid. Others owe you (total - your share)
       if (isSplitter) {
         youAreOwedTotal += e.amount - share;
       } else {
-        // You paid for others entirely
         youAreOwedTotal += e.amount;
       }
     } else if (isSplitter) {
-      // Someone else paid, you owe your share
       youOweTotal += share;
     }
   });
@@ -95,31 +104,30 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
     'Snacks & Chai',
     'Alcohol & Drinks',
     'Stay & Hotel',
-    'Activities & Beach',
   ];
 
   return (
-    <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+    <div className="flex-1 bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden w-full">
       {/* Top Header Bar */}
-      <div className="bg-[#f8f9fa] border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-[#f8f9fa] border-b border-slate-200 px-4 py-3.5 sm:px-6 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#333333] m-0 flex items-center gap-2">
+          <h1 className="text-lg sm:text-2xl font-black text-[#333333] m-0 flex items-center gap-2">
             <span>
               {selectedFriend
                 ? `${selectedFriend.name} & You`
                 : 'Dashboard'}
             </span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">
             Goa Road Trip • {expenses.length} bills recorded
           </p>
         </div>
 
         {/* Action Buttons: Add an expense & Settle up */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={onOpenAddExpense}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs sm:text-sm shadow-sm transition active:scale-95"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>Add an expense</span>
@@ -127,7 +135,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
           <button
             onClick={onOpenSettleUp}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-md bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs sm:text-sm shadow-sm transition active:scale-95"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95"
           >
             <Check className="w-4 h-4 stroke-[3]" />
             <span>Settle up</span>
@@ -136,14 +144,14 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
       </div>
 
       {/* The Classic Splitwise 3-Box Balance Banner */}
-      <div className="grid grid-cols-3 border-b border-slate-200 text-center py-4 bg-[#fbfbfb]">
+      <div className="grid grid-cols-3 border-b border-slate-200 text-center py-3 sm:py-4 bg-[#fbfbfb]">
         {/* Total Balance */}
         <div className="border-r border-slate-200 px-2 sm:px-4">
-          <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400 block">
+          <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400 block">
             total balance
           </span>
           <span
-            className={`text-base sm:text-xl font-black mt-0.5 block ${
+            className={`text-sm sm:text-xl font-black mt-0.5 block truncate ${
               netBalance > 0.01
                 ? 'text-[#5bc5a7]'
                 : netBalance < -0.01
@@ -158,32 +166,32 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
         {/* You Owe */}
         <div className="border-r border-slate-200 px-2 sm:px-4">
-          <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400 block">
+          <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400 block">
             you owe
           </span>
-          <span className="text-base sm:text-xl font-black text-[#ff652f] mt-0.5 block">
+          <span className="text-sm sm:text-xl font-black text-[#ff652f] mt-0.5 block truncate">
             {formatCurrency(youOweTotal)}
           </span>
         </div>
 
         {/* You Are Owed */}
         <div className="px-2 sm:px-4">
-          <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400 block">
+          <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-slate-400 block">
             you are owed
           </span>
-          <span className="text-base sm:text-xl font-black text-[#5bc5a7] mt-0.5 block">
+          <span className="text-sm sm:text-xl font-black text-[#5bc5a7] mt-0.5 block truncate">
             {formatCurrency(youAreOwedTotal)}
           </span>
         </div>
       </div>
 
       {/* Sub-Tabs: Expenses vs Debts vs Breakdown */}
-      <div className="border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between bg-white text-xs font-bold text-slate-500">
-        <div className="flex items-center gap-6">
+      <div className="border-b border-slate-200 px-3 sm:px-6 flex items-center justify-between bg-white text-xs font-bold text-slate-500 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-4 sm:gap-6 whitespace-nowrap">
           <button
-            onClick={() => setActiveTab('expenses')}
+            onClick={() => setTab('expenses')}
             className={`py-3 border-b-2 transition ${
-              activeTab === 'expenses'
+              tab === 'expenses'
                 ? 'border-[#5bc5a7] text-[#5bc5a7]'
                 : 'border-transparent hover:text-slate-700'
             }`}
@@ -192,9 +200,9 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveTab('debts')}
+            onClick={() => setTab('debts')}
             className={`py-3 border-b-2 transition ${
-              activeTab === 'debts'
+              tab === 'debts'
                 ? 'border-[#5bc5a7] text-[#5bc5a7]'
                 : 'border-transparent hover:text-slate-700'
             }`}
@@ -203,9 +211,9 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveTab('breakdown')}
+            onClick={() => setTab('breakdown')}
             className={`py-3 border-b-2 transition ${
-              activeTab === 'breakdown'
+              tab === 'breakdown'
                 ? 'border-[#5bc5a7] text-[#5bc5a7]'
                 : 'border-transparent hover:text-slate-700'
             }`}
@@ -213,17 +221,11 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             Category Spend
           </button>
         </div>
-
-        {currentUser && (
-          <span className="hidden sm:inline text-[11px] text-slate-400 font-normal">
-            Perspective: <strong className="text-slate-600">{currentUser.name}</strong>
-          </span>
-        )}
       </div>
 
       {/* TAB 1: Expenses Feed */}
-      {activeTab === 'expenses' && (
-        <div>
+      {tab === 'expenses' && (
+        <div className="pb-24 md:pb-6">
           {/* Filters Bar */}
           <div className="p-3 bg-[#fafafa] border-b border-slate-100 flex flex-col sm:flex-row items-center gap-2">
             <div className="relative flex-1 w-full">
@@ -233,18 +235,18 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                 placeholder="Search bills by title or payer..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-md pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#5bc5a7]"
+                className="w-full bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#5bc5a7]"
               />
             </div>
 
             <div className="flex items-center gap-1 overflow-x-auto w-full sm:w-auto scrollbar-none pb-0.5">
-              {categories.slice(0, 5).map((cat) => (
+              {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setCategoryFilter(cat)}
-                  className={`whitespace-nowrap px-2.5 py-1 rounded text-[11px] font-semibold transition ${
+                  className={`whitespace-nowrap px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
                     categoryFilter === cat
-                      ? 'bg-[#5bc5a7] text-white'
+                      ? 'bg-[#5bc5a7] text-white shadow-2xs'
                       : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
@@ -281,7 +283,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                   .toUpperCase();
                 const day = dateObj.getDate().toString().padStart(2, '0');
 
-                // What does currentUser lend or borrow for this specific bill?
+                // Personal lend / borrow
                 let statusLabel = 'not involved';
                 let statusAmount = 0;
                 let isLent = false;
@@ -298,53 +300,54 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                 return (
                   <div
                     key={expense.id}
-                    className="p-3 sm:px-6 hover:bg-[#fcfcfc] transition flex items-center justify-between gap-3 group"
+                    className="p-3 sm:px-6 hover:bg-[#fafafa] transition flex flex-col gap-2 group"
                   >
-                    {/* Left: Date + Icon + Title */}
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {/* Splitwise Calendar Badge */}
-                      <div className="w-10 text-center shrink-0 border border-slate-200 rounded-md bg-white overflow-hidden shadow-2xs">
-                        <div className="bg-slate-100 text-[9px] font-bold text-slate-500 py-0.5 border-b border-slate-200">
-                          {month}
-                        </div>
-                        <div className="text-xs font-black text-slate-800 py-0.5">
-                          {day}
-                        </div>
-                      </div>
-
-                      {/* Category Icon */}
-                      <div className="text-xl shrink-0">
-                        {catMeta.icon}
-                      </div>
-
-                      {/* Title & Who Paid */}
-                      <div className="min-w-0 flex-1">
-                        <div className="font-bold text-slate-800 text-sm truncate">
-                          {expense.title}
-                        </div>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5 flex-wrap">
-                          <span>
-                            {isPayer ? 'You' : payer?.name} paid {formatCurrency(expense.amount)}
-                          </span>
-                          <span>•</span>
-                          <span>Split with {splitCount} friends</span>
-                        </div>
-                        {expense.notes && (
-                          <div className="text-[11px] text-slate-400 italic mt-0.5">
-                            "{expense.notes}"
+                    {/* Top Row: Date + Icon + Title + Total Amount */}
+                    <div className="flex items-start justify-between gap-2.5">
+                      <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                        {/* Splitwise Calendar Badge */}
+                        <div className="w-9 text-center shrink-0 border border-slate-200 rounded-md bg-white overflow-hidden shadow-2xs">
+                          <div className="bg-slate-100 text-[8px] font-bold text-slate-500 py-0.5 border-b border-slate-200 leading-tight">
+                            {month}
                           </div>
-                        )}
-                      </div>
-                    </div>
+                          <div className="text-xs font-black text-slate-800 py-0.5 leading-tight">
+                            {day}
+                          </div>
+                        </div>
 
-                    {/* Right: Personal share & Actions */}
-                    <div className="flex items-center gap-3 shrink-0">
-                      <div className="text-right">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        {/* Category Icon */}
+                        <div className="text-lg shrink-0 mt-0.5">
+                          {catMeta.icon}
+                        </div>
+
+                        {/* Title & Notes */}
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-bold text-slate-800 text-xs sm:text-sm leading-snug break-words">
+                            {expense.title}
+                          </h4>
+                          <div className="text-[11px] text-slate-500 mt-0.5">
+                            {isPayer ? 'You' : payer?.name} paid{' '}
+                            <span className="font-semibold text-slate-700">
+                              {formatCurrency(expense.amount)}
+                            </span>
+                            {' • '}
+                            <span>Split with {splitCount}</span>
+                          </div>
+                          {expense.notes && (
+                            <p className="text-[10px] sm:text-[11px] text-slate-400 italic mt-0.5">
+                              "{expense.notes}"
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right: Personal Share Amount */}
+                      <div className="text-right shrink-0">
+                        <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 block">
                           {statusLabel}
                         </span>
                         <span
-                          className={`text-sm sm:text-base font-extrabold ${
+                          className={`text-xs sm:text-sm font-extrabold block ${
                             isLent
                               ? 'text-[#5bc5a7]'
                               : statusLabel === 'you borrowed'
@@ -355,24 +358,25 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                           {statusAmount > 0 ? formatCurrency(statusAmount) : '—'}
                         </span>
                       </div>
+                    </div>
 
-                      {/* Edit & Delete Buttons */}
-                      <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition">
-                        <button
-                          onClick={() => onEditExpense(expense)}
-                          className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md"
-                          title="Edit"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => onDeleteExpense(expense.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-md"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                    {/* Bottom Row: Actions (Edit & Delete) */}
+                    <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-100/70 text-slate-400 text-xs">
+                      <button
+                        onClick={() => onEditExpense(expense)}
+                        className="px-2 py-1 hover:text-slate-700 hover:bg-slate-100 rounded flex items-center gap-1 transition"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                        <span className="text-[10px]">Edit</span>
+                      </button>
+                      <span>•</span>
+                      <button
+                        onClick={() => onDeleteExpense(expense.id)}
+                        className="px-2 py-1 hover:text-rose-600 hover:bg-rose-50 rounded flex items-center gap-1 transition"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span className="text-[10px]">Delete</span>
+                      </button>
                     </div>
                   </div>
                 );
@@ -382,72 +386,80 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
         </div>
       )}
 
-      {/* TAB 2: Simplified Debts (Splitwise settlement) */}
-      {activeTab === 'debts' && (
-        <div className="p-4 sm:p-6 space-y-4">
+      {/* TAB 2: Simplified Debts */}
+      {tab === 'debts' && (
+        <div className="p-4 sm:p-6 space-y-4 pb-24 md:pb-6">
           <div className="bg-[#f0f9f6] border border-[#5bc5a7]/30 rounded-xl p-3.5 text-xs text-[#28816a] flex items-center justify-between">
             <div>
-              <strong className="block text-sm">✨ Splitwise Debt Simplification</strong>
+              <strong className="block text-sm flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-[#5bc5a7]" />
+                Splitwise Simplified Debts
+              </strong>
               <span>
-                Calculated {settlements.length} transfers to settle all 7 road trip friends.
+                Minimizes group transfers so everyone settles up quickly.
               </span>
             </div>
           </div>
 
           <div className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden bg-white">
-            {settlements.map((tx, idx) => {
-              const isYouPaying = tx.fromId === currentUserId;
-              const isYouReceiving = tx.toId === currentUserId;
+            {settlements.length === 0 ? (
+              <div className="text-center py-10 text-slate-500 text-xs">
+                All friends are settled up!
+              </div>
+            ) : (
+              settlements.map((tx, idx) => {
+                const isYouPaying = tx.fromId === currentUserId;
+                const isYouReceiving = tx.toId === currentUserId;
 
-              return (
-                <div
-                  key={tx.id || idx}
-                  className="p-3.5 flex items-center justify-between gap-3 hover:bg-slate-50 transition"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">
-                      {idx + 1}
+                return (
+                  <div
+                    key={tx.id || idx}
+                    className="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-slate-50 transition"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[11px] font-bold text-slate-600 shrink-0">
+                        {idx + 1}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-xs sm:text-sm flex-wrap">
+                        <strong className={isYouPaying ? 'text-[#ff652f]' : 'text-slate-800'}>
+                          {tx.fromName} {isYouPaying && '(You)'}
+                        </strong>
+                        <span className="text-slate-400 flex items-center gap-1 text-xs">
+                          owes <ArrowRight className="w-3 h-3 text-slate-400" />
+                        </span>
+                        <strong className={isYouReceiving ? 'text-[#5bc5a7]' : 'text-slate-800'}>
+                          {tx.toName} {isYouReceiving && '(You)'}
+                        </strong>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-xs sm:text-sm">
-                      <strong className={isYouPaying ? 'text-[#ff652f]' : 'text-slate-800'}>
-                        {tx.fromName} {isYouPaying && '(You)'}
-                      </strong>
-                      <span className="text-slate-400 flex items-center gap-1">
-                        owes <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+
+                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                      <span className="text-sm sm:text-base font-black text-slate-800">
+                        {formatCurrency(tx.amount)}
                       </span>
-                      <strong className={isYouReceiving ? 'text-[#5bc5a7]' : 'text-slate-800'}>
-                        {tx.toName} {isYouReceiving && '(You)'}
-                      </strong>
+                      {tx.toUpiId && (
+                        <a
+                          href={`upi://pay?pa=${tx.toUpiId}&pn=${encodeURIComponent(
+                            tx.toName
+                          )}&am=${tx.amount}&cu=INR&tn=GoaTripSettlement`}
+                          className="px-2.5 py-1 text-xs font-bold rounded-md bg-[#5bc5a7] text-white hover:bg-[#48b396] transition flex items-center gap-1"
+                        >
+                          <QrCode className="w-3 h-3" />
+                          <span>Pay UPI</span>
+                        </a>
+                      )}
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm sm:text-base font-black text-slate-800">
-                      {formatCurrency(tx.amount)}
-                    </span>
-                    {tx.toUpiId && (
-                      <a
-                        href={`upi://pay?pa=${tx.toUpiId}&pn=${encodeURIComponent(
-                          tx.toName
-                        )}&am=${tx.amount}&cu=INR&tn=GoaTripSettlement`}
-                        className="px-2.5 py-1 text-xs font-bold rounded-md bg-[#5bc5a7] text-white hover:bg-[#48b396] transition flex items-center gap-1"
-                        title={`Pay ${tx.toName} via UPI`}
-                      >
-                        <QrCode className="w-3 h-3" />
-                        <span>Pay UPI</span>
-                      </a>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
       )}
 
       {/* TAB 3: Category Spend Breakdown */}
-      {activeTab === 'breakdown' && (
-        <div className="p-4 sm:p-6 space-y-4">
+      {tab === 'breakdown' && (
+        <div className="p-4 sm:p-6 space-y-4 pb-24 md:pb-6">
           <h3 className="font-bold text-slate-800 text-sm">Where your money went</h3>
           <div className="space-y-3">
             {categories
@@ -488,4 +500,3 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
     </div>
   );
 };
-

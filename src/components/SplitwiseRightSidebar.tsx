@@ -23,7 +23,7 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
   const avg = members.length > 0 ? totalSpend / members.length : 0;
 
   return (
-    <aside className="w-full lg:w-64 shrink-0 space-y-5 text-xs text-slate-600">
+    <aside className="hidden lg:block lg:w-64 shrink-0 space-y-5 text-xs text-slate-600">
       {/* Group Summary Box */}
       <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs space-y-3">
         <h3 className="font-bold uppercase tracking-wider text-[11px] text-slate-400">

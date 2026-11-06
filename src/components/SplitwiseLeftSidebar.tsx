@@ -28,7 +28,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
   balances.forEach((b) => balanceMap.set(b.memberId, b.netBalance));
 
   return (
-    <aside className="w-full md:w-56 shrink-0 space-y-6 text-sm text-[#333333]">
+    <aside className="hidden md:block md:w-56 shrink-0 space-y-6 text-sm text-[#333333]">
       {/* Primary Links */}
       <div className="space-y-0.5">
         <button
