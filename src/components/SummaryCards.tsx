@@ -61,7 +61,7 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({
             <Users className="w-5 h-5" />
           </div>
           <span className="text-xs uppercase font-semibold tracking-wider text-slate-400">
-            Splitwise Members
+            Goa Friends
           </span>
           <div className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
             {memberCount} Friends

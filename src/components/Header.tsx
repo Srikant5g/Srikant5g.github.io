@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
           <div className="flex items-center gap-2">
             <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Splitwise-style auto debt settlement active</span>
+            <span>Auto debt settlement active</span>
           </div>
           <div className="flex items-center gap-3">
             <button

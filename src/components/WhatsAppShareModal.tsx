@@ -58,7 +58,7 @@ ${balanceLines.join('\n')}
 🤝 *SIMPLIFIED SETTLEMENT PLAN (UPI)*
 ${settlementLines.join('\n')}
 
-✨ _Generated with Splitwise Goa Road Trip 🚗_`;
+✨ _Generated with GoaTab 🚗🏖️_`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(messageText);

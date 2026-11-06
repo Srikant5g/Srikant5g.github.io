@@ -412,7 +412,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             <div>
               <strong className="block text-sm flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-[#5bc5a7]" />
-                Splitwise Simplified Debts
+                Smart Simplified Debts
               </strong>
               <span>
                 Minimizes group transfers so everyone settles up quickly.

@@ -24,28 +24,37 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   return (
     <nav className="bg-[#5bc5a7] text-white shadow-md sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
-        {/* Left: Splitwise Logo & Title */}
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white/20 flex items-center justify-center p-1 shadow-inner shrink-0">
+        {/* Left: GoaTab Logo & Title */}
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center p-1.5 shadow-inner shrink-0 border border-white/30">
             <svg
-              viewBox="0 0 24 24"
+              viewBox="0 0 32 32"
               fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
               className="w-full h-full text-white"
             >
-              <polygon points="12 2 2 22 22 22" />
-              <line x1="12" y1="2" x2="12" y2="22" />
+              <circle cx="16" cy="11" r="5" fill="#fde047" opacity="0.95" />
+              <path
+                d="M16 12C16 17 11 20 6 20M16 12C16 17 21 20 26 20M16 12C14 15 10 17 7 16M16 12C18 15 22 17 25 16M16 12V26"
+                stroke="#ffffff"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M8 26C12 24 20 24 24 26"
+                stroke="#67e8f9"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
             </svg>
           </div>
-          <span className="font-black text-lg sm:text-xl tracking-tight text-white lowercase">
-            splitwise
-          </span>
-          <span className="hidden sm:inline-block text-[11px] font-semibold bg-white/20 px-2 py-0.5 rounded-full text-white ml-1">
-            🚗 Goa Road Trip
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="font-black text-lg sm:text-xl tracking-tight text-white font-sans">
+              Goa<span className="text-amber-300">Tab</span>
+            </span>
+            <span className="hidden sm:inline-block text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full text-white">
+              🚗 Road Trip 2026
+            </span>
+          </div>
         </div>
 
         {/* Right: User Switcher & Actions */}
