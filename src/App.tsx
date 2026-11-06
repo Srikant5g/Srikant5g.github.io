@@ -333,20 +333,24 @@ export function App() {
     setPendingPinAction(null);
   };
 
-  const handleRecordPayment = (fromId: string, toId: string, amount: number) => {
+  const handleRecordPayment = (fromId: string, toId: string, amount: number, note?: string) => {
     const fromMember = members.find((m) => m.id === fromId);
     const toMember = members.find((m) => m.id === toId);
 
+    const isDeposit = note?.toLowerCase().includes('deposit') || note?.toLowerCase().includes('kitty') || note?.toLowerCase().includes('fund');
+
     const paymentExpense: Expense = {
       id: `pay_${Date.now()}`,
-      title: `${fromMember?.name || 'Friend'} paid ${toMember?.name || 'Friend'}`,
+      title: isDeposit
+        ? `${fromMember?.name || 'Friend'} deposited to ${toMember?.name || 'Friend'}`
+        : `${fromMember?.name || 'Friend'} paid ${toMember?.name || 'Friend'}`,
       amount,
       date: new Date().toISOString().split('T')[0],
       paidById: fromId,
       category: 'Misc',
       splitMode: 'EQUAL',
       splitMemberIds: [toId],
-      notes: 'Recorded payment settlement',
+      notes: note || 'Recorded payment settlement',
       createdAt: Date.now(),
     };
 
@@ -540,6 +544,8 @@ export function App() {
         isOpen={isSettleUpModalOpen}
         onClose={() => setIsSettleUpModalOpen(false)}
         settlements={settlements}
+        members={members}
+        currentUserId={currentUserId}
         onRecordPayment={handleRecordPayment}
       />
 

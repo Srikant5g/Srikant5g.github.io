@@ -24,6 +24,7 @@ const PRESETS = [
   { title: '🍻 Alcohol & Beers', category: 'Alcohol & Drinks' as Category },
   { title: '🏡 Villa / Hotel Stay', category: 'Stay & Hotel' as Category },
   { title: '🏖️ Beach Activities', category: 'Activities & Beach' as Category },
+  { title: '💰 Advance Trip Fund Deposit', category: 'Misc' as Category },
 ];
 
 export const ExpenseModal: React.FC<ExpenseModalProps> = ({
