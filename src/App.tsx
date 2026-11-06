@@ -16,6 +16,9 @@ import { SplitwiseCenterView } from './components/SplitwiseCenterView';
 import { SplitwiseRightSidebar } from './components/SplitwiseRightSidebar';
 import { MobileBottomNav, type MobileTab } from './components/MobileBottomNav';
 import { MobileFriendsView } from './components/MobileFriendsView';
+import { MobileBillsView } from './components/mobile/MobileBillsView';
+import { MobileSettleView } from './components/mobile/MobileSettleView';
+import { MobileTotalsView } from './components/mobile/MobileTotalsView';
 import { ExpenseModal } from './components/ExpenseModal';
 import { SettleUpModal } from './components/SettleUpModal';
 import { MemberModal } from './components/MemberModal';
@@ -192,9 +195,26 @@ export function App() {
           onOpenMembers={() => setIsMemberModalOpen(true)}
         />
 
-        {/* Mobile View: Dedicated Friends Tab OR Main Center View */}
-        {mobileTab === 'friends' ? (
-          <div className="w-full md:hidden">
+        {/* Mobile View: Dedicated Screen for each Tab */}
+        <div className="w-full md:hidden">
+          {mobileTab === 'expenses' && (
+            <MobileBillsView
+              expenses={expenses}
+              members={members}
+              currentUserId={currentUserId}
+              selectedFriendId={selectedFriendId}
+              onClearFriendFilter={() => setSelectedFriendId(null)}
+              onOpenAddExpense={() => {
+                setEditingExpense(null);
+                setIsExpenseModalOpen(true);
+              }}
+              onEditExpense={handleEditExpense}
+              onDeleteExpense={handleDeleteExpense}
+              onLoadSample={handleLoadSample}
+            />
+          )}
+
+          {mobileTab === 'friends' && (
             <MobileFriendsView
               members={members}
               balances={balances}
@@ -206,8 +226,28 @@ export function App() {
               }}
               onOpenMembers={() => setIsMemberModalOpen(true)}
             />
-          </div>
-        ) : (
+          )}
+
+          {mobileTab === 'settle' && (
+            <MobileSettleView
+              settlements={settlements}
+              currentUserId={currentUserId}
+            />
+          )}
+
+          {mobileTab === 'totals' && (
+            <MobileTotalsView
+              expenses={expenses}
+              members={members}
+              onOpenShare={() => setIsShareModalOpen(true)}
+              onLoadSample={handleLoadSample}
+              onResetData={handleResetData}
+            />
+          )}
+        </div>
+
+        {/* Desktop View (md:): Classic 3-Column Splitwise */}
+        <div className="hidden md:block flex-1 w-full">
           <SplitwiseCenterView
             expenses={expenses}
             members={members}
@@ -225,28 +265,6 @@ export function App() {
             onDeleteExpense={handleDeleteExpense}
             onLoadSample={handleLoadSample}
           />
-        )}
-
-        {/* On desktop, always show CenterView if mobileTab is 'friends' */}
-        <div className="hidden md:block flex-1 w-full">
-          {mobileTab === 'friends' && (
-            <SplitwiseCenterView
-              expenses={expenses}
-              members={members}
-              currentUserId={currentUserId}
-              selectedFriendId={selectedFriendId}
-              settlements={settlements}
-              activeSubTab="expenses"
-              onOpenAddExpense={() => {
-                setEditingExpense(null);
-                setIsExpenseModalOpen(true);
-              }}
-              onOpenSettleUp={() => setIsSettleUpModalOpen(true)}
-              onEditExpense={handleEditExpense}
-              onDeleteExpense={handleDeleteExpense}
-              onLoadSample={handleLoadSample}
-            />
-          )}
         </div>
 
         {/* Column 3: Right Sidebar (Totals, Debts & Road Trip Presets - Desktop only) */}

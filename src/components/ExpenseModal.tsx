@@ -430,19 +430,19 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
           </div>
 
           {/* Footer Submit Buttons */}
-          <div className="pt-3 border-t border-slate-200 flex items-center justify-end gap-2.5">
+          <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-end gap-2">
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold bg-[#ff652f] hover:bg-[#e55320] text-white shadow-xs transition order-1 sm:order-2 active:scale-95"
+            >
+              {editingExpense ? 'Save Changes' : 'Save Bill'}
+            </button>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-md text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 transition order-2 sm:order-1 text-center"
             >
               Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2 rounded-md text-xs font-bold bg-[#5bc5a7] hover:bg-[#48b396] text-white shadow-xs transition"
-            >
-              {editingExpense ? 'Save Changes' : 'Save'}
             </button>
           </div>
         </form>

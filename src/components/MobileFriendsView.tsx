@@ -24,7 +24,7 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
   balances.forEach((b) => balanceMap.set(b.memberId, b.netBalance));
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-4 pb-24 md:pb-4 w-full">
+    <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-4 pb-32 md:pb-4 w-full">
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div>
           <h2 className="text-base font-bold text-slate-800 m-0">Goa Friends ({members.length})</h2>
