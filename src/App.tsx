@@ -365,7 +365,7 @@ export function App() {
       />
 
       {/* Main Layout (Desktop 3-Column / Mobile Native Tabs) */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6 w-full flex-1 flex flex-col md:flex-row gap-5 lg:gap-6 items-start">
+      <main className="max-w-[1380px] mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full flex-1 flex flex-col md:flex-row gap-5 lg:gap-6 items-start">
         {/* Column 1: Left Navigation & 7 Friends List (Desktop only) */}
         <SplitwiseLeftSidebar
           members={members}
@@ -430,7 +430,7 @@ export function App() {
         </div>
 
         {/* Desktop View (md:): Classic 3-Column Splitwise */}
-        <div className="hidden md:block flex-1 w-full">
+        <div className="hidden md:block flex-1 min-w-0 w-full">
           <SplitwiseCenterView
             expenses={expenses}
             members={members}
@@ -455,6 +455,7 @@ export function App() {
           balances={balances}
           totalSpend={totalSpend}
           members={members}
+          settlements={settlements}
           onOpenAddExpense={() => {
             setEditingExpense(null);
             setIsExpenseModalOpen(true);

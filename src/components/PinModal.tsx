@@ -233,3 +233,4 @@ export const PinModal: React.FC<PinModalProps> = ({
     </div>
   );
 };
+
