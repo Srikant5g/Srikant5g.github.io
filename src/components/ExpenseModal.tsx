@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { Expense, Member, Category, SplitMode } from '../types';
 import { CATEGORY_ICONS } from '../utils/sampleData';
 import { formatCurrency } from '../utils/settlement';
-import { X, Check, Users, Sparkles } from 'lucide-react';
+import { X, Check, Users, Sparkles, Trash2 } from 'lucide-react';
 
 interface ExpenseModalProps {
   isOpen: boolean;
@@ -10,6 +10,7 @@ interface ExpenseModalProps {
   onSave: (expense: Omit<Expense, 'id' | 'createdAt'>, editId?: string) => void;
   members: Member[];
   editingExpense?: Expense | null;
+  onDeleteExpense?: (id: string) => void;
 }
 
 const PRESETS = [
@@ -30,6 +31,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   onSave,
   members,
   editingExpense,
+  onDeleteExpense,
 }) => {
   const [title, setTitle] = useState('');
   const [amountStr, setAmountStr] = useState('');
@@ -185,7 +187,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
+          <div className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {error && (
             <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
               ⚠️ {error}
@@ -429,21 +432,43 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             />
           </div>
 
-          {/* Footer Submit Buttons */}
-          <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-end gap-2">
-            <button
-              type="submit"
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold bg-[#ff652f] hover:bg-[#e55320] text-white shadow-xs transition order-1 sm:order-2 active:scale-95"
-            >
-              {editingExpense ? 'Save Changes' : 'Save Bill'}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 transition order-2 sm:order-1 text-center"
-            >
-              Cancel
-            </button>
+          </div>
+
+          {/* Sticky Footer Submit Buttons */}
+          <div className="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-200 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2.5">
+            {editingExpense && onDeleteExpense ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const id = editingExpense.id;
+                  onClose();
+                  onDeleteExpense(id);
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-100 hover:border-rose-300 bg-rose-50 border border-rose-200 transition flex items-center justify-center gap-1.5 order-3 sm:order-1 active:scale-95"
+                title="Delete this bill (Requires PIN 0852)"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Bill</span>
+              </button>
+            ) : (
+              <div className="hidden sm:block" />
+            )}
+
+            <div className="flex items-center gap-2 w-full sm:w-auto order-1 sm:order-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200 transition text-center"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#ff652f] hover:bg-[#e55320] text-white shadow-xs transition active:scale-95 text-center"
+              >
+                {editingExpense ? 'Save Changes' : 'Save Bill'}
+              </button>
+            </div>
           </div>
         </form>
       </div>

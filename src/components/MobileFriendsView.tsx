@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Member, MemberBalance } from '../types';
 import { formatCurrency } from '../utils/settlement';
-import { UserPlus, ArrowDownLeft, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { UserPlus, ArrowDownLeft, ArrowUpRight, CheckCircle2, Copy, Check } from 'lucide-react';
 
 interface MobileFriendsViewProps {
   members: Member[];
@@ -20,8 +20,16 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
   onSelectFriend,
   onOpenMembers,
 }) => {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const balanceMap = new Map<string, number>();
   balances.forEach((b) => balanceMap.set(b.memberId, b.netBalance));
+
+  const handleCopyUpi = (e: React.MouseEvent, memberId: string, upi: string) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(upi);
+    setCopiedId(memberId);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-4 pb-32 md:pb-4 w-full">
@@ -68,9 +76,29 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
                     {member.name} {isMe && <span className="text-slate-400 font-normal">(you)</span>}
                   </h4>
                   {member.upiId && (
-                    <p className="text-[11px] text-slate-400 font-mono truncate">
-                      {member.upiId}
-                    </p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-[11px] text-slate-400 font-mono truncate">
+                        {member.upiId}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={(e) => handleCopyUpi(e, member.id, member.upiId!)}
+                        className="px-1.5 py-0.5 rounded text-[10px] font-semibold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 transition flex items-center gap-0.5 shrink-0"
+                        title="Copy UPI ID"
+                      >
+                        {copiedId === member.id ? (
+                          <>
+                            <Check className="w-2.5 h-2.5 text-emerald-600 stroke-[3]" />
+                            <span className="text-emerald-700">Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-2.5 h-2.5" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

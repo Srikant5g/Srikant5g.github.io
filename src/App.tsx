@@ -488,6 +488,7 @@ export function App() {
         onSave={handleSaveExpense}
         members={members}
         editingExpense={editingExpense}
+        onDeleteExpense={handleDeleteExpense}
       />
 
       <SettleUpModal

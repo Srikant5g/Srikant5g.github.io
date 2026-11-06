@@ -128,8 +128,11 @@ export function calculateSettlements(
 }
 
 export function formatCurrency(amount: number, currency = '₹'): string {
-  return `${currency}${amount.toLocaleString('en-IN', {
+  const isNegative = amount < -0.0001;
+  const absAmount = Math.abs(amount);
+  const formatted = absAmount.toLocaleString('en-IN', {
     maximumFractionDigits: 2,
-    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
-  })}`;
+    minimumFractionDigits: Number.isInteger(absAmount) ? 0 : 2,
+  });
+  return `${isNegative ? '-' : ''}${currency}${formatted}`;
 }

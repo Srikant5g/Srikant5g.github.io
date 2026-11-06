@@ -251,7 +251,8 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
             return (
               <div
                 key={expense.id}
-                className="bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs space-y-2 hover:border-slate-300 transition"
+                onClick={() => onEditExpense(expense)}
+                className="bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs space-y-2 hover:border-slate-300 active:scale-[0.99] cursor-pointer transition"
               >
                 {/* Row 1: Date + Category + Title + Total Amount */}
                 <div className="flex items-start justify-between gap-2.5">
@@ -321,7 +322,10 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => onEditExpense(expense)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditExpense(expense);
+                      }}
                       className="px-2 py-1 hover:text-slate-700 hover:bg-slate-100 rounded-md flex items-center gap-1 transition"
                     >
                       <Edit3 className="w-3 h-3" />
@@ -329,7 +333,10 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
                     </button>
                     <span>•</span>
                     <button
-                      onClick={() => onDeleteExpense(expense.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteExpense(expense.id);
+                      }}
                       className="px-2 py-1 hover:text-rose-600 hover:bg-rose-50 rounded-md flex items-center gap-1 transition"
                     >
                       <Trash2 className="w-3 h-3" />

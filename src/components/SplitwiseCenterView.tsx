@@ -345,7 +345,8 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                 return (
                   <div
                     key={expense.id}
-                    className="p-3.5 sm:px-6 hover:bg-slate-50/70 transition flex items-center justify-between gap-3 group"
+                    onClick={() => onEditExpense(expense)}
+                    className="p-3.5 sm:px-6 hover:bg-slate-50/70 transition flex items-center justify-between gap-3 group cursor-pointer"
                   >
                     {/* Left: Date + Icon + Title + Info */}
                     <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -410,7 +411,10 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                       {/* Actions: Edit & PIN-Protected Delete */}
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => onEditExpense(expense)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditExpense(expense);
+                          }}
                           className="p-1.5 sm:px-2 sm:py-1 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg text-slate-400 transition flex items-center gap-1"
                           title="Edit Bill"
                         >
@@ -419,7 +423,10 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                         </button>
 
                         <button
-                          onClick={() => onDeleteExpense(expense.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteExpense(expense.id);
+                          }}
                           className="p-1.5 sm:px-2 sm:py-1 hover:text-rose-600 hover:bg-rose-50 rounded-lg text-slate-400 transition flex items-center gap-1"
                           title="Delete Bill (Requires PIN 0852)"
                         >
