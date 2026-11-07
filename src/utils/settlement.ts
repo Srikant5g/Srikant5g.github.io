@@ -238,6 +238,44 @@ export function getActualExpenses(expenses: Expense[]): Expense[] {
 }
 
 /**
+ * Calculates a specific member's share for an individual expense based on splitMode
+ * with exact penny matching to calculateBalances
+ */
+export function getUserExpenseShare(expense: Expense, userId: string): number {
+  if (!expense.splitMemberIds || !expense.splitMemberIds.includes(userId)) {
+    return 0;
+  }
+
+  const count = expense.splitMemberIds.length;
+  if (count === 0) return 0;
+
+  if (expense.splitMode === 'CUSTOM' && expense.customSplits) {
+    return expense.customSplits[userId] || 0;
+  }
+
+  if (expense.splitMode === 'SHARES' && expense.shares) {
+    const totalShares = expense.splitMemberIds.reduce(
+      (sum, id) => sum + (expense.shares?.[id] || 1),
+      0
+    );
+    if (totalShares <= 0) return 0;
+
+    const totalPaise = Math.round(expense.amount * 100);
+    const memberRatio = (expense.shares[userId] || 1) / totalShares;
+    const exactPaise = totalPaise * memberRatio;
+    return Number((exactPaise / 100).toFixed(2));
+  }
+
+  // Equal split with exact penny allocation matching calculateBalances
+  const totalPaise = Math.round(expense.amount * 100);
+  const baseSharePaise = Math.floor(totalPaise / count);
+  const remainderPaise = totalPaise % count;
+  const userIdx = expense.splitMemberIds.indexOf(userId);
+  const personPaise = baseSharePaise + (userIdx >= 0 && userIdx < remainderPaise ? 1 : 0);
+  return personPaise / 100;
+}
+
+/**
  * Format date for group section headers (e.g. "Today", "Yesterday", "Sat, 5 Nov")
  */
 export function formatGroupDate(dateStr: string): string {

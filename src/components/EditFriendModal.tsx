@@ -303,3 +303,4 @@ export const EditFriendModal: React.FC<EditFriendModalProps> = ({
     </div>
   );
 };
+

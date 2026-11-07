@@ -7,6 +7,7 @@ import {
   calculateTotalTripSpend,
   getActualExpenses,
   isAdvanceOrTransfer,
+  getUserExpenseShare,
 } from '../../utils/settlement';
 import { CATEGORY_ICONS } from '../../utils/sampleData';
 import { Search, Plus, Edit3, Trash2, X, ArrowUpRight, ArrowDownLeft, Calendar, ChevronDown, Tag } from 'lucide-react';
@@ -59,37 +60,59 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   const actualBills = getActualExpenses(expenses);
   const totalSpend = calculateTotalTripSpend(expenses);
 
-  expenses.forEach((e) => {
-    const isPayer = Boolean(currentUserId && e.paidById === currentUserId);
-    const isSplitter = Boolean(currentUserId && e.splitMemberIds.includes(currentUserId));
-    const splitCount = e.splitMemberIds.length;
-    const userShare =
-      currentUserId && e.splitMode === 'CUSTOM' && e.customSplits
-        ? e.customSplits[currentUserId] || 0
-        : currentUserId && e.splitMode === 'SHARES' && e.shares
-        ? (e.amount * (e.shares[currentUserId] || 1)) /
-          Math.max(1, e.splitMemberIds.reduce((sum, id) => sum + (e.shares?.[id] || 1), 0))
-        : isSplitter && splitCount > 0
-        ? e.amount / splitCount
-        : 0;
+  if (selectedFriendId && currentUserId) {
+    // Bilateral balance with the selected friend
+    expenses.forEach((e) => {
+      const isAdvance = isAdvanceOrTransfer(e);
+      // Case 1: You paid, friend was involved
+      if (e.paidById === currentUserId && e.splitMemberIds.includes(selectedFriendId)) {
+        const friendShare = isAdvance && e.splitMemberIds.length === 1 ? e.amount : getUserExpenseShare(e, selectedFriendId);
+        youAreOwedTotal += friendShare;
+      }
+      // Case 2: Friend paid, you were involved
+      if (e.paidById === selectedFriendId && e.splitMemberIds.includes(currentUserId)) {
+        const myShare = isAdvance && e.splitMemberIds.length === 1 ? e.amount : getUserExpenseShare(e, currentUserId);
+        youOweTotal += myShare;
+      }
+    });
+  } else {
+    // Overall balance across entire trip
+    expenses.forEach((e) => {
+      const isPayer = Boolean(currentUserId && e.paidById === currentUserId);
+      const isSplitter = Boolean(currentUserId && e.splitMemberIds.includes(currentUserId));
+      const userShare = currentUserId ? getUserExpenseShare(e, currentUserId) : 0;
+      const isAdvance = isAdvanceOrTransfer(e);
 
-    if (isPayer) {
-      youAreOwedTotal += e.amount - userShare;
-    } else if (isSplitter) {
-      youOweTotal += userShare;
-    }
-  });
+      if (isAdvance) {
+        if (isPayer) {
+          youAreOwedTotal += e.amount;
+        } else if (isSplitter) {
+          youOweTotal += e.amount;
+        }
+      } else {
+        if (isPayer) {
+          youAreOwedTotal += e.amount - userShare;
+        } else if (isSplitter) {
+          youOweTotal += userShare;
+        }
+      }
+    });
+  }
 
-  const netBalance = youAreOwedTotal - youOweTotal;
+  const netBalance = Number((youAreOwedTotal - youOweTotal).toFixed(2));
 
   // Filter bills
   const filtered = expenses.filter((e) => {
     if (selectedFriendId) {
-      const matchPayer = e.paidById === selectedFriendId || (currentUserId ? e.paidById === currentUserId : false);
-      const matchSplitter =
-        e.splitMemberIds.includes(selectedFriendId) ||
-        (currentUserId ? e.splitMemberIds.includes(currentUserId) : false);
-      if (!matchPayer && !matchSplitter) return false;
+      if (currentUserId) {
+        const isBilateral =
+          (e.paidById === currentUserId && e.splitMemberIds.includes(selectedFriendId)) ||
+          (e.paidById === selectedFriendId && e.splitMemberIds.includes(currentUserId));
+        if (!isBilateral) return false;
+      } else {
+        const match = e.paidById === selectedFriendId || e.splitMemberIds.includes(selectedFriendId);
+        if (!match) return false;
+      }
     }
 
     if (selectedCategory !== 'ALL' && e.category !== selectedCategory) return false;
@@ -467,15 +490,7 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
                   const isPayer = Boolean(currentUserId && expense.paidById === currentUserId);
                   const isSplitter = Boolean(currentUserId && expense.splitMemberIds.includes(currentUserId));
                   const splitCount = expense.splitMemberIds.length;
-                  const userShare =
-                    currentUserId && expense.splitMode === 'CUSTOM' && expense.customSplits
-                      ? expense.customSplits[currentUserId] || 0
-                      : currentUserId && expense.splitMode === 'SHARES' && expense.shares
-                      ? (expense.amount * (expense.shares[currentUserId] || 1)) /
-                        Math.max(1, expense.splitMemberIds.reduce((sum, id) => sum + (expense.shares?.[id] || 1), 0))
-                      : isSplitter && splitCount > 0
-                      ? expense.amount / splitCount
-                      : 0;
+                  const userShare = currentUserId ? getUserExpenseShare(expense, currentUserId) : 0;
 
                   const { month, day } = formatExpenseDate(expense.date);
 
