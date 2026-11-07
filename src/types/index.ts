@@ -17,7 +17,9 @@ export interface Member {
   upiId?: string;
 }
 
-export type SplitMode = 'EQUAL' | 'CUSTOM' | 'PERCENTAGE';
+export type ExpenseType = 'EXPENSE' | 'PAYMENT';
+
+export type SplitMode = 'EQUAL' | 'CUSTOM' | 'PERCENTAGE' | 'SHARES';
 
 export interface SplitShare {
   memberId: string;
@@ -34,6 +36,8 @@ export interface Expense {
   splitMode: SplitMode;
   splitMemberIds: string[]; // members involved in this bill
   customSplits?: Record<string, number>; // memberId -> exact amount if custom
+  shares?: Record<string, number>; // memberId -> ratio/shares if splitMode === 'SHARES'
+  type?: ExpenseType; // 'EXPENSE' (default) or 'PAYMENT' (settlement transfer)
   notes?: string;
   createdAt: number;
 }

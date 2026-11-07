@@ -25,7 +25,14 @@ export function loadTripSettings(): TripSettings {
       localStorage.getItem(STORAGE_KEYS.SETTINGS) ||
       localStorage.getItem(STORAGE_KEYS.FALLBACK_SETTINGS) ||
       localStorage.getItem(STORAGE_KEYS.LEGACY_SETTINGS);
-    return raw ? JSON.parse(raw) : DEFAULT_TRIP_SETTINGS;
+    if (!raw) return DEFAULT_TRIP_SETTINGS;
+    const parsed = JSON.parse(raw);
+    return {
+      ...DEFAULT_TRIP_SETTINGS,
+      ...parsed,
+      tripName: (parsed.tripName || DEFAULT_TRIP_SETTINGS.tripName).replace(/Goa\s*/gi, '').trim() || 'Road Trip 2026',
+      location: (parsed.location || DEFAULT_TRIP_SETTINGS.location).replace(/Goa\s*/gi, '').trim() || 'Road Trip (By Car) 🚗💨',
+    };
   } catch {
     return DEFAULT_TRIP_SETTINGS;
   }

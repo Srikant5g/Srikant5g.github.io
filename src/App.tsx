@@ -19,7 +19,7 @@ import {
   type SyncStatus,
 } from './utils/cloudSync';
 import { SAMPLE_ROADTRIP_EXPENSES, DEFAULT_MEMBERS } from './utils/sampleData';
-import { calculateBalances, calculateSettlements, formatCurrency } from './utils/settlement';
+import { calculateBalances, calculateSettlements, formatCurrency, calculateTotalTripSpend } from './utils/settlement';
 import { SplitwiseNavbar } from './components/SplitwiseNavbar';
 import { SplitwiseLeftSidebar } from './components/SplitwiseLeftSidebar';
 import { SplitwiseCenterView } from './components/SplitwiseCenterView';
@@ -220,7 +220,7 @@ export function App() {
 
   // Derived metrics
   const totalSpend = useMemo(
-    () => expenses.reduce((sum, e) => sum + e.amount, 0),
+    () => calculateTotalTripSpend(expenses),
     [expenses]
   );
 
@@ -252,6 +252,7 @@ export function App() {
     } else {
       const newExpense: Expense = {
         ...expenseData,
+        type: expenseData.type || 'EXPENSE',
         id: `exp_${Date.now()}`,
         createdAt: Date.now(),
       };
@@ -319,6 +320,7 @@ export function App() {
 
     const paymentExpense: Expense = {
       id: `pay_${Date.now()}`,
+      type: 'PAYMENT',
       title: isDeposit
         ? `${fromMember?.name || 'Friend'} deposited to ${toMember?.name || 'Friend'}`
         : `${fromMember?.name || 'Friend'} paid ${toMember?.name || 'Friend'}`,
@@ -539,6 +541,8 @@ export function App() {
         balances={balances}
         settlements={settlements}
         totalSpend={totalSpend}
+        expenses={expenses}
+        members={members}
       />
 
       {/* PIN Security Modal (PIN: 0852) */}

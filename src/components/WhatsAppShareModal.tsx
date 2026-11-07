@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import type { MemberBalance, DebtTransaction, TripSettings } from '../types';
-import { formatCurrency } from '../utils/settlement';
+import React, { useState, useMemo } from 'react';
+import type { MemberBalance, DebtTransaction, TripSettings, Expense, Member } from '../types';
+import { generateWhatsAppTripSummary } from '../utils/summaryGenerator';
 import { copyToClipboard } from '../utils/clipboard';
 import { X, Copy, Check, MessageSquare } from 'lucide-react';
 
@@ -10,7 +10,9 @@ interface WhatsAppShareModalProps {
   settings: TripSettings;
   balances: MemberBalance[];
   settlements: DebtTransaction[];
-  totalSpend: number;
+  totalSpend?: number;
+  expenses?: Expense[];
+  members?: Member[];
 }
 
 export const WhatsAppShareModal: React.FC<WhatsAppShareModalProps> = ({
@@ -19,47 +21,22 @@ export const WhatsAppShareModal: React.FC<WhatsAppShareModalProps> = ({
   settings,
   balances,
   settlements,
-  totalSpend,
+  expenses = [],
+  members = [],
 }) => {
   const [copied, setCopied] = useState(false);
 
+  const messageText = useMemo(() => {
+    return generateWhatsAppTripSummary({
+      tripName: settings.tripName,
+      expenses,
+      members,
+      settlements,
+      balances,
+    });
+  }, [settings.tripName, expenses, members, settlements, balances]);
+
   if (!isOpen) return null;
-
-  const memberCount = balances.length;
-  const avgPerPerson = memberCount > 0 ? totalSpend / memberCount : 0;
-
-  const balanceLines = balances.map((b) => {
-    if (b.netBalance > 0.01) {
-      return `• ${b.name}: +${formatCurrency(b.netBalance)} (Gets back 🟢)`;
-    } else if (b.netBalance < -0.01) {
-      return `• ${b.name}: -${formatCurrency(Math.abs(b.netBalance))} (Owes 🔴)`;
-    } else {
-      return `• ${b.name}: Settled (⚪)`;
-    }
-  });
-
-  const settlementLines =
-    settlements.length > 0
-      ? settlements.map((tx, idx) => {
-          const upiNote = tx.toUpiId ? ` [UPI: ${tx.toUpiId}]` : '';
-          return `${idx + 1}. *${tx.fromName}* ➡️ *${tx.toName}*: ${formatCurrency(tx.amount)}${upiNote}`;
-        })
-      : ['🎉 Everyone is settled up! Nobody owes anything.'];
-
-  const messageText = `🌴 *${settings.tripName.toUpperCase()} - EXPENSE SUMMARY* 📊
-📍 ${settings.location}
-💰 *Total Spend:* ${formatCurrency(totalSpend)}
-👥 *Avg / Friend (${memberCount} friends):* ${formatCurrency(avgPerPerson)}
-
-━━━━━━━━━━━━━━━━━━━
-📊 *INDIVIDUAL BALANCES*
-${balanceLines.join('\n')}
-
-━━━━━━━━━━━━━━━━━━━
-🤝 *SIMPLIFIED SETTLEMENT PLAN (UPI)*
-${settlementLines.join('\n')}
-
-✨ _Generated with TripTally • Every trip. Every expense. Sorted._`;
 
   const handleCopy = async () => {
     await copyToClipboard(messageText);

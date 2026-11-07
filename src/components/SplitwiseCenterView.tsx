@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Expense, Member, DebtTransaction, Category } from '../types';
-import { formatCurrency, formatExpenseDate } from '../utils/settlement';
+import { formatCurrency, formatExpenseDate, calculateTotalTripSpend, getActualExpenses } from '../utils/settlement';
 import { CATEGORY_ICONS } from '../utils/sampleData';
 import { UpiPaymentActions } from './UpiPaymentActions';
 import { Plus, Check, ArrowRight, Trash2, Edit3, Search, Sparkles, X, PieChart } from 'lucide-react';
@@ -110,12 +110,13 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
     'Stay & Hotel',
   ];
 
-  // Category Spend calculation for Tab 3 & Donut
+  // Category Spend calculation for Tab 3 & Donut (Excluding pure settlement payments)
+  const actualExpenses = getActualExpenses(expenses);
+  const grandTotalSpend = calculateTotalTripSpend(expenses);
   const categorySpendMap: Record<string, number> = {};
-  expenses.forEach((e) => {
+  actualExpenses.forEach((e) => {
     categorySpendMap[e.category] = (categorySpendMap[e.category] || 0) + e.amount;
   });
-  const grandTotalSpend = expenses.reduce((sum, e) => sum + e.amount, 0);
 
   // Colors for Donut segments
   const DONUT_COLORS = [

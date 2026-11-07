@@ -44,6 +44,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const [splitMode, setSplitMode] = useState<SplitMode>('EQUAL');
   const [splitMemberIds, setSplitMemberIds] = useState<string[]>(members.map((m) => m.id));
   const [customSplits, setCustomSplits] = useState<Record<string, string>>({});
+  const [shares, setShares] = useState<Record<string, number>>({});
   const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +69,14 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         });
       }
       setCustomSplits(initialCustom);
+
+      if (editingExpense.shares) {
+        setShares(editingExpense.shares);
+      } else {
+        const initShares: Record<string, number> = {};
+        members.forEach((m) => (initShares[m.id] = 1));
+        setShares(initShares);
+      }
     } else {
       setTitle('');
       setAmountStr('');
@@ -76,6 +85,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       setSplitMode('EQUAL');
       setSplitMemberIds(members.map((m) => m.id));
       setCustomSplits({});
+      const initShares: Record<string, number> = {};
+      members.forEach((m) => (initShares[m.id] = 1));
+      setShares(initShares);
       setDate(new Date().toISOString().split('T')[0]);
       setNotes('');
     }
@@ -114,6 +126,15 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       ...prev,
       [memberId]: val,
     }));
+    setError(null);
+  };
+
+  const handleShareChange = (memberId: string, delta: number) => {
+    setShares((prev) => {
+      const current = prev[memberId] ?? 1;
+      const next = Math.max(1, Math.min(10, current + delta));
+      return { ...prev, [memberId]: next };
+    });
     setError(null);
   };
 
@@ -171,6 +192,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         splitMode,
         splitMemberIds,
         customSplits: parsedCustomSplits,
+        shares: splitMode === 'SHARES' ? shares : undefined,
         notes: notes.trim() || undefined,
       },
       editingExpense?.id
@@ -181,6 +203,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
   const equalShare =
     splitMemberIds.length > 0 ? totalAmount / splitMemberIds.length : 0;
+
+  const totalShares = splitMemberIds.reduce((sum, id) => sum + (shares[id] ?? 1), 0);
 
   // Compute sum of custom splits for running counter
   const customSum = splitMemberIds.reduce(
@@ -383,6 +407,11 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                     {formatCurrency(equalShare)} / person ({splitMemberIds.length} friends)
                   </span>
                 )}
+                {splitMode === 'SHARES' && splitMemberIds.length > 0 && (
+                  <span className="text-[11px] font-bold text-[#145B4A]">
+                    Total: {totalShares} shares ({formatCurrency(totalShares > 0 ? totalAmount / totalShares : 0)}/share)
+                  </span>
+                )}
                 {splitMode === 'CUSTOM' && (
                   <span
                     className={`text-[11px] font-bold ${
@@ -394,8 +423,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 )}
               </div>
 
-              {/* Segmented Control */}
-              <div className="grid grid-cols-2 p-1 bg-[#F7F8F5] border border-[#E4EAF0] rounded-xl text-xs font-bold">
+              {/* Segmented Control (3 Options) */}
+              <div className="grid grid-cols-3 p-1 bg-[#F7F8F5] border border-[#E4EAF0] rounded-xl text-xs font-bold gap-1">
                 <button
                   type="button"
                   onClick={() => setSplitMode('EQUAL')}
@@ -409,6 +438,17 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 </button>
                 <button
                   type="button"
+                  onClick={() => setSplitMode('SHARES')}
+                  className={`py-2 rounded-lg transition ${
+                    splitMode === 'SHARES'
+                      ? 'bg-white text-[#145B4A] shadow-xs'
+                      : 'text-[#718096] hover:text-[#192B3D]'
+                  }`}
+                >
+                  By Shares
+                </button>
+                <button
+                  type="button"
                   onClick={() => setSplitMode('CUSTOM')}
                   className={`py-2 rounded-lg transition ${
                     splitMode === 'CUSTOM'
@@ -416,7 +456,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                       : 'text-[#718096] hover:text-[#192B3D]'
                   }`}
                 >
-                  Exact Amount (Custom)
+                  Exact (₹)
                 </button>
               </div>
             </div>
@@ -440,6 +480,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 {members.map((m) => {
                   const isChecked = splitMemberIds.includes(m.id);
                   const customVal = customSplits[m.id] || '';
+                  const memberShareCount = shares[m.id] ?? 1;
+                  const memberShareAmt =
+                    totalShares > 0 ? (totalAmount * memberShareCount) / totalShares : 0;
 
                   return (
                     <div
@@ -471,6 +514,36 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                         <span className="text-xs font-bold text-[#145B4A] shrink-0">
                           {formatCurrency(equalShare)}
                         </span>
+                      )}
+
+                      {splitMode === 'SHARES' && isChecked && (
+                        <div
+                          className="flex items-center gap-2 shrink-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <span className="text-xs font-bold text-[#145B4A]">
+                            {formatCurrency(memberShareAmt)}
+                          </span>
+                          <div className="flex items-center border border-[#E4EAF0] rounded-lg bg-[#F7F8F5] overflow-hidden">
+                            <button
+                              type="button"
+                              onClick={() => handleShareChange(m.id, -1)}
+                              className="px-2 py-0.5 text-xs font-bold text-[#718096] hover:bg-[#E4EAF0] transition"
+                            >
+                              -
+                            </button>
+                            <span className="px-1.5 py-0.5 text-xs font-black text-[#192B3D] min-w-[22px] text-center">
+                              {memberShareCount}x
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleShareChange(m.id, 1)}
+                              className="px-2 py-0.5 text-xs font-bold text-[#718096] hover:bg-[#E4EAF0] transition"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
                       )}
 
                       {splitMode === 'CUSTOM' && (

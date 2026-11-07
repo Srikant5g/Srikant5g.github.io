@@ -33,6 +33,40 @@ export function calculateBalances(members: Member[], expenses: Expense[]): Membe
             participant.totalShare += share;
           }
         });
+      } else if (expense.splitMode === 'SHARES' && expense.shares) {
+        // Split by shares (ratio) with exact penny allocation
+        const totalShares = expense.splitMemberIds.reduce(
+          (sum, id) => sum + (expense.shares?.[id] || 1),
+          0
+        );
+        const totalPaise = Math.round(expense.amount * 100);
+
+        if (totalShares > 0) {
+          let allocatedPaise = 0;
+          const shareShares: { id: string; paise: number; rawFraction: number }[] = [];
+
+          expense.splitMemberIds.forEach((mId) => {
+            const memberRatio = (expense.shares?.[mId] || 1) / totalShares;
+            const exactPaise = totalPaise * memberRatio;
+            const flooredPaise = Math.floor(exactPaise);
+            shareShares.push({ id: mId, paise: flooredPaise, rawFraction: exactPaise - flooredPaise });
+            allocatedPaise += flooredPaise;
+          });
+
+          // Distribute remainder paise by highest fractional share
+          let remainder = totalPaise - allocatedPaise;
+          shareShares.sort((a, b) => b.rawFraction - a.rawFraction);
+          for (let i = 0; i < remainder && i < shareShares.length; i++) {
+            shareShares[i].paise += 1;
+          }
+
+          shareShares.forEach((item) => {
+            const participant = memberMap.get(item.id);
+            if (participant) {
+              participant.totalShare += item.paise / 100;
+            }
+          });
+        }
       } else {
         // Equal split with exact penny allocation (paise) to guarantee zero rounding drift
         const count = expense.splitMemberIds.length;
@@ -152,6 +186,51 @@ export function formatCurrency(amount: number, currency = '₹'): string {
     minimumFractionDigits: Number.isInteger(absAmount) ? 0 : 2,
   });
   return `${isNegative ? '-' : ''}${currency}${formatted}`;
+}
+
+/**
+ * Total Trip Spend excluding debt settlement / payment transfers
+ */
+export function calculateTotalTripSpend(expenses: Expense[]): number {
+  return expenses
+    .filter((e) => e.type !== 'PAYMENT')
+    .reduce((sum, e) => sum + e.amount, 0);
+}
+
+/**
+ * Filter out settlement transfers to only get consumption expenses
+ */
+export function getActualExpenses(expenses: Expense[]): Expense[] {
+  return expenses.filter((e) => e.type !== 'PAYMENT');
+}
+
+/**
+ * Format date for group section headers (e.g. "Today", "Yesterday", "Sat, 5 Nov")
+ */
+export function formatGroupDate(dateStr: string): string {
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    const [year, month, day] = parts.map(Number);
+    const date = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(year, month - 1, day);
+    target.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.round((today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return 'Yesterday';
+
+    return date.toLocaleDateString('en-IN', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined,
+    });
+  } catch {
+    return dateStr;
+  }
 }
 
 /**

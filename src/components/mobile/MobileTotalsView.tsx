@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Expense, Member } from '../../types';
-import { formatCurrency, formatExpenseDate } from '../../utils/settlement';
+import { formatCurrency, formatExpenseDate, calculateTotalTripSpend, getActualExpenses } from '../../utils/settlement';
 import { CATEGORY_ICONS } from '../../utils/sampleData';
 import { Share2, Sparkles, PieChart, Lock, TrendingUp, Award, Calendar, Users } from 'lucide-react';
 
@@ -19,12 +19,13 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
   onLoadSample,
   onResetData,
 }) => {
-  const totalSpend = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const actualExpenses = getActualExpenses(expenses);
+  const totalSpend = calculateTotalTripSpend(expenses);
   const avg = members.length > 0 ? totalSpend / members.length : 0;
 
-  // Category breakdown
+  // Category breakdown (pure consumption expenses only)
   const categoryMap: Record<string, number> = {};
-  expenses.forEach((e) => {
+  actualExpenses.forEach((e) => {
     categoryMap[e.category] = (categoryMap[e.category] || 0) + e.amount;
   });
 
@@ -62,13 +63,13 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
   });
 
   // Highest Expense
-  const highestExpense = expenses.length > 0
-    ? [...expenses].sort((a, b) => b.amount - a.amount)[0]
+  const highestExpense = actualExpenses.length > 0
+    ? [...actualExpenses].sort((a, b) => b.amount - a.amount)[0]
     : null;
 
   // Daily Spending Trend (group by expense.date)
   const dailySpendMap: Record<string, number> = {};
-  expenses.forEach((e) => {
+  actualExpenses.forEach((e) => {
     dailySpendMap[e.date] = (dailySpendMap[e.date] || 0) + e.amount;
   });
   const dailySpendEntries = Object.entries(dailySpendMap).sort(
@@ -78,7 +79,7 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
 
   // Individual payer contribution
   const payerMap: Record<string, number> = {};
-  expenses.forEach((e) => {
+  actualExpenses.forEach((e) => {
     payerMap[e.paidById] = (payerMap[e.paidById] || 0) + e.amount;
   });
 
