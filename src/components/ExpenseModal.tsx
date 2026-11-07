@@ -13,6 +13,7 @@ interface ExpenseModalProps {
   onDeleteExpense?: (id: string) => void;
   currentUserId?: string | null;
   tripName?: string;
+  initialPreset?: { title?: string; category?: Category } | null;
 }
 
 const PRESETS = [
@@ -36,6 +37,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   onDeleteExpense,
   currentUserId,
   tripName = 'Goa',
+  initialPreset,
 }) => {
   const [entryType, setEntryType] = useState<'EXPENSE' | 'ADVANCE'>('EXPENSE');
   const [advanceRecipientId, setAdvanceRecipientId] = useState<string>('');
@@ -104,10 +106,10 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       setEntryType('EXPENSE');
       const other = members.find((m) => m.id !== (currentUserId || members[0]?.id));
       setAdvanceRecipientId(other ? other.id : (members[1]?.id || members[0]?.id || ''));
-      setTitle('');
+      setTitle(initialPreset?.title || '');
       setAmountStr('');
       setPaidById(currentUserId || members[0]?.id || '');
-      setCategory('Petrol & Diesel');
+      setCategory(initialPreset?.category || 'Petrol & Diesel');
       setSplitMode('EQUAL');
       setSplitMemberIds(members.map((m) => m.id));
       setCustomSplits({});
@@ -118,7 +120,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       setNotes('');
     }
     setError(null);
-  }, [isOpen, editingExpense]);
+  }, [isOpen, editingExpense, initialPreset]);
 
   if (!isOpen) return null;
 

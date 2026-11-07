@@ -58,6 +58,8 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   members.forEach((m) => memberMap.set(m.id, m));
 
   const selectedFriend = selectedFriendId ? memberMap.get(selectedFriendId) : null;
+  const actualBillsCount = getActualExpenses(expenses).length;
+  const advancesCount = expenses.length - actualBillsCount;
 
   // Calculate currentUser's personal "you owe" and "you are owed"
   let youOweTotal = 0;
@@ -218,7 +220,12 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
               <span>Live chronological feed for {groupName}</span>
             ) : (
               <span>
-                {groupName} • <span className="font-bold text-[#192B3D]">{expenses.length} bills</span> recorded
+                {groupName} •{' '}
+                <span className="font-bold text-[#192B3D]">
+                  {actualBillsCount} {actualBillsCount === 1 ? 'bill' : 'bills'}
+                  {advancesCount > 0 ? ` + ${advancesCount} advance transfer${advancesCount > 1 ? 's' : ''}` : ''}
+                </span>{' '}
+                recorded
               </span>
             )}
           </p>

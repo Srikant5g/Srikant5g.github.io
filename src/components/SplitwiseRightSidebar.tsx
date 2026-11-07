@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Member, MemberBalance, DebtTransaction } from '../types';
+import type { Member, MemberBalance, DebtTransaction, Category } from '../types';
 import { formatCurrency } from '../utils/settlement';
 import { copyToClipboard } from '../utils/clipboard';
 import { Share2, Fuel, Coffee, Utensils, Beer, CheckCircle2, ArrowRight } from 'lucide-react';
@@ -9,7 +9,7 @@ interface SplitwiseRightSidebarProps {
   totalSpend: number;
   members: Member[];
   settlements?: DebtTransaction[];
-  onOpenAddExpense: () => void;
+  onOpenAddExpense: (preset?: { title?: string; category?: Category }) => void;
   onOpenShare: () => void;
   onLoadSample?: () => void;
   onEditFriend?: (member: Member) => void;
@@ -164,7 +164,7 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
         </h3>
         <div className="grid grid-cols-2 gap-2 text-[11px]">
           <button
-            onClick={onOpenAddExpense}
+            onClick={() => onOpenAddExpense({ title: 'Car Fuel / Diesel Fill', category: 'Petrol & Diesel' })}
             className="p-2.5 rounded-xl bg-[#F7F8F5] hover:bg-white border border-[#E4EAF0] font-semibold text-[#192B3D] flex items-center gap-2 transition active:scale-95 text-left shadow-2xs hover:border-[#78C5A7]"
           >
             <Fuel className="w-4 h-4 text-amber-500 shrink-0" />
@@ -172,7 +172,7 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
           </button>
 
           <button
-            onClick={onOpenAddExpense}
+            onClick={() => onOpenAddExpense({ title: 'Highway Breakfast & Chai', category: 'Breakfast' })}
             className="p-2.5 rounded-xl bg-[#F7F8F5] hover:bg-white border border-[#E4EAF0] font-semibold text-[#192B3D] flex items-center gap-2 transition active:scale-95 text-left shadow-2xs hover:border-[#78C5A7]"
           >
             <Coffee className="w-4 h-4 text-yellow-600 shrink-0" />
@@ -180,7 +180,7 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
           </button>
 
           <button
-            onClick={onOpenAddExpense}
+            onClick={() => onOpenAddExpense({ title: 'Highway Dhaba Lunch', category: 'Lunch' })}
             className="p-2.5 rounded-xl bg-[#F7F8F5] hover:bg-white border border-[#E4EAF0] font-semibold text-[#192B3D] flex items-center gap-2 transition active:scale-95 text-left shadow-2xs hover:border-[#78C5A7]"
           >
             <Utensils className="w-4 h-4 text-[#FF784F] shrink-0" />
@@ -188,7 +188,7 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
           </button>
 
           <button
-            onClick={onOpenAddExpense}
+            onClick={() => onOpenAddExpense({ title: 'Alcohol, Beers & Mixers', category: 'Alcohol & Drinks' })}
             className="p-2.5 rounded-xl bg-[#F7F8F5] hover:bg-white border border-[#E4EAF0] font-semibold text-[#192B3D] flex items-center gap-2 transition active:scale-95 text-left shadow-2xs hover:border-[#78C5A7]"
           >
             <Beer className="w-4 h-4 text-purple-500 shrink-0" />

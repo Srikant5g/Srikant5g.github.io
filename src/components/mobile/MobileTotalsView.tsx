@@ -143,7 +143,7 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
                 {formatCurrency(totalSpend)}
               </span>
               <span className="text-[10px] font-semibold text-[#78C5A7] bg-[#145B4A] px-2 py-0.5 rounded-full mt-1">
-                {expenses.length} bills
+                {actualExpenses.length} {actualExpenses.length === 1 ? 'bill' : 'bills'}
               </span>
             </div>
           </div>

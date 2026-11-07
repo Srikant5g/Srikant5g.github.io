@@ -189,18 +189,21 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
             const net = balanceMap.get(member.id) || 0;
 
             return (
-              <button
+              <div
                 key={member.id}
-                onClick={() =>
-                  onSelectFriend(isSelected ? null : member.id)
-                }
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition text-left text-xs ${
                   isSelected
                     ? 'bg-[#78C5A7]/20 text-[#145B4A] font-bold border border-[#78C5A7]/40'
                     : 'hover:bg-white text-[#718096] hover:text-[#192B3D]'
                 }`}
               >
-                <div className="flex items-center gap-2 min-w-0">
+                <button
+                  type="button"
+                  onClick={() =>
+                    onSelectFriend(isSelected ? null : member.id)
+                  }
+                  className="flex items-center gap-2 min-w-0 flex-1 text-left"
+                >
                   <div
                     className={`w-6 h-6 rounded-full ${member.avatarColor} text-white font-bold flex items-center justify-center text-[10px] shrink-0 shadow-xs`}
                   >
@@ -209,7 +212,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
                   <span className="truncate">
                     {member.name}{isMe && <span className="text-[#718096] font-normal ml-1"> (you)</span>}
                   </span>
-                </div>
+                </button>
 
                 <div className="shrink-0 pl-1 text-[11px] font-semibold text-right flex items-center gap-1.5">
                   {net > 0.01 && (
@@ -225,20 +228,21 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
                   {Math.abs(net) <= 0.01 && (
                     <span className="text-[#718096]">settled</span>
                   )}
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditFriend?.(member);
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    className="p-1 rounded-md text-[#718096] hover:text-[#145B4A] hover:bg-[#78C5A7]/25 transition opacity-60 hover:opacity-100"
-                    title={`Edit ${member.name}'s UPI ID & details`}
-                  >
-                    <Edit2 className="w-3 h-3" />
-                  </span>
+                  {onEditFriend && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditFriend(member);
+                      }}
+                      className="p-1 rounded-md text-[#718096] hover:text-[#145B4A] hover:bg-[#78C5A7]/25 transition opacity-60 hover:opacity-100"
+                      title={`Edit ${member.name}'s UPI ID & details`}
+                    >
+                      <Edit2 className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>

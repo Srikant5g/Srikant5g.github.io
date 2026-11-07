@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import type { Member, Expense, TripSettings, Group } from './types';
+import type { Member, Expense, TripSettings, Group, Category } from './types';
 import {
   loadMembers,
   saveMembers,
@@ -83,6 +83,7 @@ export function App() {
   // Modals
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [expensePreset, setExpensePreset] = useState<{ title?: string; category?: Category } | null>(null);
   const [isSettleUpModalOpen, setIsSettleUpModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -362,7 +363,7 @@ export function App() {
       id: `m_${Date.now()}`,
       name: name.trim(),
       upiId: upiId?.trim() || '',
-      avatarColor: avatarColor || '#145B4A',
+      avatarColor: avatarColor || 'bg-teal-500',
     };
     const updatedMembers = [...members, newMember];
     setMembers(updatedMembers);
@@ -738,8 +739,9 @@ export function App() {
           totalSpend={totalSpend}
           members={currentGroupMembers}
           settlements={settlements}
-          onOpenAddExpense={() => {
+          onOpenAddExpense={(preset) => {
             setEditingExpense(null);
+            setExpensePreset(preset || null);
             setIsExpenseModalOpen(true);
           }}
           onOpenShare={() => setIsShareModalOpen(true)}
@@ -754,6 +756,7 @@ export function App() {
         onSelectTab={setMobileTab}
         onOpenAddExpense={() => {
           setEditingExpense(null);
+          setExpensePreset(null);
           setIsExpenseModalOpen(true);
         }}
         expensesCount={currentGroupExpenses.length}
@@ -767,10 +770,12 @@ export function App() {
         onClose={() => {
           setIsExpenseModalOpen(false);
           setEditingExpense(null);
+          setExpensePreset(null);
         }}
         onSave={handleSaveExpense}
         members={currentGroupMembers}
         editingExpense={editingExpense}
+        initialPreset={expensePreset}
         onDeleteExpense={handleDeleteExpense}
         currentUserId={currentUserId}
         tripName={activeGroup.name}
@@ -795,7 +800,11 @@ export function App() {
       <WhatsAppShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
-        settings={settings}
+        settings={{
+          ...settings,
+          tripName: activeGroup.name,
+          location: activeGroup.location || activeGroup.name,
+        }}
         balances={balances}
         settlements={settlements}
         totalSpend={totalSpend}
