@@ -261,9 +261,26 @@ export function getUserExpenseShare(expense: Expense, userId: string): number {
     if (totalShares <= 0) return 0;
 
     const totalPaise = Math.round(expense.amount * 100);
-    const memberRatio = (expense.shares[userId] || 1) / totalShares;
-    const exactPaise = totalPaise * memberRatio;
-    return Number((exactPaise / 100).toFixed(2));
+    let allocatedPaise = 0;
+    const shareShares: { id: string; paise: number; rawFraction: number }[] = [];
+
+    expense.splitMemberIds.forEach((mId) => {
+      const memberRatio = (expense.shares?.[mId] || 1) / totalShares;
+      const exactPaise = totalPaise * memberRatio;
+      const flooredPaise = Math.floor(exactPaise);
+      shareShares.push({ id: mId, paise: flooredPaise, rawFraction: exactPaise - flooredPaise });
+      allocatedPaise += flooredPaise;
+    });
+
+    // Distribute remainder paise by highest fractional share
+    const remainder = totalPaise - allocatedPaise;
+    shareShares.sort((a, b) => b.rawFraction - a.rawFraction);
+    for (let i = 0; i < remainder && i < shareShares.length; i++) {
+      shareShares[i].paise += 1;
+    }
+
+    const userItem = shareShares.find((item) => item.id === userId);
+    return userItem ? userItem.paise / 100 : 0;
   }
 
   // Equal split with exact penny allocation matching calculateBalances
