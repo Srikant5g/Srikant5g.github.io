@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Member } from '../types';
-import { Users, Share2, Sparkles, RotateCcw, ChevronDown } from 'lucide-react';
+import { Users, Share2, RotateCcw, ChevronDown } from 'lucide-react';
 
 interface SplitwiseNavbarProps {
   members: Member[];
@@ -9,7 +9,7 @@ interface SplitwiseNavbarProps {
   onOpenMembers: () => void;
   onOpenShare: () => void;
   onResetData: () => void;
-  onLoadSample: () => void;
+  onLoadSample?: () => void;
   onOpenUserSelect: () => void;
   tripName?: string;
 }
@@ -20,7 +20,6 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   onOpenMembers,
   onOpenShare,
   onResetData,
-  onLoadSample,
   onOpenUserSelect,
   tripName = 'Road Trip 2026',
 }) => {
@@ -95,18 +94,8 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
             <span>Share</span>
           </button>
 
-          {/* Sample Data & Reset (Desktop only) */}
-          <div className="hidden xl:flex items-center gap-2 pl-2 border-l border-white/20 text-[11px] shrink-0">
-            <button
-              type="button"
-              onClick={onLoadSample}
-              className="hover:underline flex items-center gap-1 opacity-80 hover:opacity-100"
-              title="Reload sample expenses"
-            >
-              <Sparkles className="w-3 h-3 text-[#78C5A7]" />
-              Sample
-            </button>
-            <span className="text-white/40">•</span>
+          {/* Reset Action (Desktop only) */}
+          <div className="hidden xl:flex items-center pl-2 border-l border-white/20 text-[11px] shrink-0">
             <button
               type="button"
               onClick={onResetData}
