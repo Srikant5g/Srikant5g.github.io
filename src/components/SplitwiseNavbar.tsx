@@ -1,7 +1,6 @@
 import React from 'react';
 import type { Member } from '../types';
-import type { SyncStatus } from '../utils/cloudSync';
-import { Users, Share2, Sparkles, RotateCcw, RefreshCw, ChevronDown } from 'lucide-react';
+import { Users, Share2, Sparkles, RotateCcw, ChevronDown } from 'lucide-react';
 
 interface SplitwiseNavbarProps {
   members: Member[];
@@ -11,8 +10,6 @@ interface SplitwiseNavbarProps {
   onOpenShare: () => void;
   onResetData: () => void;
   onLoadSample: () => void;
-  syncStatus?: SyncStatus;
-  onManualSync?: () => void;
   onOpenUserSelect: () => void;
   tripName?: string;
 }
@@ -24,8 +21,6 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   onOpenShare,
   onResetData,
   onLoadSample,
-  syncStatus = 'synced',
-  onManualSync,
   onOpenUserSelect,
   tripName = 'Road Trip 2026',
 }) => {
@@ -58,23 +53,6 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
               {tripName}
             </span>
           </div>
-
-          {/* Real-time Cloud Sync Dot/Pill */}
-          <button
-            type="button"
-            onClick={onManualSync}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 transition text-[11px] font-medium border border-white/15 text-white shrink-0"
-            title="Real-time Cloud Sync active (Click to refresh)"
-          >
-            {syncStatus === 'syncing' ? (
-              <RefreshCw className="w-2.5 h-2.5 animate-spin text-amber-200" />
-            ) : syncStatus === 'error' ? (
-              <span className="w-2 h-2 rounded-full bg-rose-400" />
-            ) : (
-              <span className="w-2 h-2 rounded-full bg-[#78C5A7] shadow-[0_0_8px_rgba(120,197,167,0.9)] animate-pulse" />
-            )}
-            <span className="hidden sm:inline">Live Sync</span>
-          </button>
         </div>
 
         {/* Right: Active Profile Pill & Desktop Actions (Zero overflow on mobile!) */}

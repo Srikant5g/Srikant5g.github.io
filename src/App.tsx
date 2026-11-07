@@ -40,7 +40,7 @@ export function App() {
   const [members, setMembers] = useState<Member[]>(() => loadMembers());
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
   const [settings] = useState<TripSettings>(() => loadTripSettings());
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>('synced');
+  const [, setSyncStatus] = useState<SyncStatus>('synced');
 
   // Active viewing member - starts unselected so user must select their name on open
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -234,24 +234,6 @@ export function App() {
     [members, balances]
   );
 
-  // Manual Sync trigger
-  const handleManualSync = () => {
-    setSyncStatus('syncing');
-    pullFromCloud().then((cloudData) => {
-      if (cloudData) {
-        lastUpdatedRef.current = cloudData.updatedAt;
-        setLastUpdatedAt(cloudData.updatedAt);
-        setExpenses(cloudData.expenses || []);
-        saveExpenses(cloudData.expenses || []);
-        if (cloudData.members && cloudData.members.length > 0) {
-          setMembers(cloudData.members);
-          saveMembers(cloudData.members);
-        }
-      }
-      setSyncStatus('synced');
-    });
-  };
-
   // Expense Handlers
   const handleSaveExpense = (
     expenseData: Omit<Expense, 'id' | 'createdAt'>,
@@ -403,8 +385,6 @@ export function App() {
         onOpenShare={() => setIsShareModalOpen(true)}
         onResetData={handleResetData}
         onLoadSample={handleLoadSample}
-        syncStatus={syncStatus}
-        onManualSync={handleManualSync}
         onOpenUserSelect={() => setIsUserSelectModalOpen(true)}
       />
 

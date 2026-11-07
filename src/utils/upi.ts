@@ -119,3 +119,4 @@ export function getUniversalUpiUrl({
 
   return `upi://pay?pa=${encVpa}&pn=${encName}&am=${amtStr}&cu=INR&tn=${encNote}`;
 }
+
