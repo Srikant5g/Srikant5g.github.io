@@ -252,7 +252,9 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
         {/* Quick Footer: Trip Total Spend & Prominent Add Action */}
         <div className="pt-3 border-t border-[#E4EAF0] flex items-center justify-between text-xs">
           <span className="text-[#718096] text-[11px]">
-            Trip Spend: <strong className="text-[#192B3D] font-bold">{formatCurrency(totalSpend)}</strong> ({actualBills.length} bills)
+            Trip Spend: <strong className="text-[#192B3D] font-bold">{formatCurrency(totalSpend)}</strong> (
+            {actualBills.length} {actualBills.length === 1 ? 'bill' : 'bills'}
+            {expenses.length > actualBills.length ? ` • ${expenses.length - actualBills.length} adv` : ''})
           </span>
 
           <button

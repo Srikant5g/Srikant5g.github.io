@@ -38,7 +38,7 @@ export function generateWhatsAppTripSummary({
   text += `📍 _Every trip. Every expense. Sorted._\n`;
   text += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
-  text += `💰 *Total Trip Spending:* ${formatCurrency(totalSpend)} (${actualBills.length} bills)\n`;
+  text += `💰 *Total Trip Spending:* ${formatCurrency(totalSpend)} (${actualBills.length} ${actualBills.length === 1 ? 'bill' : 'bills'})\n`;
   text += `👥 *Average per Person:* ${formatCurrency(avgSpend)} (${members.length} friends)\n\n`;
 
   if (sortedCategories.length > 0) {

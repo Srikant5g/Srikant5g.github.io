@@ -21,6 +21,8 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
   const actualExpenses = getActualExpenses(expenses);
   const totalSpend = calculateTotalTripSpend(expenses);
   const avg = members.length > 0 ? totalSpend / members.length : 0;
+  const actualCount = actualExpenses.length;
+  const advanceCount = expenses.length - actualCount;
 
   // Category breakdown (pure consumption expenses only)
   const categoryMap: Record<string, number> = {};
@@ -83,7 +85,7 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
   });
 
   return (
-    <div className="space-y-4 pb-32">
+    <div className="space-y-4 pb-36">
       {/* 1. Trip Hero Card with Donut Chart (Inspired by Reference Screenshot 4) */}
       <div className="bg-white border border-[#E4EAF0] rounded-3xl p-5 shadow-xs space-y-4">
         {/* Top Header */}
@@ -142,9 +144,16 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
               <span className="text-xl font-black text-[#192B3D] mt-0.5">
                 {formatCurrency(totalSpend)}
               </span>
-              <span className="text-[10px] font-semibold text-[#78C5A7] bg-[#145B4A] px-2 py-0.5 rounded-full mt-1">
-                {actualExpenses.length} {actualExpenses.length === 1 ? 'bill' : 'bills'}
-              </span>
+              <div className="flex items-center gap-1 mt-1 flex-wrap justify-center">
+                <span className="text-[10px] font-semibold text-[#78C5A7] bg-[#145B4A] px-2 py-0.5 rounded-full">
+                  {actualCount} {actualCount === 1 ? 'bill' : 'bills'}
+                </span>
+                {advanceCount > 0 && (
+                  <span className="text-[10px] font-semibold text-[#145B4A] bg-[#78C5A7]/25 border border-[#78C5A7]/40 px-1.5 py-0.5 rounded-full">
+                    +{advanceCount} {advanceCount === 1 ? 'adv' : 'adv'}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
