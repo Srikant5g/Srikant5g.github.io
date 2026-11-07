@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Expense, Member, Category, SplitMode } from '../types';
 import { CATEGORY_ICONS } from '../utils/sampleData';
 import { formatCurrency } from '../utils/settlement';
@@ -49,16 +49,28 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const [notes, setNotes] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  const prevIsOpenRef = useRef(false);
+  const prevEditingIdRef = useRef<string | undefined>(undefined);
+
   useEffect(() => {
-    if (!isOpen) return;
+    // Only initialize when modal opens (false -> true) or editing target changes
+    const justOpened = isOpen && !prevIsOpenRef.current;
+    const editingTargetChanged = isOpen && editingExpense?.id !== prevEditingIdRef.current;
+
+    prevIsOpenRef.current = isOpen;
+    prevEditingIdRef.current = editingExpense?.id;
+
+    if (!justOpened && !editingTargetChanged) {
+      return;
+    }
 
     if (editingExpense) {
       setTitle(editingExpense.title);
       setAmountStr(editingExpense.amount.toString());
       setPaidById(editingExpense.paidById);
       setCategory(editingExpense.category);
-      setSplitMode(editingExpense.splitMode);
-      setSplitMemberIds(editingExpense.splitMemberIds);
+      setSplitMode(editingExpense.splitMode || 'EQUAL');
+      setSplitMemberIds(editingExpense.splitMemberIds || members.map((m) => m.id));
       setDate(editingExpense.date);
       setNotes(editingExpense.notes || '');
 
@@ -92,7 +104,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
       setNotes('');
     }
     setError(null);
-  }, [isOpen, editingExpense, members, currentUserId]);
+  }, [isOpen, editingExpense]);
 
   if (!isOpen) return null;
 

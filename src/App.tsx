@@ -90,12 +90,25 @@ export function App() {
       const ts = remoteUpdatedAt || Date.now();
       lastUpdatedRef.current = ts;
       setLastUpdatedAt(ts);
-      setExpenses(cloudExpenses);
+      setExpenses((prev) => {
+        if (prev.length === cloudExpenses.length && JSON.stringify(prev) === JSON.stringify(cloudExpenses)) {
+          return prev;
+        }
+        return cloudExpenses;
+      });
       saveExpenses(cloudExpenses);
       if (cloudMembers && cloudMembers.length > 0) {
         const enforced = enforceFixedMembers(cloudMembers);
-        setMembers(enforced);
-        saveMembers(enforced);
+        setMembers((prev) => {
+          if (
+            prev.length === enforced.length &&
+            prev.every((m, i) => m.id === enforced[i].id && m.name === enforced[i].name && m.upiId === enforced[i].upiId)
+          ) {
+            return prev;
+          }
+          saveMembers(enforced);
+          return enforced;
+        });
       }
       setSyncStatus('synced');
     }
@@ -125,15 +138,23 @@ export function App() {
     pullFromCloud().then((cloudData) => {
       if (cloudData) {
         // If cloud data is newer or explicitly cleared, adopt cloud state
-        if (cloudData.updatedAt >= lastUpdatedRef.current || cloudData.isCleared) {
+        if (cloudData.updatedAt > lastUpdatedRef.current || cloudData.isCleared) {
           lastUpdatedRef.current = cloudData.updatedAt;
           setLastUpdatedAt(cloudData.updatedAt);
           setExpenses(cloudData.expenses || []);
           saveExpenses(cloudData.expenses || []);
           if (cloudData.members && cloudData.members.length > 0) {
             const enforced = enforceFixedMembers(cloudData.members);
-            setMembers(enforced);
-            saveMembers(enforced);
+            setMembers((prev) => {
+              if (
+                prev.length === enforced.length &&
+                prev.every((m, i) => m.id === enforced[i].id && m.name === enforced[i].name && m.upiId === enforced[i].upiId)
+              ) {
+                return prev;
+              }
+              saveMembers(enforced);
+              return enforced;
+            });
           }
         }
         setSyncStatus('synced');

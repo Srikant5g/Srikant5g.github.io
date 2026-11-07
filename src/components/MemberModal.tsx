@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Member } from '../types';
 import { X, Users, Check, Lock, ShieldCheck } from 'lucide-react';
 
@@ -17,13 +17,17 @@ export const MemberModal: React.FC<MemberModalProps> = ({
 }) => {
   const [list, setList] = useState<Member[]>(members);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const prevIsOpenRef = useRef(false);
 
   useEffect(() => {
-    if (isOpen) {
+    const justOpened = isOpen && !prevIsOpenRef.current;
+    prevIsOpenRef.current = isOpen;
+
+    if (justOpened) {
       setList(members);
       setSavedSuccess(false);
     }
-  }, [isOpen, members]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
