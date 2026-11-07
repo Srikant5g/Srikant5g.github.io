@@ -393,7 +393,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8F5] text-[#192B3D] flex flex-col font-sans pb-16 md:pb-0">
+    <div className="min-h-screen bg-[#F7F8F5] text-[#192B3D] flex flex-col font-sans pb-16 md:pb-0 w-full max-w-full overflow-x-hidden">
       {/* TripTally Navigation Bar with Live Cloud Sync */}
       <SplitwiseNavbar
         members={members}
