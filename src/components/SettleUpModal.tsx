@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import type { DebtTransaction, Member } from '../types';
 import { formatCurrency } from '../utils/settlement';
-import { copyToClipboard } from '../utils/clipboard';
-import { X, Check, QrCode, ArrowRight, Wallet, HandCoins } from 'lucide-react';
+import { UpiPaymentActions } from './UpiPaymentActions';
+import { X, Check, ArrowRight, Wallet, HandCoins } from 'lucide-react';
 
 interface SettleUpModalProps {
   isOpen: boolean;
@@ -23,7 +23,6 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 }) => {
   const [tab, setTab] = useState<'settle' | 'deposit'>('settle');
   const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Deposit mode state
   const [depositFromId, setDepositFromId] = useState<string>(
@@ -46,13 +45,6 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
     if (!activeTx) return;
     onRecordPayment(activeTx.fromId, activeTx.toId, activeTx.amount);
     onClose();
-  };
-
-  const handleCopyUpi = async (e: React.MouseEvent, txId: string, upi: string) => {
-    e.stopPropagation();
-    await copyToClipboard(upi);
-    setCopiedId(txId);
-    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleRecordDeposit = (e?: React.SyntheticEvent) => {
@@ -81,12 +73,6 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
   const recipientMember = members.find((m) => m.id === depositToId);
   const numDepositAmt = parseFloat(depositAmount) || 0;
-
-  const depositUpiUrl = recipientMember?.upiId && numDepositAmt > 0
-    ? `upi://pay?pa=${encodeURIComponent(recipientMember.upiId)}&pn=${encodeURIComponent(
-        recipientMember.name
-      )}&am=${numDepositAmt}&cu=INR&tn=${encodeURIComponent(depositNote)}`
-    : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
@@ -165,11 +151,6 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                   {settlements.map((tx) => {
                     const isSelected = activeTx?.id === tx.id;
-                    const upiUrl = tx.toUpiId
-                      ? `upi://pay?pa=${encodeURIComponent(tx.toUpiId)}&pn=${encodeURIComponent(
-                          tx.toName
-                        )}&am=${tx.amount}&cu=INR&tn=TripTallySettlement`
-                      : null;
 
                     return (
                       <div
@@ -192,24 +173,17 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                             {formatCurrency(tx.amount)}
                           </span>
                           {tx.toUpiId && (
-                            <button
-                              type="button"
-                              onClick={(e) => handleCopyUpi(e, tx.id, tx.toUpiId!)}
-                              className="px-1.5 py-0.5 rounded text-[10px] font-semibold text-[#718096] bg-slate-100 hover:bg-slate-200 transition"
-                              title="Copy UPI ID"
-                            >
-                              {copiedId === tx.id ? 'Copied' : 'Copy'}
-                            </button>
-                          )}
-                          {upiUrl && (
-                            <a
-                              href={upiUrl}
-                              onClick={(e) => e.stopPropagation()}
-                              className="px-2 py-0.5 rounded-lg bg-[#145B4A] text-white text-[10px] font-bold flex items-center gap-0.5"
-                            >
-                              <QrCode className="w-2.5 h-2.5" />
-                              UPI
-                            </a>
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <UpiPaymentActions
+                                params={{
+                                  upiId: tx.toUpiId,
+                                  name: tx.toName,
+                                  amount: tx.amount,
+                                  note: `TripTally Settlement to ${tx.toName}`,
+                                }}
+                                size="sm"
+                              />
+                            </div>
                           )}
                         </div>
                       </div>
@@ -233,12 +207,25 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                         </span>
                       </div>
                       {activeTx.toUpiId && (
-                        <div className="flex justify-between">
-                          <span className="text-[#718096]">Recipient UPI:</span>
-                          <span className="font-mono text-[#192B3D]">
-                            {activeTx.toUpiId}
-                          </span>
-                        </div>
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-[#718096]">Recipient UPI:</span>
+                            <span className="font-mono text-[#192B3D]">
+                              {activeTx.toUpiId}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between pt-2 border-t border-[#E4EAF0]">
+                            <span className="text-[#718096] font-medium">Direct Payment:</span>
+                            <UpiPaymentActions
+                              params={{
+                                upiId: activeTx.toUpiId,
+                                name: activeTx.toName,
+                                amount: activeTx.amount,
+                                note: `TripTally Settlement to ${activeTx.toName}`,
+                              }}
+                            />
+                          </div>
+                        </>
                       )}
                     </div>
 
@@ -349,20 +336,21 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                 />
               </div>
 
-              {/* Pay via UPI shortcut if recipient has UPI ID */}
-              {depositUpiUrl && (
-                <div className="p-3 bg-[#F7F8F5] rounded-xl border border-[#E4EAF0] flex items-center justify-between text-xs">
-                  <div>
-                    <span className="text-[#718096] block text-[11px]">Pay directly via UPI:</span>
-                    <strong className="text-[#192B3D]">{recipientMember?.upiId}</strong>
+              {/* Pay via PhonePe / UPI shortcut if recipient has UPI ID and amount > 0 */}
+              {recipientMember?.upiId && numDepositAmt > 0 && (
+                <div className="p-3 bg-[#F7F8F5] rounded-2xl border border-[#E4EAF0] flex items-center justify-between text-xs gap-2">
+                  <div className="min-w-0">
+                    <span className="text-[#718096] block text-[11px]">Pay directly:</span>
+                    <strong className="text-[#192B3D] truncate block">{recipientMember.upiId}</strong>
                   </div>
-                  <a
-                    href={depositUpiUrl}
-                    className="px-3 py-1.5 rounded-lg bg-[#145B4A] hover:bg-[#0f4437] text-white text-xs font-bold flex items-center gap-1 shadow-xs transition"
-                  >
-                    <QrCode className="w-3.5 h-3.5" />
-                    <span>Pay {formatCurrency(numDepositAmt)}</span>
-                  </a>
+                  <UpiPaymentActions
+                    params={{
+                      upiId: recipientMember.upiId,
+                      name: recipientMember.name,
+                      amount: numDepositAmt,
+                      note: depositNote || 'Trip Advance Fund',
+                    }}
+                  />
                 </div>
               )}
 

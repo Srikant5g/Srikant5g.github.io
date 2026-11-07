@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import type { DebtTransaction } from '../../types';
 import { formatCurrency } from '../../utils/settlement';
-import { copyToClipboard } from '../../utils/clipboard';
-import { QrCode, ArrowRight, Check, Sparkles, Copy } from 'lucide-react';
+import { UpiPaymentActions } from '../UpiPaymentActions';
+import { ArrowRight, Check, Sparkles } from 'lucide-react';
 
 interface MobileSettleViewProps {
   settlements: DebtTransaction[];
@@ -14,17 +14,9 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
   currentUserId,
 }) => {
   const [completedMap, setCompletedMap] = useState<Record<string, boolean>>({});
-  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const toggleCompleted = (id: string) => {
     setCompletedMap((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const handleCopy = async (tx: DebtTransaction) => {
-    if (!tx.toUpiId) return;
-    await copyToClipboard(tx.toUpiId);
-    setCopiedId(tx.id);
-    setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
@@ -59,12 +51,6 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
             const isDone = !!completedMap[tx.id];
             const isYouPaying = Boolean(currentUserId && tx.fromId === currentUserId);
             const isYouReceiving = Boolean(currentUserId && tx.toId === currentUserId);
-
-            const upiUrl = tx.toUpiId
-              ? `upi://pay?pa=${encodeURIComponent(tx.toUpiId)}&pn=${encodeURIComponent(
-                  tx.toName
-                )}&am=${tx.amount}&cu=INR&tn=TripTallySettlement`
-              : null;
 
             return (
               <div
@@ -142,35 +128,21 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
                   </div>
                 </div>
 
-                {/* Row 2: Direct Actions (Pay UPI, Copy UPI) */}
+                {/* Row 2: Direct PhonePe & UPI Payment Actions */}
                 {tx.toUpiId && !isDone && (
-                  <div className="flex items-center justify-end gap-2 pt-2.5 border-t border-[#E4EAF0]">
-                    <button
-                      onClick={() => handleCopy(tx)}
-                      className="px-3 py-1.5 rounded-xl border border-[#E4EAF0] text-[#718096] hover:text-[#192B3D] bg-white text-xs font-semibold flex items-center gap-1 transition active:scale-95"
-                    >
-                      {copiedId === tx.id ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-[#145B4A] stroke-[3]" />
-                          <span className="text-[#145B4A] font-bold">Copied!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-[#718096]" />
-                          <span>Copy UPI</span>
-                        </>
-                      )}
-                    </button>
+                  <div className="flex items-center justify-between pt-2.5 border-t border-[#E4EAF0] gap-2">
+                    <span className="text-[11px] text-[#718096] truncate">
+                      Pay to: <strong className="text-[#192B3D]">{tx.toName}</strong>
+                    </span>
 
-                    {upiUrl && (
-                      <a
-                        href={upiUrl}
-                        className="px-4 py-1.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition active:scale-95"
-                      >
-                        <QrCode className="w-3.5 h-3.5" />
-                        <span>Pay UPI</span>
-                      </a>
-                    )}
+                    <UpiPaymentActions
+                      params={{
+                        upiId: tx.toUpiId,
+                        name: tx.toName,
+                        amount: tx.amount,
+                        note: `TripTally Settlement to ${tx.toName}`,
+                      }}
+                    />
                   </div>
                 )}
               </div>

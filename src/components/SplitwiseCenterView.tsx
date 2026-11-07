@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import type { Expense, Member, DebtTransaction, Category } from '../types';
 import { formatCurrency, formatExpenseDate } from '../utils/settlement';
 import { CATEGORY_ICONS } from '../utils/sampleData';
-import { copyToClipboard } from '../utils/clipboard';
-import { Plus, Check, ArrowRight, Trash2, Edit3, QrCode, Search, Sparkles, X, Copy, PieChart } from 'lucide-react';
+import { UpiPaymentActions } from './UpiPaymentActions';
+import { Plus, Check, ArrowRight, Trash2, Edit3, Search, Sparkles, X, PieChart } from 'lucide-react';
 
 interface SplitwiseCenterViewProps {
   expenses: Expense[];
@@ -37,7 +37,6 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   const [internalTab, setInternalTab] = useState<'expenses' | 'debts' | 'breakdown'>('expenses');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
-  const [copiedUpiId, setCopiedUpiId] = useState<string | null>(null);
 
   const tab = onChangeSubTab ? activeSubTab : internalTab;
   const setTab = (t: 'expenses' | 'debts' | 'breakdown') => {
@@ -46,13 +45,6 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
     } else {
       setInternalTab(t);
     }
-  };
-
-  const handleCopyUpi = async (e: React.MouseEvent, txId: string, upi: string) => {
-    e.stopPropagation();
-    await copyToClipboard(upi);
-    setCopiedUpiId(txId);
-    setTimeout(() => setCopiedUpiId(null), 2000);
   };
 
   const memberMap = new Map<string, Member>();
@@ -571,36 +563,15 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                       </span>
 
                       {tx.toUpiId && (
-                        <button
-                          type="button"
-                          onClick={(e) => handleCopyUpi(e, tx.id, tx.toUpiId!)}
-                          className="px-2.5 py-1.5 text-xs font-bold rounded-xl border border-[#E4EAF0] bg-white hover:bg-[#F7F8F5] text-[#718096] transition flex items-center gap-1"
-                          title="Copy UPI ID"
-                        >
-                          {copiedUpiId === tx.id ? (
-                            <>
-                              <Check className="w-3.5 h-3.5 text-[#145B4A]" />
-                              <span className="text-[#145B4A]">Copied</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-3.5 h-3.5" />
-                              <span>Copy UPI</span>
-                            </>
-                          )}
-                        </button>
-                      )}
-
-                      {tx.toUpiId && (
-                        <a
-                          href={`upi://pay?pa=${encodeURIComponent(tx.toUpiId)}&pn=${encodeURIComponent(
-                            tx.toName
-                          )}&am=${tx.amount}&cu=INR&tn=TripTallySettlement`}
-                          className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white transition flex items-center gap-1.5 shadow-xs"
-                        >
-                          <QrCode className="w-3.5 h-3.5" />
-                          <span>Pay UPI</span>
-                        </a>
+                        <UpiPaymentActions
+                          params={{
+                            upiId: tx.toUpiId,
+                            name: tx.toName,
+                            amount: tx.amount,
+                            note: `TripTally Settlement to ${tx.toName}`,
+                          }}
+                          size="sm"
+                        />
                       )}
                     </div>
                   </div>
