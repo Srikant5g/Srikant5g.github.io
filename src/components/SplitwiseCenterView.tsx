@@ -828,7 +828,26 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                         {formatCurrency(tx.amount)}
                       </span>
 
-                      {tx.toUpiId ? (
+                      {isYouReceiving ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-emerald-800 font-semibold bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200">
+                            Awaiting payment
+                          </span>
+                          <a
+                            href={`https://wa.me/?text=${encodeURIComponent(
+                              `Hi ${tx.fromName}, please settle your TripTally balance of ${formatCurrency(
+                                tx.amount
+                              )} with me via UPI: ${tx.toUpiId || ''}`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#1fb855] text-white text-xs font-bold flex items-center gap-1 shadow-2xs transition active:scale-95"
+                            title="Remind friend on WhatsApp"
+                          >
+                            <span>💬 Remind</span>
+                          </a>
+                        </div>
+                      ) : tx.toUpiId ? (
                         <div className="flex items-center gap-1.5">
                           <UpiPaymentActions
                             params={{

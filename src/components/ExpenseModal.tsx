@@ -296,36 +296,39 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150 overflow-hidden"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[94vh] flex flex-col text-[#192B3D] border border-[#E4EAF0] animate-in slide-in-from-bottom sm:zoom-in-95 duration-150"
+        className="bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden h-[88dvh] sm:h-auto sm:max-h-[88vh] flex flex-col text-[#192B3D] border border-[#E4EAF0] animate-in slide-in-from-bottom sm:zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Bar */}
-        <div className="px-5 py-4 bg-[#145B4A] text-white flex items-center justify-between sticky top-0 z-10 shrink-0">
-          <div>
-            <h2 className="text-base sm:text-lg font-black tracking-tight text-white m-0">
-              {editingExpense ? 'Edit Expense' : 'Add an Expense'}
-            </h2>
-            <p className="text-xs text-[#78C5A7] font-medium mt-0.5">
-              {tripName} • {members.length} Friends
-            </p>
+        {/* Header Bar with native-feeling mobile handle */}
+        <div className="px-5 pt-3 pb-4 bg-[#145B4A] text-white sticky top-0 z-10 shrink-0 shadow-sm">
+          <div className="w-10 h-1 bg-white/30 rounded-full mx-auto mb-2.5 sm:hidden" />
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-base sm:text-lg font-black tracking-tight text-white m-0">
+                {editingExpense ? 'Edit Expense' : 'Add an Expense'}
+              </h2>
+              <p className="text-xs text-[#78C5A7] font-medium mt-0.5">
+                {tripName} • {members.length} Friends
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition"
+              aria-label="Close dialog"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition"
-            aria-label="Close dialog"
-          >
-            <X className="w-5 h-5" />
-          </button>
         </div>
 
         {/* Modal Form Content */}
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden min-h-0">
-          <div className="p-5 space-y-4 overflow-y-auto flex-1">
+          <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 pb-16">
             {error && (
               <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
                 <span>⚠️</span>
