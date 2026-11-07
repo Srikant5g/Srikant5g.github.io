@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Member, MemberBalance, Group } from '../types';
 import { formatCurrency } from '../utils/settlement';
-import { LayoutDashboard, Receipt, Activity, Tag, Plus, UserPlus } from 'lucide-react';
+import { LayoutDashboard, Receipt, Activity, Tag, Plus, UserPlus, Edit2 } from 'lucide-react';
 
 interface SplitwiseLeftSidebarProps {
   groups: Group[];
@@ -17,6 +17,7 @@ interface SplitwiseLeftSidebarProps {
   onChangeView: (v: 'dashboard' | 'all' | 'recent') => void;
   onOpenMembers: () => void;
   onOpenAddFriend: () => void;
+  onEditFriend?: (member: Member) => void;
 }
 
 export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
@@ -33,6 +34,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
   onChangeView,
   onOpenMembers,
   onOpenAddFriend,
+  onEditFriend,
 }) => {
   const balanceMap = new Map<string, number>();
   balances.forEach((b) => balanceMap.set(b.memberId, b.netBalance));
@@ -184,7 +186,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
                   </span>
                 </div>
 
-                <div className="shrink-0 pl-1 text-[11px] font-semibold text-right">
+                <div className="shrink-0 pl-1 text-[11px] font-semibold text-right flex items-center gap-1.5">
                   {net > 0.01 && (
                     <span className="text-[#145B4A] font-bold">
                       +{formatCurrency(net)}
@@ -198,6 +200,18 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
                   {Math.abs(net) <= 0.01 && (
                     <span className="text-[#718096]">settled</span>
                   )}
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditFriend?.(member);
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className="p-1 rounded-md text-[#718096] hover:text-[#145B4A] hover:bg-[#78C5A7]/25 transition opacity-60 hover:opacity-100"
+                    title={`Edit ${member.name}'s UPI ID & details`}
+                  >
+                    <Edit2 className="w-3 h-3" />
+                  </span>
                 </div>
               </button>
             );

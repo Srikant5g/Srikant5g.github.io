@@ -3,7 +3,7 @@ import type { Expense, Member, DebtTransaction, Category } from '../types';
 import { formatCurrency, formatExpenseDate, calculateTotalTripSpend, getActualExpenses, isAdvanceOrTransfer } from '../utils/settlement';
 import { CATEGORY_ICONS } from '../utils/sampleData';
 import { UpiPaymentActions } from './UpiPaymentActions';
-import { Plus, Check, ArrowRight, Trash2, Edit3, Search, Sparkles, X, PieChart } from 'lucide-react';
+import { Plus, Check, ArrowRight, Trash2, Edit3, Search, Sparkles, X, PieChart, Edit2 } from 'lucide-react';
 
 interface SplitwiseCenterViewProps {
   expenses: Expense[];
@@ -18,6 +18,7 @@ interface SplitwiseCenterViewProps {
   onEditExpense: (expense: Expense) => void;
   onDeleteExpense: (id: string) => void;
   onLoadSample?: () => void;
+  onEditFriend?: (member: Member) => void;
 }
 
 export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
@@ -32,6 +33,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   onOpenSettleUp,
   onEditExpense,
   onDeleteExpense,
+  onEditFriend,
 }) => {
   const [internalTab, setInternalTab] = useState<'expenses' | 'debts' | 'breakdown'>('expenses');
   const [searchTerm, setSearchTerm] = useState('');
@@ -155,13 +157,26 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
       {/* Top Header Bar */}
       <div className="bg-[#F7F8F5] border-b border-[#E4EAF0] px-4 py-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl font-black text-[#192B3D] m-0 flex items-center gap-2 truncate">
-            <span>
-              {selectedFriend
-                ? `${selectedFriend.name} & You`
-                : 'Expenses Dashboard'}
-            </span>
-          </h1>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-black text-[#192B3D] m-0 flex items-center gap-2 truncate">
+              <span>
+                {selectedFriend
+                  ? `${selectedFriend.name} & You`
+                  : 'Expenses Dashboard'}
+              </span>
+            </h1>
+            {selectedFriend && onEditFriend && (
+              <button
+                type="button"
+                onClick={() => onEditFriend(selectedFriend)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold text-[#145B4A] bg-[#78C5A7]/25 hover:bg-[#78C5A7]/40 border border-[#78C5A7]/50 transition active:scale-95"
+                title={`Edit ${selectedFriend.name}'s UPI ID & profile`}
+              >
+                <Edit2 className="w-3 h-3" />
+                <span>{selectedFriend.upiId ? `UPI: ${selectedFriend.upiId}` : '+ Add UPI ID'}</span>
+              </button>
+            )}
+          </div>
           <p className="text-xs text-[#718096] font-medium mt-0.5">
             TripTally • <span className="font-bold text-[#192B3D]">{expenses.length} bills</span> recorded
           </p>
@@ -584,16 +599,45 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                         {formatCurrency(tx.amount)}
                       </span>
 
-                      {tx.toUpiId && (
-                        <UpiPaymentActions
-                          params={{
-                            upiId: tx.toUpiId,
-                            name: tx.toName,
-                            amount: tx.amount,
-                            note: `TripTally Settlement to ${tx.toName}`,
-                          }}
-                          size="sm"
-                        />
+                      {tx.toUpiId ? (
+                        <div className="flex items-center gap-1.5">
+                          <UpiPaymentActions
+                            params={{
+                              upiId: tx.toUpiId,
+                              name: tx.toName,
+                              amount: tx.amount,
+                              note: `TripTally Settlement to ${tx.toName}`,
+                            }}
+                            size="sm"
+                          />
+                          {onEditFriend && (() => {
+                            const toMember = memberMap.get(tx.toId);
+                            return toMember ? (
+                              <button
+                                type="button"
+                                onClick={() => onEditFriend(toMember)}
+                                className="p-1.5 rounded-lg text-[#718096] hover:text-[#145B4A] hover:bg-[#78C5A7]/20 border border-[#E4EAF0] transition"
+                                title={`Edit ${tx.toName}'s UPI ID`}
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                            ) : null;
+                          })()}
+                        </div>
+                      ) : (
+                        onEditFriend && (() => {
+                          const toMember = memberMap.get(tx.toId);
+                          return toMember ? (
+                            <button
+                              type="button"
+                              onClick={() => onEditFriend(toMember)}
+                              className="px-2 py-1 rounded-lg text-xs font-bold text-[#145B4A] bg-[#78C5A7]/20 border border-[#78C5A7]/40 hover:bg-[#78C5A7]/30 transition flex items-center gap-1"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                              <span>+ Add UPI ID</span>
+                            </button>
+                          ) : null;
+                        })()
                       )}
                     </div>
                   </div>

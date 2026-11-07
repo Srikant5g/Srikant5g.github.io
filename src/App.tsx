@@ -46,6 +46,7 @@ import { PinModal } from './components/PinModal';
 import { UserSelectModal } from './components/UserSelectModal';
 import { AddGroupModal } from './components/AddGroupModal';
 import { AddFriendModal } from './components/AddFriendModal';
+import { EditFriendModal } from './components/EditFriendModal';
 
 export function App() {
   const [members, setMembers] = useState<Member[]>(() => loadMembers());
@@ -82,6 +83,8 @@ export function App() {
   const [isUserSelectModalOpen, setIsUserSelectModalOpen] = useState(true);
   const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
+  const [isEditFriendOpen, setIsEditFriendOpen] = useState(false);
+  const [editingFriend, setEditingFriend] = useState<Member | null>(null);
 
   // PIN Protection State (0852)
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -340,6 +343,27 @@ export function App() {
     syncToCloud(expenses, updatedMembers);
   };
 
+  const handleOpenEditFriend = (member: Member) => {
+    setEditingFriend(member);
+    setIsEditFriendOpen(true);
+  };
+
+  const handleSaveFriend = (updatedMember: Member) => {
+    const updated = members.map((m) => (m.id === updatedMember.id ? updatedMember : m));
+    const enforced = enforceFixedMembers(updated);
+    setMembers(enforced);
+    saveMembers(enforced);
+    syncToCloud(expenses, enforced);
+  };
+
+  const handleDeleteFriend = (memberId: string) => {
+    const updated = members.filter((m) => m.id !== memberId);
+    const enforced = enforceFixedMembers(updated);
+    setMembers(enforced);
+    saveMembers(enforced);
+    syncToCloud(expenses, enforced);
+  };
+
   // Expense Handlers
   const handleSaveExpense = (
     expenseData: Omit<Expense, 'id' | 'createdAt'>,
@@ -522,6 +546,7 @@ export function App() {
           onChangeView={setActiveView}
           onOpenMembers={() => setIsMemberModalOpen(true)}
           onOpenAddFriend={() => setIsAddFriendModalOpen(true)}
+          onEditFriend={handleOpenEditFriend}
         />
 
         {/* Mobile View: Dedicated Screen for each Tab */}
@@ -560,6 +585,7 @@ export function App() {
               }}
               onOpenMembers={() => setIsMemberModalOpen(true)}
               onOpenAddFriend={() => setIsAddFriendModalOpen(true)}
+              onEditFriend={handleOpenEditFriend}
             />
           )}
 
@@ -567,6 +593,8 @@ export function App() {
             <MobileSettleView
               settlements={settlements}
               currentUserId={currentUserId}
+              members={currentGroupMembers}
+              onEditFriend={handleOpenEditFriend}
             />
           )}
 
@@ -599,6 +627,7 @@ export function App() {
             onEditExpense={handleEditExpense}
             onDeleteExpense={handleDeleteExpense}
             onLoadSample={handleLoadSample}
+            onEditFriend={handleOpenEditFriend}
           />
         </div>
 
@@ -614,6 +643,7 @@ export function App() {
           }}
           onOpenShare={() => setIsShareModalOpen(true)}
           onLoadSample={handleLoadSample}
+          onEditFriend={handleOpenEditFriend}
         />
       </main>
 
@@ -711,6 +741,16 @@ export function App() {
         onClose={() => setIsAddFriendModalOpen(false)}
         onAddFriend={handleAddFriend}
         existingNames={members.map((m) => m.name)}
+      />
+
+      {/* Edit Friend & UPI ID Modal */}
+      <EditFriendModal
+        isOpen={isEditFriendOpen}
+        onClose={() => setIsEditFriendOpen(false)}
+        member={editingFriend}
+        onSave={handleSaveFriend}
+        onDelete={handleDeleteFriend}
+        isDeletable={Boolean(editingFriend && !DEFAULT_MEMBERS.some((d) => d.id === editingFriend.id))}
       />
     </div>
   );

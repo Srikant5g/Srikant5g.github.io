@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Member } from '../types';
-import { X, Users, Check, Lock, ShieldCheck } from 'lucide-react';
+import { X, Users, Check, ShieldCheck } from 'lucide-react';
 
 interface MemberModalProps {
   isOpen: boolean;
@@ -57,10 +57,10 @@ export const MemberModal: React.FC<MemberModalProps> = ({
             </div>
             <div>
               <h2 className="text-base sm:text-lg font-black text-white m-0">
-                Trip Members ({list.length})
+                Trip Friends & UPI Handles ({list.length})
               </h2>
               <p className="text-xs text-[#78C5A7] mt-0.5">
-                Fixed members • Configure UPI handles for instant settlements
+                Edit UPI IDs below for instant 1-click settlements
               </p>
             </div>
           </div>
@@ -73,12 +73,12 @@ export const MemberModal: React.FC<MemberModalProps> = ({
           </button>
         </div>
 
-        {/* Member List (Names are Non-Editable) */}
+        {/* Member List */}
         <div className="p-5 sm:p-6 space-y-3.5 overflow-y-auto flex-1">
           <div className="p-3 rounded-2xl bg-[#F7F8F5] border border-[#E4EAF0] text-[#718096] text-xs flex items-center gap-2.5">
             <ShieldCheck className="w-4 h-4 text-[#145B4A] shrink-0" />
             <span className="leading-relaxed">
-              <strong className="text-[#192B3D]">Locked Group Members:</strong> All 7 participants are preserved. Enter UPI IDs below to enable 1-click Pay UPI for settlements.
+              <strong className="text-[#192B3D]">⚡ Editable UPI Handles:</strong> Enter or change each friend's UPI ID (e.g. <span className="font-mono">name@okaxis</span>, <span className="font-mono">9876543210@paytm</span>) to enable direct 1-click GPay and PhonePe payments.
             </span>
           </div>
 
@@ -88,7 +88,7 @@ export const MemberModal: React.FC<MemberModalProps> = ({
                 key={member.id}
                 className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3.5 bg-white rounded-2xl border border-[#E4EAF0] hover:border-[#78C5A7] transition shadow-2xs"
               >
-                {/* Fixed Non-Editable Member Name & Avatar */}
+                {/* Member Name & Avatar */}
                 <div className="flex items-center gap-3 min-w-0">
                   <div
                     className={`w-9 h-9 rounded-full ${member.avatarColor} text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-xs`}
@@ -100,29 +100,36 @@ export const MemberModal: React.FC<MemberModalProps> = ({
                       <span className="font-bold text-[#192B3D] text-sm truncate">
                         {member.name}
                       </span>
-                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#718096] bg-[#F7F8F5] border border-[#E4EAF0] px-1.5 py-0.5 rounded-full shrink-0">
-                        <Lock className="w-2.5 h-2.5" />
-                        Fixed
-                      </span>
+                      {member.upiId ? (
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-[#145B4A] bg-[#78C5A7]/25 px-1.5 py-0.5 rounded-full shrink-0">
+                          Active ⚡
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded-full shrink-0">
+                          No UPI
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 {/* Editable UPI ID */}
-                <div className="flex items-center gap-2 shrink-0 sm:w-56">
+                <div className="flex items-center gap-2 shrink-0 sm:w-60">
                   <label htmlFor={`upi-input-${member.id}`} className="sr-only">
                     UPI ID for {member.name}
                   </label>
-                  <input
-                    id={`upi-input-${member.id}`}
-                    name={`upi-${member.id}`}
-                    type="text"
-                    value={member.upiId || ''}
-                    onChange={(e) => handleUpdateUpi(member.id, e.target.value)}
-                    placeholder="name@okaxis / upi"
-                    aria-label={`UPI ID for ${member.name}`}
-                    className="w-full text-xs font-mono px-3 py-2 rounded-xl bg-[#F7F8F5] border border-[#E4EAF0] focus:outline-none focus:border-[#145B4A] focus:bg-white transition text-[#192B3D]"
-                  />
+                  <div className="relative w-full">
+                    <input
+                      id={`upi-input-${member.id}`}
+                      name={`upi-${member.id}`}
+                      type="text"
+                      value={member.upiId || ''}
+                      onChange={(e) => handleUpdateUpi(member.id, e.target.value)}
+                      placeholder="e.g. name@okaxis / paytm"
+                      aria-label={`UPI ID for ${member.name}`}
+                      className="w-full text-xs font-mono px-3 py-2 rounded-xl bg-[#F7F8F5] border border-[#E4EAF0] focus:outline-none focus:border-[#145B4A] focus:bg-white transition text-[#192B3D]"
+                    />
+                  </div>
                 </div>
               </div>
             ))}

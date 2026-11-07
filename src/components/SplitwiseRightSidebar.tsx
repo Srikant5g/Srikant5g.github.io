@@ -12,6 +12,7 @@ interface SplitwiseRightSidebarProps {
   onOpenAddExpense: () => void;
   onOpenShare: () => void;
   onLoadSample?: () => void;
+  onEditFriend?: (member: Member) => void;
 }
 
 export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
@@ -20,6 +21,7 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
   settlements = [],
   onOpenAddExpense,
   onOpenShare,
+  onEditFriend,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const avg = members.length > 0 ? totalSpend / members.length : 0;
@@ -93,17 +95,52 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
                     <ArrowRight className="w-3 h-3 text-[#718096] shrink-0" />
                     <span>{tx.toName}</span>
                   </div>
-                  {tx.toUpiId && (
+                  {tx.toUpiId ? (
                     <div className="flex items-center gap-1 mt-0.5">
                       <span className="text-[10px] text-[#718096] font-mono truncate">{tx.toUpiId}</span>
                       <button
                         type="button"
                         onClick={(e) => handleCopyUpi(e, tx.id, tx.toUpiId!)}
                         className="text-[9px] px-1 py-0.2 rounded bg-white border border-[#E4EAF0] text-[#718096] hover:text-[#192B3D]"
+                        title="Copy UPI ID"
                       >
                         {copiedId === tx.id ? 'Copied' : 'Copy'}
                       </button>
+                      {onEditFriend && (() => {
+                        const toMember = members.find((m) => m.id === tx.toId);
+                        return toMember ? (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditFriend(toMember);
+                            }}
+                            className="text-[9px] px-1 py-0.2 rounded bg-[#78C5A7]/20 border border-[#78C5A7]/40 text-[#145B4A] hover:bg-[#78C5A7]/30"
+                            title="Edit UPI ID"
+                          >
+                            Edit
+                          </button>
+                        ) : null;
+                      })()}
                     </div>
+                  ) : (
+                    onEditFriend && (() => {
+                      const toMember = members.find((m) => m.id === tx.toId);
+                      return toMember ? (
+                        <div className="mt-0.5">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEditFriend(toMember);
+                            }}
+                            className="text-[9px] text-[#145B4A] font-semibold hover:underline"
+                          >
+                            + Set UPI ID
+                          </button>
+                        </div>
+                      ) : null;
+                    })()
                   )}
                 </div>
                 <span className="font-black text-[#192B3D] shrink-0">

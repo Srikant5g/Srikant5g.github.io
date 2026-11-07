@@ -98,12 +98,14 @@ export function saveTripSettings(settings: TripSettings) {
 export function enforceFixedMembers(members?: Member[]): Member[] {
   if (!members || members.length === 0) return DEFAULT_MEMBERS;
 
-  // Preserve the default 7 members with any updated UPI IDs
+  // Preserve the default 7 members with any updated UPI IDs, names, or avatar colors
   const defaultMapped = DEFAULT_MEMBERS.map((fixed) => {
     const existing = members.find((m) => m.id === fixed.id);
     return {
       ...fixed,
-      upiId: existing?.upiId || fixed.upiId,
+      name: existing?.name || fixed.name,
+      avatarColor: existing?.avatarColor || fixed.avatarColor,
+      upiId: existing?.upiId !== undefined ? existing.upiId : fixed.upiId,
     };
   });
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Member, MemberBalance } from '../types';
 import { formatCurrency } from '../utils/settlement';
 import { copyToClipboard } from '../utils/clipboard';
-import { ArrowDownLeft, ArrowUpRight, CheckCircle2, Copy, Check, QrCode, UserPlus } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CheckCircle2, Copy, Check, QrCode, UserPlus, Edit2 } from 'lucide-react';
 
 interface MobileFriendsViewProps {
   members: Member[];
@@ -12,6 +12,7 @@ interface MobileFriendsViewProps {
   onSelectFriend: (id: string | null) => void;
   onOpenMembers: () => void;
   onOpenAddFriend?: () => void;
+  onEditFriend?: (member: Member) => void;
 }
 
 export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
@@ -22,6 +23,7 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
   onSelectFriend,
   onOpenMembers,
   onOpenAddFriend,
+  onEditFriend,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const balanceMap = new Map<string, number>();
@@ -90,12 +92,25 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
                   {member.name.charAt(0)}
                 </div>
                 <div className="min-w-0">
-                  <h4 className="font-bold text-[#192B3D] text-sm truncate">
-                    {member.name}{isMe && <span className="text-[#718096] font-normal ml-1"> (you)</span>}
-                  </h4>
-                  {member.upiId && (
+                  <div className="flex items-center gap-1.5">
+                    <h4 className="font-bold text-[#192B3D] text-sm truncate">
+                      {member.name}{isMe && <span className="text-[#718096] font-normal ml-1"> (you)</span>}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditFriend?.(member);
+                      }}
+                      className="p-1 rounded-lg text-[#718096] hover:text-[#145B4A] hover:bg-[#78C5A7]/20 transition shrink-0"
+                      title={`Edit ${member.name}'s UPI ID & details`}
+                    >
+                      <Edit2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                  {member.upiId ? (
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <p className="text-[11px] text-[#718096] font-mono truncate">
+                      <p className="text-[11px] text-[#718096] font-mono truncate max-w-[130px] sm:max-w-[180px]">
                         {member.upiId}
                       </p>
                       <button
@@ -115,6 +130,32 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
                             <span>Copy</span>
                           </>
                         )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditFriend?.(member);
+                        }}
+                        className="px-1.5 py-0.5 rounded text-[10px] font-semibold text-[#145B4A] bg-[#78C5A7]/20 border border-[#78C5A7]/40 hover:bg-[#78C5A7]/30 transition flex items-center gap-0.5 shrink-0"
+                        title="Edit UPI ID"
+                      >
+                        <Edit2 className="w-2.5 h-2.5" />
+                        <span>Edit UPI</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-1">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditFriend?.(member);
+                        }}
+                        className="inline-flex items-center gap-1 text-[10px] font-bold text-[#145B4A] hover:underline bg-[#78C5A7]/15 border border-dashed border-[#78C5A7]/50 px-2 py-0.5 rounded-lg"
+                      >
+                        <Edit2 className="w-2.5 h-2.5" />
+                        <span>+ Add UPI ID</span>
                       </button>
                     </div>
                   )}

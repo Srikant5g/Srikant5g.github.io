@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { DebtTransaction } from '../../types';
+import type { DebtTransaction, Member } from '../../types';
 import { formatCurrency } from '../../utils/settlement';
 import { UpiPaymentActions } from '../UpiPaymentActions';
 import { ArrowRight, Check, Sparkles } from 'lucide-react';
@@ -7,11 +7,15 @@ import { ArrowRight, Check, Sparkles } from 'lucide-react';
 interface MobileSettleViewProps {
   settlements: DebtTransaction[];
   currentUserId: string | null;
+  members?: Member[];
+  onEditFriend?: (member: Member) => void;
 }
 
 export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
   settlements,
   currentUserId,
+  members = [],
+  onEditFriend,
 }) => {
   const [completedMap, setCompletedMap] = useState<Record<string, boolean>>({});
 
@@ -108,10 +112,37 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
                         </span>
                       </div>
 
-                      {tx.toUpiId && (
-                        <p className="text-[11px] text-[#718096] font-mono mt-0.5">
-                          UPI: {tx.toUpiId}
-                        </p>
+                      {tx.toUpiId ? (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <p className="text-[11px] text-[#718096] font-mono">
+                            UPI: {tx.toUpiId}
+                          </p>
+                          {onEditFriend && (() => {
+                            const toMember = members.find((m) => m.id === tx.toId);
+                            return toMember ? (
+                              <button
+                                type="button"
+                                onClick={() => onEditFriend(toMember)}
+                                className="text-[10px] font-semibold text-[#145B4A] hover:underline"
+                              >
+                                Edit
+                              </button>
+                            ) : null;
+                          })()}
+                        </div>
+                      ) : (
+                        onEditFriend && (() => {
+                          const toMember = members.find((m) => m.id === tx.toId);
+                          return toMember ? (
+                            <button
+                              type="button"
+                              onClick={() => onEditFriend(toMember)}
+                              className="text-[10px] font-bold text-[#145B4A] hover:underline bg-[#78C5A7]/15 px-1.5 py-0.5 rounded mt-0.5"
+                            >
+                              + Set UPI ID
+                            </button>
+                          ) : null;
+                        })()
                       )}
                     </div>
                   </div>
