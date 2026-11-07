@@ -2,13 +2,13 @@ import React from 'react';
 import type { Expense, Member } from '../../types';
 import { formatCurrency, formatExpenseDate, calculateTotalTripSpend, getActualExpenses } from '../../utils/settlement';
 import { CATEGORY_ICONS } from '../../utils/sampleData';
-import { Share2, Sparkles, PieChart, Lock, TrendingUp, Award, Calendar, Users } from 'lucide-react';
+import { Share2, PieChart, Lock, TrendingUp, Award, Calendar, Users } from 'lucide-react';
 
 interface MobileTotalsViewProps {
   expenses: Expense[];
   members: Member[];
   onOpenShare: () => void;
-  onLoadSample: () => void;
+  onLoadSample?: () => void;
   onResetData: () => void;
 }
 
@@ -16,7 +16,6 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
   expenses,
   members,
   onOpenShare,
-  onLoadSample,
   onResetData,
 }) => {
   const actualExpenses = getActualExpenses(expenses);
@@ -336,23 +335,14 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
         <span className="text-[11px] font-bold uppercase tracking-wider text-[#718096] block mb-1">
           Trip Data Options
         </span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onLoadSample}
-            className="flex-1 py-2.5 px-3 rounded-2xl border border-[#E4EAF0] bg-[#F7F8F5] hover:bg-white text-[#192B3D] font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-2xs"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#145B4A]" />
-            <span>Reload Sample Bills</span>
-          </button>
-          <button
-            onClick={onResetData}
-            className="py-2.5 px-3.5 rounded-2xl border border-rose-200 text-[#FF784F] bg-rose-50/60 hover:bg-rose-100 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-2xs"
-            title="Reset all trip expenses (Requires Security PIN)"
-          >
-            <Lock className="w-3.5 h-3.5 text-[#FF784F]" />
-            <span>Reset History</span>
-          </button>
-        </div>
+        <button
+          onClick={onResetData}
+          className="w-full py-2.5 px-3.5 rounded-2xl border border-rose-200 text-[#FF784F] bg-rose-50/60 hover:bg-rose-100 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95 shadow-2xs"
+          title="Reset all trip expenses (Requires Security PIN)"
+        >
+          <Lock className="w-3.5 h-3.5 text-[#FF784F]" />
+          <span>Reset History</span>
+        </button>
       </div>
     </div>
   );

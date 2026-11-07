@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Member, MemberBalance, DebtTransaction } from '../types';
 import { formatCurrency } from '../utils/settlement';
 import { copyToClipboard } from '../utils/clipboard';
-import { Share2, Sparkles, Fuel, Coffee, Utensils, Beer, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Share2, Fuel, Coffee, Utensils, Beer, CheckCircle2, ArrowRight } from 'lucide-react';
 
 interface SplitwiseRightSidebarProps {
   balances: MemberBalance[];
@@ -11,7 +11,7 @@ interface SplitwiseRightSidebarProps {
   settlements?: DebtTransaction[];
   onOpenAddExpense: () => void;
   onOpenShare: () => void;
-  onLoadSample: () => void;
+  onLoadSample?: () => void;
 }
 
 export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
@@ -20,7 +20,6 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
   settlements = [],
   onOpenAddExpense,
   onOpenShare,
-  onLoadSample,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const avg = members.length > 0 ? totalSpend / members.length : 0;
@@ -157,16 +156,6 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
           >
             <Beer className="w-4 h-4 text-purple-500 shrink-0" />
             <span className="truncate">Drinks & Stay</span>
-          </button>
-        </div>
-
-        <div className="pt-2 border-t border-[#E4EAF0] flex items-center justify-between text-[11px] text-[#718096]">
-          <button
-            onClick={onLoadSample}
-            className="hover:text-[#145B4A] font-semibold underline transition flex items-center gap-1.5"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#145B4A]" />
-            Reload sample data
           </button>
         </div>
       </div>
