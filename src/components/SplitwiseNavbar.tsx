@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Member } from '../types';
 import type { SyncStatus } from '../utils/cloudSync';
-import { Users, Share2, Sparkles, RotateCcw, RefreshCw, Compass } from 'lucide-react';
+import { Users, Share2, Sparkles, RotateCcw, RefreshCw, UserCheck } from 'lucide-react';
 
 interface SplitwiseNavbarProps {
   members: Member[];
@@ -13,7 +13,7 @@ interface SplitwiseNavbarProps {
   onLoadSample: () => void;
   syncStatus?: SyncStatus;
   onManualSync?: () => void;
-  onOpenWelcome: () => void;
+  onOpenUserSelect: () => void;
   tripName?: string;
 }
 
@@ -27,7 +27,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   onLoadSample,
   syncStatus = 'synced',
   onManualSync,
-  onOpenWelcome,
+  onOpenUserSelect,
   tripName = 'Road Trip 2026',
 }) => {
   const currentUser = members.find((m) => m.id === currentUserId) || members[0];
@@ -115,14 +115,14 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
             <span className="hidden sm:inline">Friends ({members.length})</span>
           </button>
 
-          {/* Trip Guide Button */}
+          {/* Switch User Button */}
           <button
-            onClick={onOpenWelcome}
+            onClick={onOpenUserSelect}
             className="p-1.5 sm:px-2.5 sm:py-1 rounded-xl bg-white/10 hover:bg-white/20 transition text-xs font-semibold flex items-center gap-1.5 border border-white/10 active:scale-95"
-            title="TripTally Overview & Guide"
+            title="Select / Switch Profile"
           >
-            <Compass className="w-3.5 h-3.5 text-[#78C5A7]" />
-            <span className="hidden sm:inline">Guide</span>
+            <UserCheck className="w-3.5 h-3.5 text-[#78C5A7]" />
+            <span className="hidden sm:inline">Switch User</span>
           </button>
 
           {/* WhatsApp Share Button */}

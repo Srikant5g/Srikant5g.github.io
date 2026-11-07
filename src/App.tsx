@@ -34,7 +34,7 @@ import { SettleUpModal } from './components/SettleUpModal';
 import { MemberModal } from './components/MemberModal';
 import { WhatsAppShareModal } from './components/WhatsAppShareModal';
 import { PinModal } from './components/PinModal';
-import { WelcomeModal } from './components/WelcomeModal';
+import { UserSelectModal } from './components/UserSelectModal';
 
 export function App() {
   const [members, setMembers] = useState<Member[]>(() => loadMembers());
@@ -43,9 +43,22 @@ export function App() {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('synced');
 
   // Active viewing member
-  const [currentUserId, setCurrentUserId] = useState<string>(
-    () => members[0]?.id || 'm1'
-  );
+  const [currentUserId, setCurrentUserId] = useState<string>(() => {
+    try {
+      return localStorage.getItem('triptally_current_user_id') || members[0]?.id || 'm1';
+    } catch {
+      return members[0]?.id || 'm1';
+    }
+  });
+
+  const handleSelectUser = (userId: string) => {
+    setCurrentUserId(userId);
+    try {
+      localStorage.setItem('triptally_current_user_id', userId);
+    } catch {
+      // ignore
+    }
+  };
 
   // Left sidebar & mobile tab state
   const [selectedFriendId, setSelectedFriendId] = useState<string | null>(null);
@@ -58,26 +71,7 @@ export function App() {
   const [isSettleUpModalOpen, setIsSettleUpModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(() => {
-    try {
-      return (
-        !sessionStorage.getItem('triptally_welcome_shown') &&
-        !sessionStorage.getItem('triptab_welcome_shown') &&
-        !sessionStorage.getItem('goatab_welcome_shown')
-      );
-    } catch {
-      return false;
-    }
-  });
-
-  const handleCloseWelcome = () => {
-    setIsWelcomeModalOpen(false);
-    try {
-      sessionStorage.setItem('triptally_welcome_shown', 'true');
-    } catch {
-      // ignore
-    }
-  };
+  const [isUserSelectModalOpen, setIsUserSelectModalOpen] = useState(true);
 
   // PIN Protection State (0852)
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -409,14 +403,14 @@ export function App() {
       <SplitwiseNavbar
         members={members}
         currentUserId={currentUserId}
-        onSelectCurrentUser={setCurrentUserId}
+        onSelectCurrentUser={handleSelectUser}
         onOpenMembers={() => setIsMemberModalOpen(true)}
         onOpenShare={() => setIsShareModalOpen(true)}
         onResetData={handleResetData}
         onLoadSample={handleLoadSample}
         syncStatus={syncStatus}
         onManualSync={handleManualSync}
-        onOpenWelcome={() => setIsWelcomeModalOpen(true)}
+        onOpenUserSelect={() => setIsUserSelectModalOpen(true)}
       />
 
       {/* Main Layout (Desktop 3-Column / Mobile Native Tabs) */}
@@ -584,15 +578,13 @@ export function App() {
         actionDescription={pendingPinAction?.actionDescription}
       />
 
-      {/* Welcome & Road Trip Guide Modal */}
-      <WelcomeModal
-        isOpen={isWelcomeModalOpen}
-        onClose={handleCloseWelcome}
-        onOpenShare={() => setIsShareModalOpen(true)}
-        onOpenAddExpense={() => {
-          setEditingExpense(null);
-          setIsExpenseModalOpen(true);
-        }}
+      {/* Clean User Name Selection on App Open */}
+      <UserSelectModal
+        isOpen={isUserSelectModalOpen}
+        onClose={() => setIsUserSelectModalOpen(false)}
+        members={members}
+        currentUserId={currentUserId}
+        onSelectUser={handleSelectUser}
       />
     </div>
   );
