@@ -178,7 +178,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
               {editingExpense ? 'Edit Expense' : 'Add an Expense'}
             </h2>
             <p className="text-xs text-white/90 mt-0.5">
-              🚗 Goa Road Trip • 7 Friends
+              🚗 Road Trip 2026 • 7 Friends
             </p>
           </div>
           <button

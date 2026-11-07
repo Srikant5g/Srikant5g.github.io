@@ -122,7 +122,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             </span>
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
-            Goa Road Trip • <span className="font-bold text-slate-700">{expenses.length} bills</span> recorded
+            Road Trip 2026 • <span className="font-bold text-slate-700">{expenses.length} bills</span> recorded
           </p>
         </div>
 
@@ -296,17 +296,17 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
               <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900 relative">
                 <img
                   src="/og-thumbnail.svg"
-                  alt="Welcome to Goa Road Trip 2026"
+                  alt="Welcome to Road Trip 2026"
                   className="w-full h-44 object-cover object-center"
                 />
               </div>
 
               <div>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold uppercase tracking-wider">
-                  🚗 Goa Road Trip 2026
+                  🚗 Road Trip 2026
                 </span>
                 <h3 className="font-black text-slate-900 text-lg mt-1.5">
-                  Welcome to GoaTab! 🏖️
+                  Welcome to TripTab! 🚗💨
                 </h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
                   Start logging your highway fuel, Fastag tolls, snacks, drinks, and villa stay for our 7 friends!
@@ -522,7 +522,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                         <a
                           href={`upi://pay?pa=${tx.toUpiId}&pn=${encodeURIComponent(
                             tx.toName
-                          )}&am=${tx.amount}&cu=INR&tn=GoaTripSettlement`}
+                          )}&am=${tx.amount}&cu=INR&tn=RoadTripSettlement`}
                           className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#5bc5a7] hover:bg-[#48b396] text-white transition flex items-center gap-1.5 shadow-xs"
                         >
                           <QrCode className="w-3.5 h-3.5" />

@@ -1,8 +1,8 @@
 import type { Member, Expense, TripSettings } from '../types';
 
 export const DEFAULT_TRIP_SETTINGS: TripSettings = {
-  tripName: 'Goa Road Trip 2026',
-  location: 'Goa Road Trip (By Car) 🚗🏖️',
+  tripName: 'Road Trip 2026',
+  location: 'Road Trip (By Car) 🚗💨',
   currency: '₹',
 };
 
@@ -28,7 +28,7 @@ export const DEFAULT_MEMBERS: Member[] = [
   { id: 'm7', name: 'Arun U', avatarColor: 'bg-cyan-500', upiId: 'arun@upi' },
 ];
 
-export const SAMPLE_GOA_EXPENSES: Expense[] = [
+export const SAMPLE_ROADTRIP_EXPENSES: Expense[] = [
   {
     id: 'e1',
     title: 'Car Diesel Full Tank (Start of Road Trip)',
@@ -86,19 +86,19 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     category: 'Snacks & Chai',
     splitMode: 'EQUAL',
     splitMemberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
-    notes: 'Pakoras, chips and tea break at Chorla Ghats',
+    notes: 'Pakoras, chips and tea break at scenic ghats',
     createdAt: Date.now() - 2 * 86400000 + 32400000,
   },
   {
     id: 'e6',
-    title: 'Villa Stay in Vagator (Advance)',
+    title: 'Private Villa Stay with Pool (Advance)',
     amount: 24500,
     date: new Date(Date.now() - 1 * 86400000).toISOString().split('T')[0],
     paidById: 'm5', // Md Rabbani paid
     category: 'Stay & Hotel',
     splitMode: 'EQUAL',
     splitMemberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
-    notes: '3BHK pool villa for the Goa stay',
+    notes: '3BHK pool villa for the road trip stay',
     createdAt: Date.now() - 1 * 86400000,
   },
   {
@@ -116,7 +116,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
   },
   {
     id: 'e8',
-    title: 'Goa Shack Dinner & Seafood at Anjuna',
+    title: 'Beach Shack Dinner & Fresh Seafood',
     amount: 7700,
     date: new Date().toISOString().split('T')[0],
     paidById: 'm6', // Harsha N paid
@@ -127,6 +127,9 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
     createdAt: Date.now() - 7200000,
   },
 ];
+
+// Alias for backward compatibility
+export const SAMPLE_GOA_EXPENSES = SAMPLE_ROADTRIP_EXPENSES;
 
 export const CATEGORY_ICONS: Record<string, { label: string; icon: string; color: string }> = {
   'Petrol & Diesel': { label: 'Petrol & Diesel', icon: '⛽', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },

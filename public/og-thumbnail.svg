@@ -18,11 +18,6 @@
       <stop offset="100%" stop-color="rgba(255, 255, 255, 0.05)" />
     </linearGradient>
 
-    <linearGradient id="badgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#10b981" />
-      <stop offset="100%" stop-color="#059669" />
-    </linearGradient>
-
     <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="24" result="blur" />
       <feComposite in="SourceGraphic" in2="blur" operator="over" />
@@ -50,37 +45,35 @@
     <line x1="1000" y1="0" x2="1000" y2="630" />
   </g>
 
-  <!-- Glowing Sunset on the Horizon -->
-  <circle cx="940" cy="220" r="140" fill="url(#sunGrad)" opacity="0.3" filter="url(#glow)" />
+  <!-- Glowing Sunrise on the Horizon -->
+  <circle cx="940" cy="220" r="140" fill="url(#sunGrad)" opacity="0.35" filter="url(#glow)" />
   <circle cx="940" cy="220" r="95" fill="url(#sunGrad)" opacity="0.9" />
 
-  <!-- Ocean Waves Graphic on the Right -->
-  <path d="M 720 440 Q 860 410 1000 450 T 1200 430 L 1200 630 L 720 630 Z" fill="#0d9488" opacity="0.4" />
-  <path d="M 680 480 Q 840 450 1020 490 T 1200 470 L 1200 630 L 680 630 Z" fill="#14b8a6" opacity="0.3" />
+  <!-- Mountain Silhouettes in Background -->
+  <polygon points="620,440 760,260 900,440" fill="#0f766e" opacity="0.45" />
+  <polygon points="820,440 980,240 1140,440" fill="#115e59" opacity="0.55" />
+  <polygon points="980,450 1120,290 1200,450" fill="#134e4a" opacity="0.65" />
 
-  <!-- Coastal Highway to Goa -->
-  <path d="M 540 630 L 760 380 L 810 380 L 780 630 Z" fill="#1e293b" opacity="0.88" />
-  <line x1="660" y1="630" x2="785" y2="380" stroke="#fde047" stroke-width="4" stroke-dasharray="24 16" opacity="0.85" />
+  <!-- Rolling Highway Ridges -->
+  <path d="M 680 470 Q 840 430 1020 470 T 1200 450 L 1200 630 L 680 630 Z" fill="#0f766e" opacity="0.4" />
+  <path d="M 640 510 Q 820 470 1000 510 T 1200 490 L 1200 630 L 640 630 Z" fill="#134e4a" opacity="0.5" />
 
-  <!-- Palm Tree 1 -->
-  <g transform="translate(1040, 160) scale(1.15)">
-    <path d="M 40 280 Q 25 180 30 90" stroke="#78350f" stroke-width="12" fill="none" stroke-linecap="round" />
-    <path d="M 30 90 Q -30 60 -70 85" stroke="#10b981" stroke-width="6" fill="none" stroke-linecap="round" />
-    <path d="M 30 90 Q -20 20 -50 0" stroke="#059669" stroke-width="6" fill="none" stroke-linecap="round" />
-    <path d="M 30 90 Q 30 10 35 -30" stroke="#34d399" stroke-width="6" fill="none" stroke-linecap="round" />
-    <path d="M 30 90 Q 75 25 110 5" stroke="#10b981" stroke-width="6" fill="none" stroke-linecap="round" />
-    <path d="M 30 90 Q 90 70 125 95" stroke="#047857" stroke-width="6" fill="none" stroke-linecap="round" />
-    <circle cx="24" cy="98" r="6" fill="#a16207" />
-    <circle cx="36" cy="98" r="6" fill="#854d0e" />
+  <!-- Scenic Highway Road -->
+  <path d="M 540 630 L 760 380 L 810 380 L 780 630 Z" fill="#1e293b" opacity="0.92" />
+  <line x1="660" y1="630" x2="785" y2="380" stroke="#fde047" stroke-width="4.5" stroke-dasharray="24 16" opacity="0.9" />
+
+  <!-- Road Trip Pines / Trees -->
+  <g transform="translate(1030, 290)">
+    <polygon points="30,0 10,70 50,70" fill="#047857" />
+    <polygon points="30,40 5,110 55,110" fill="#065f46" />
+    <polygon points="30,80 0,160 60,160" fill="#064e3b" />
+    <rect x="25" y="160" width="10" height="25" fill="#78350f" />
   </g>
-
-  <!-- Palm Tree 2 (Smaller) -->
-  <g transform="translate(1120, 240) scale(0.85)">
-    <path d="M 35 240 Q 20 150 25 70" stroke="#78350f" stroke-width="10" fill="none" stroke-linecap="round" />
-    <path d="M 25 70 Q -30 45 -60 65" stroke="#10b981" stroke-width="5" fill="none" stroke-linecap="round" />
-    <path d="M 25 70 Q 25 5 30 -25" stroke="#34d399" stroke-width="5" fill="none" stroke-linecap="round" />
-    <path d="M 25 70 Q 70 20 100 5" stroke="#059669" stroke-width="5" fill="none" stroke-linecap="round" />
-    <path d="M 25 70 Q 80 55 105 75" stroke="#047857" stroke-width="5" fill="none" stroke-linecap="round" />
+  <g transform="translate(1120, 330) scale(0.8)">
+    <polygon points="30,0 10,70 50,70" fill="#059669" />
+    <polygon points="30,40 5,110 55,110" fill="#047857" />
+    <polygon points="30,80 0,160 60,160" fill="#064e3b" />
+    <rect x="25" y="160" width="10" height="25" fill="#78350f" />
   </g>
 
   <!-- Red Convertible Road Trip Car -->
@@ -104,13 +97,13 @@
 
   <!-- Top Badge inside Card -->
   <g transform="translate(110, 115)">
-    <rect width="210" height="34" rx="17" fill="rgba(255, 255, 255, 0.15)" stroke="rgba(255, 255, 255, 0.25)" />
-    <text x="16" y="22" fill="#fde047" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" letter-spacing="1.2">🚗 GOA ROAD TRIP 2026</text>
+    <rect width="180" height="34" rx="17" fill="rgba(255, 255, 255, 0.15)" stroke="rgba(255, 255, 255, 0.25)" />
+    <text x="16" y="22" fill="#fde047" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" letter-spacing="1.2">🚗 ROAD TRIP 2026</text>
   </g>
 
   <!-- Main Headline -->
   <text x="110" y="210" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" letter-spacing="-1">
-    Goa<tspan fill="#fde047">Tab</tspan> 🏖️
+    Trip<tspan fill="#fde047">Tab</tspan> 🚗💨
   </text>
   <text x="110" y="252" fill="#a7f3d0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700">
     Smart Road Trip Expense Splitter &amp; Instant UPI Settlements
@@ -126,22 +119,22 @@
     <text x="16" y="26" font-size="16">⛽</text>
     <text x="46" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Fuel, Diesel &amp; Fastag Tolls</text>
 
-    <!-- Item 2: Dhabas & Shacks -->
+    <!-- Item 2: Dhabas & Cafes -->
     <rect x="245" y="0" width="235" height="42" rx="12" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" stroke-width="1.2" />
     <text x="261" y="26" font-size="16">🍽️</text>
-    <text x="291" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Highway Dhabas &amp; Shacks</text>
+    <text x="291" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Highway Dhabas &amp; Cafes</text>
   </g>
 
   <g transform="translate(110, 368)">
     <!-- Item 3: Private Pool Villa -->
     <rect x="0" y="0" width="230" height="42" rx="12" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="1.2" />
     <text x="16" y="26" font-size="16">🏡</text>
-    <text x="46" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Private Pool Villa Stay</text>
+    <text x="46" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Private Villa &amp; Resort Stay</text>
 
     <!-- Item 4: Sunset Drinks -->
     <rect x="245" y="0" width="235" height="42" rx="12" fill="rgba(168, 85, 247, 0.2)" stroke="#a855f7" stroke-width="1.2" />
     <text x="261" y="26" font-size="16">🍻</text>
-    <text x="291" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Sunset Drinks &amp; Chakhna</text>
+    <text x="291" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Evening Drinks &amp; Chakhna</text>
   </g>
 
   <g transform="translate(110, 424)">

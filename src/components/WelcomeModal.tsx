@@ -37,7 +37,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
         <div className="relative w-full bg-[#0a3c36] overflow-hidden border-b border-teal-800/30">
           <img
             src="/og-thumbnail.svg"
-            alt="Goa Road Trip 2026 Thumbnail"
+            alt="Road Trip 2026 Thumbnail"
             className="w-full h-44 sm:h-48 object-cover object-center"
           />
           {/* Subtle gradient overlay */}
@@ -56,10 +56,10 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
           {/* Title overlay */}
           <div className="absolute bottom-3 left-4 right-4 text-white">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/90 backdrop-blur-md text-[10px] font-black uppercase tracking-wider text-white shadow-xs">
-              🚗 GOA ROAD TRIP 2026
+              🚗 ROAD TRIP 2026
             </span>
             <h2 className="text-xl sm:text-2xl font-black mt-1 tracking-tight text-white drop-shadow-md">
-              Welcome to <span className="text-amber-300">GoaTab</span> 🏖️
+              Welcome to <span className="text-amber-300">TripTab</span> 🚗💨
             </h2>
             <p className="text-[11px] text-emerald-100 font-medium mt-0.5">
               The official road trip expense tab

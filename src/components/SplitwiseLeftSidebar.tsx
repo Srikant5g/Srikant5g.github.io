@@ -92,7 +92,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
           className="w-full flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-slate-800 bg-white border border-slate-200 shadow-sm text-left"
         >
           <Tag className="w-3.5 h-3.5 text-[#5bc5a7]" />
-          <span className="truncate">🚗 Goa Road Trip</span>
+          <span className="truncate">🚗 Road Trip 2026</span>
         </button>
       </div>
 

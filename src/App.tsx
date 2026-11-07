@@ -18,7 +18,7 @@ import {
   subscribeToTabs,
   type SyncStatus,
 } from './utils/cloudSync';
-import { SAMPLE_GOA_EXPENSES, DEFAULT_MEMBERS } from './utils/sampleData';
+import { SAMPLE_ROADTRIP_EXPENSES, DEFAULT_MEMBERS } from './utils/sampleData';
 import { calculateBalances, calculateSettlements, formatCurrency } from './utils/settlement';
 import { SplitwiseNavbar } from './components/SplitwiseNavbar';
 import { SplitwiseLeftSidebar } from './components/SplitwiseLeftSidebar';
@@ -60,7 +60,10 @@ export function App() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(() => {
     try {
-      return !sessionStorage.getItem('goatab_welcome_shown');
+      return (
+        !sessionStorage.getItem('triptab_welcome_shown') &&
+        !sessionStorage.getItem('goatab_welcome_shown')
+      );
     } catch {
       return false;
     }
@@ -69,7 +72,7 @@ export function App() {
   const handleCloseWelcome = () => {
     setIsWelcomeModalOpen(false);
     try {
-      sessionStorage.setItem('goatab_welcome_shown', 'true');
+      sessionStorage.setItem('triptab_welcome_shown', 'true');
     } catch {
       // ignore
     }
@@ -159,6 +162,9 @@ export function App() {
     // 3. Native Browser Storage Event for Instant Cross-Tab Sync
     const handleStorageChange = (e: StorageEvent) => {
       if (
+        e.key === 'triptab_expenses_v1' ||
+        e.key === 'triptab_members_v1' ||
+        e.key === 'triptab_updated_at_v1' ||
         e.key === 'goa_splitwise_expenses_v1' ||
         e.key === 'goa_splitwise_members_v1' ||
         e.key === 'goa_splitwise_updated_at_v1'
@@ -363,15 +369,15 @@ export function App() {
   const handleLoadSample = () => {
     if (
       window.confirm(
-        'Load realistic Goa road-trip bills (Diesel, Tolls, Breakfast, Lunch, Snacks, Alcohol, Villa, Dinner)?'
+        'Load realistic road-trip bills (Diesel, Tolls, Breakfast, Lunch, Snacks, Drinks, Villa, Dinner)?'
       )
     ) {
-      setExpenses(SAMPLE_GOA_EXPENSES);
+      setExpenses(SAMPLE_ROADTRIP_EXPENSES);
       setMembers(DEFAULT_MEMBERS);
-      saveExpenses(SAMPLE_GOA_EXPENSES);
+      saveExpenses(SAMPLE_ROADTRIP_EXPENSES);
       saveMembers(DEFAULT_MEMBERS);
       setSelectedFriendId(null);
-      syncToCloud(SAMPLE_GOA_EXPENSES, DEFAULT_MEMBERS);
+      syncToCloud(SAMPLE_ROADTRIP_EXPENSES, DEFAULT_MEMBERS);
     }
   };
 
@@ -398,7 +404,7 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#f6f6f6] text-[#333333] flex flex-col font-sans pb-16 md:pb-0">
-      {/* Authentic GoaTab Navigation Bar with Live Cloud Sync */}
+      {/* TripTab Navigation Bar with Live Cloud Sync */}
       <SplitwiseNavbar
         members={members}
         currentUserId={currentUserId}

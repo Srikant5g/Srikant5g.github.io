@@ -1,6 +1,6 @@
 import type { Expense, Member } from '../types';
 
-const NTFY_TOPIC = 'goatab_sync_goa2026_srikant5g';
+const NTFY_TOPIC = 'triptab_sync_2026_srikant5g';
 const NTFY_BASE_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
 
 export interface CloudPayload {
@@ -16,7 +16,7 @@ export type SyncStatus = 'synced' | 'syncing' | 'error' | 'offline';
 let broadcastChannel: BroadcastChannel | null = null;
 try {
   if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
-    broadcastChannel = new BroadcastChannel('goatab_realtime_sync');
+    broadcastChannel = new BroadcastChannel('triptab_realtime_sync');
   }
 } catch (e) {
   console.warn('BroadcastChannel not supported', e);
@@ -28,7 +28,7 @@ try {
 export function broadcastToTabs(payload: CloudPayload) {
   try {
     if (broadcastChannel) {
-      broadcastChannel.postMessage({ type: 'GOATAB_SYNC_DATA', payload });
+      broadcastChannel.postMessage({ type: 'TRIPTAB_SYNC_DATA', payload });
     }
   } catch (e) {
     console.warn('Failed to broadcast to tabs', e);
@@ -44,7 +44,11 @@ export function subscribeToTabs(onMessage: (payload: CloudPayload) => void): () 
   }
 
   const handler = (event: MessageEvent) => {
-    if (event.data && event.data.type === 'GOATAB_SYNC_DATA' && event.data.payload) {
+    if (
+      event.data &&
+      (event.data.type === 'TRIPTAB_SYNC_DATA' || event.data.type === 'GOATAB_SYNC_DATA') &&
+      event.data.payload
+    ) {
       onMessage(event.data.payload);
     }
   };
@@ -80,7 +84,7 @@ export async function pushToCloud(
       method: 'POST',
       headers: {
         'Content-Type': 'text/plain',
-        Title: 'GoaTab Sync',
+        Title: 'TripTab Sync',
         Priority: 'low',
       },
       body: JSON.stringify(payload),

@@ -206,16 +206,16 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
               <div className="bg-[#0a3c36] relative overflow-hidden">
                 <img
                   src="/og-thumbnail.svg"
-                  alt="Welcome to Goa Road Trip"
+                  alt="Welcome to Road Trip 2026"
                   className="w-full h-36 object-cover object-center"
                 />
               </div>
               <div className="p-5 text-center space-y-3">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 inline-block">
-                  🚗 Goa Road Trip 2026
+                  🚗 Road Trip 2026
                 </span>
                 <h3 className="font-black text-slate-900 text-base">
-                  Welcome to GoaTab! 🏖️
+                  Welcome to TripTab! 🚗💨
                 </h3>
                 <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
                   Start logging fuel, Fastag tolls, snacks, drinks, and villa bills for the 7 friends!

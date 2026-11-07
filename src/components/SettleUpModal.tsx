@@ -160,7 +160,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                     const upiUrl = tx.toUpiId
                       ? `upi://pay?pa=${encodeURIComponent(tx.toUpiId)}&pn=${encodeURIComponent(
                           tx.toName
-                        )}&am=${tx.amount}&cu=INR&tn=GoaTripSettlement`
+                        )}&am=${tx.amount}&cu=INR&tn=RoadTripSettlement`
                       : null;
 
                     return (

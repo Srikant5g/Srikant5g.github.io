@@ -51,7 +51,7 @@ export const MemberModal: React.FC<MemberModalProps> = ({
             <Users className="w-5 h-5 text-white" />
             <div>
               <h2 className="text-lg font-black text-white m-0">
-                Goa Road Trip Friends ({list.length})
+                Road Trip Friends ({list.length})
               </h2>
               <p className="text-xs text-white/90 mt-0.5">
                 Member names are locked • Update UPI IDs for 1-click settlements

@@ -46,7 +46,7 @@ export const WhatsAppShareModal: React.FC<WhatsAppShareModalProps> = ({
         })
       : ['🎉 Everyone is settled up! Nobody owes anything.'];
 
-  const messageText = `🚗 *${settings.tripName.toUpperCase()} - ROAD TRIP EXPENSE SUMMARY* 🏖️
+  const messageText = `🚗 *${settings.tripName.toUpperCase()} - ROAD TRIP EXPENSE SUMMARY* 💨
 📍 ${settings.location}
 💰 *Total Spend:* ${formatCurrency(totalSpend)}
 👥 *Avg / Friend (${memberCount} friends):* ${formatCurrency(avgPerPerson)}
@@ -59,7 +59,7 @@ ${balanceLines.join('\n')}
 🤝 *SIMPLIFIED SETTLEMENT PLAN (UPI)*
 ${settlementLines.join('\n')}
 
-✨ _Generated with GoaTab 🚗🏖️_`;
+✨ _Generated with TripTab 🚗💨_`;
 
   const handleCopy = async () => {
     await copyToClipboard(messageText);

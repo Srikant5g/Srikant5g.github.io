@@ -31,32 +31,31 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   return (
     <nav className="bg-gradient-to-r from-[#0d9488] via-[#0f766e] to-[#047857] text-white shadow-md sticky top-0 z-40 border-b border-teal-500/20">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
-        {/* Left: GoaTab Logo & Title */}
+        {/* Left: TripTab Logo & Title */}
         <div className="flex items-center gap-2 sm:gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center p-1.5 shadow-inner shrink-0 border border-white/30">
+          <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center p-1 shadow-inner shrink-0 border border-white/30">
             <svg
               viewBox="0 0 32 32"
               fill="none"
               className="w-full h-full text-white"
             >
-              <circle cx="16" cy="11" r="5" fill="#fde047" opacity="0.95" />
-              <path
-                d="M16 12C16 17 11 20 6 20M16 12C16 17 21 20 26 20M16 12C14 15 10 17 7 16M16 12C18 15 22 17 25 16M16 12V26"
-                stroke="#ffffff"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M8 26C12 24 20 24 24 26"
-                stroke="#67e8f9"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              />
+              <defs>
+                <linearGradient id="navSun" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#fef08a" />
+                  <stop offset="100%" stopColor="#f59e0b" />
+                </linearGradient>
+              </defs>
+              <path d="M3 22L10 14L16 20L22 13L29 22Z" fill="#042f2e" opacity="0.65" />
+              <circle cx="16" cy="11.5" r="4.5" fill="url(#navSun)" />
+              <path d="M12 32L14.5 18.5H17.5L20 32Z" fill="#1e293b" />
+              <line x1="16" y1="19.5" x2="16" y2="22.5" stroke="#fde047" strokeWidth="1.2" strokeLinecap="round" />
+              <line x1="16" y1="25" x2="16" y2="30" stroke="#fde047" strokeWidth="1.6" strokeLinecap="round" />
+              <path d="M7 26C11 24 21 24 25 26" stroke="#67e8f9" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
             </svg>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="font-black text-lg sm:text-xl tracking-tight text-white font-sans">
-              Goa<span className="text-amber-300">Tab</span>
+              Trip<span className="text-amber-300">Tab</span>
             </span>
             <span className="hidden sm:inline-block text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full text-white">
               🚗 Road Trip 2026
@@ -119,10 +118,10 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
           <button
             onClick={onOpenWelcome}
             className="p-1.5 sm:px-2.5 sm:py-1 rounded-lg bg-white/20 hover:bg-white/30 transition text-xs font-bold flex items-center gap-1 border border-white/25 shadow-2xs active:scale-95"
-            title="Open Goa Road Trip Welcome Guide & Thumbnail"
+            title="Open Road Trip Welcome Guide & Summary"
           >
-            <span>🌴</span>
-            <span className="hidden sm:inline">Welcome</span>
+            <span>🗺️</span>
+            <span className="hidden sm:inline">Guide</span>
           </button>
 
           {/* WhatsApp Share Button */}
