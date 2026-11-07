@@ -1,38 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#042f2e" />
-      <stop offset="45%" stop-color="#0f766e" />
-      <stop offset="85%" stop-color="#115e59" />
-      <stop offset="100%" stop-color="#022c22" />
-    </linearGradient>
-
-    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fef08a" />
-      <stop offset="50%" stop-color="#f59e0b" />
-      <stop offset="100%" stop-color="#ea580c" />
+      <stop offset="0%" stop-color="#0c3a2f" />
+      <stop offset="50%" stop-color="#145B4A" />
+      <stop offset="100%" stop-color="#092820" />
     </linearGradient>
 
     <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.16)" />
-      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.05)" />
+      <stop offset="0%" stop-color="rgba(255, 255, 255, 0.12)" />
+      <stop offset="100%" stop-color="rgba(255, 255, 255, 0.04)" />
     </linearGradient>
 
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="24" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
+    <linearGradient id="mintGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#78C5A7" />
+      <stop offset="100%" stop-color="#9ce0c7" />
+    </linearGradient>
 
     <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.35" />
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.25" />
     </filter>
   </defs>
 
   <!-- Background -->
   <rect width="1200" height="630" fill="url(#bgGrad)" />
 
-  <!-- Subtle grid/pattern in background -->
-  <g opacity="0.06" stroke="#ffffff" stroke-width="1.5">
+  <!-- Subtle grid pattern -->
+  <g opacity="0.04" stroke="#ffffff" stroke-width="1.5">
     <line x1="0" y1="105" x2="1200" y2="105" />
     <line x1="0" y1="210" x2="1200" y2="210" />
     <line x1="0" y1="315" x2="1200" y2="315" />
@@ -45,121 +38,97 @@
     <line x1="1000" y1="0" x2="1000" y2="630" />
   </g>
 
-  <!-- Glowing Sunrise on the Horizon -->
-  <circle cx="940" cy="220" r="140" fill="url(#sunGrad)" opacity="0.35" filter="url(#glow)" />
-  <circle cx="940" cy="220" r="95" fill="url(#sunGrad)" opacity="0.9" />
-
-  <!-- Mountain Silhouettes in Background -->
-  <polygon points="620,440 760,260 900,440" fill="#0f766e" opacity="0.45" />
-  <polygon points="820,440 980,240 1140,440" fill="#115e59" opacity="0.55" />
-  <polygon points="980,450 1120,290 1200,450" fill="#134e4a" opacity="0.65" />
-
-  <!-- Rolling Highway Ridges -->
-  <path d="M 680 470 Q 840 430 1020 470 T 1200 450 L 1200 630 L 680 630 Z" fill="#0f766e" opacity="0.4" />
-  <path d="M 640 510 Q 820 470 1000 510 T 1200 490 L 1200 630 L 640 630 Z" fill="#134e4a" opacity="0.5" />
-
-  <!-- Scenic Highway Road -->
-  <path d="M 540 630 L 760 380 L 810 380 L 780 630 Z" fill="#1e293b" opacity="0.92" />
-  <line x1="660" y1="630" x2="785" y2="380" stroke="#fde047" stroke-width="4.5" stroke-dasharray="24 16" opacity="0.9" />
-
-  <!-- Road Trip Pines / Trees -->
-  <g transform="translate(1030, 290)">
-    <polygon points="30,0 10,70 50,70" fill="#047857" />
-    <polygon points="30,40 5,110 55,110" fill="#065f46" />
-    <polygon points="30,80 0,160 60,160" fill="#064e3b" />
-    <rect x="25" y="160" width="10" height="25" fill="#78350f" />
-  </g>
-  <g transform="translate(1120, 330) scale(0.8)">
-    <polygon points="30,0 10,70 50,70" fill="#059669" />
-    <polygon points="30,40 5,110 55,110" fill="#047857" />
-    <polygon points="30,80 0,160 60,160" fill="#064e3b" />
-    <rect x="25" y="160" width="10" height="25" fill="#78350f" />
-  </g>
-
-  <!-- Red Convertible Road Trip Car -->
-  <g transform="translate(685, 430) scale(0.72)" filter="url(#shadow)">
-    <path d="M 30 65 C 50 65 70 45 110 40 L 170 38 L 220 5 L 320 5 L 350 40 L 410 45 C 440 50 450 65 450 78 L 450 95 C 450 102 445 106 435 106 L 385 106 C 385 85 365 70 345 70 C 325 70 305 85 305 106 L 165 106 C 165 85 145 70 125 70 C 105 70 85 85 85 106 L 40 106 C 30 106 20 98 20 88 Z" fill="#ef4444" />
-    <polygon points="215,8 245,38 315,38 310,8" fill="#bae6fd" opacity="0.85" />
-    <rect x="130" y="18" width="55" height="22" rx="4" fill="#f59e0b" />
-    <rect x="145" y="4" width="45" height="16" rx="3" fill="#06b6d4" />
-    <line x1="140" y1="18" x2="140" y2="40" stroke="#78350f" stroke-width="2" />
-    <line x1="170" y1="18" x2="170" y2="40" stroke="#78350f" stroke-width="2" />
-    <circle cx="125" cy="104" r="28" fill="#1e293b" />
-    <circle cx="125" cy="104" r="14" fill="#94a3b8" />
-    <circle cx="345" cy="104" r="28" fill="#1e293b" />
-    <circle cx="345" cy="104" r="14" fill="#94a3b8" />
-    <polygon points="440,65 455,68 455,80 438,78" fill="#fef08a" />
-    <rect x="20" y="68" width="10" height="14" rx="2" fill="#b91c1c" />
-  </g>
-
   <!-- Left Content Card (Frosted Glass Panel) -->
-  <rect x="70" y="70" width="570" height="490" rx="28" fill="url(#cardGrad)" stroke="rgba(255, 255, 255, 0.18)" stroke-width="2" filter="url(#shadow)" />
+  <rect x="80" y="80" width="580" height="470" rx="24" fill="url(#cardGrad)" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" filter="url(#shadow)" />
 
-  <!-- Top Badge inside Card -->
-  <g transform="translate(110, 115)">
-    <rect width="180" height="34" rx="17" fill="rgba(255, 255, 255, 0.15)" stroke="rgba(255, 255, 255, 0.25)" />
-    <text x="16" y="22" fill="#fde047" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="800" letter-spacing="1.2">🚗 ROAD TRIP 2026</text>
+  <!-- Top Category Pill -->
+  <g transform="translate(120, 125)">
+    <rect width="250" height="32" rx="16" fill="rgba(120, 197, 167, 0.18)" stroke="#78C5A7" stroke-width="1" />
+    <text x="16" y="21" fill="#78C5A7" font-family="'Inter', -apple-system, sans-serif" font-size="12" font-weight="700" letter-spacing="1">GROUP TRAVEL EXPENSE</text>
   </g>
 
-  <!-- Main Headline -->
-  <text x="110" y="210" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" letter-spacing="-1">
-    Trip<tspan fill="#fde047">Tab</tspan> 🚗💨
-  </text>
-  <text x="110" y="252" fill="#a7f3d0" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700">
-    Smart Road Trip Expense Splitter &amp; Instant UPI Settlements
+  <!-- Brand Name -->
+  <g transform="translate(120, 225)">
+    <!-- TripTally Logo Icon -->
+    <rect width="52" height="52" rx="14" fill="#78C5A7" />
+    <rect x="12" y="15" width="4.5" height="22" rx="2.2" fill="#145B4A" />
+    <rect x="22" y="15" width="4.5" height="22" rx="2.2" fill="#145B4A" />
+    <rect x="32" y="15" width="4.5" height="22" rx="2.2" fill="#145B4A" />
+    <path d="M10 33L39 18" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" />
+    <circle cx="43" cy="14" r="4" fill="#FF784F" />
+
+    <text x="68" y="38" fill="#ffffff" font-family="'Inter', -apple-system, sans-serif" font-size="44" font-weight="900" letter-spacing="-1">
+      Trip<tspan fill="#78C5A7">Tally</tspan>
+    </text>
+  </g>
+
+  <!-- Tagline -->
+  <text x="120" y="275" fill="#e2e8f0" font-family="'Inter', -apple-system, sans-serif" font-size="20" font-weight="600">
+    Every trip. Every expense. Sorted.
   </text>
 
   <!-- Divider -->
-  <line x1="110" y1="280" x2="590" y2="280" stroke="rgba(255, 255, 255, 0.18)" stroke-width="1.5" />
+  <line x1="120" y1="310" x2="620" y2="310" stroke="rgba(255, 255, 255, 0.12)" stroke-width="1.5" />
 
-  <!-- Category Badges Showcase (Zero Friend Names) -->
-  <g transform="translate(110, 312)">
-    <!-- Item 1: Fuel & Tolls -->
-    <rect x="0" y="0" width="230" height="42" rx="12" fill="rgba(20, 184, 166, 0.2)" stroke="#14b8a6" stroke-width="1.2" />
-    <text x="16" y="26" font-size="16">⛽</text>
-    <text x="46" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Fuel, Diesel &amp; Fastag Tolls</text>
+  <!-- Feature Points -->
+  <g transform="translate(120, 335)" font-family="'Inter', -apple-system, sans-serif" font-size="14" font-weight="500">
+    <!-- Point 1 -->
+    <circle cx="10" cy="12" r="6" fill="#78C5A7" />
+    <text x="28" y="17" fill="#ffffff">Smart equal &amp; custom expense splitting</text>
 
-    <!-- Item 2: Dhabas & Cafes -->
-    <rect x="245" y="0" width="235" height="42" rx="12" fill="rgba(245, 158, 11, 0.2)" stroke="#f59e0b" stroke-width="1.2" />
-    <text x="261" y="26" font-size="16">🍽️</text>
-    <text x="291" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Highway Dhabas &amp; Cafes</text>
+    <!-- Point 2 -->
+    <circle cx="10" cy="46" r="6" fill="#78C5A7" />
+    <text x="28" y="51" fill="#ffffff">Minimal-transaction simplified debt algorithm</text>
+
+    <!-- Point 3 -->
+    <circle cx="10" cy="80" r="6" fill="#78C5A7" />
+    <text x="28" y="85" fill="#ffffff">1-Click direct UPI settlement (GPay, PhonePe)</text>
+
+    <!-- Point 4 -->
+    <circle cx="10" cy="114" r="6" fill="#FF784F" />
+    <text x="28" y="119" fill="#ffffff">Interactive financial insights &amp; category breakdown</text>
   </g>
 
-  <g transform="translate(110, 368)">
-    <!-- Item 3: Private Pool Villa -->
-    <rect x="0" y="0" width="230" height="42" rx="12" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="1.2" />
-    <text x="16" y="26" font-size="16">🏡</text>
-    <text x="46" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Private Villa &amp; Resort Stay</text>
+  <!-- Right Visual: Mobile Card Mockup Showcase -->
+  <g transform="translate(710, 95)" filter="url(#shadow)">
+    <!-- Main Card Mockup -->
+    <rect width="410" height="440" rx="22" fill="#FFFFFF" />
 
-    <!-- Item 4: Sunset Drinks -->
-    <rect x="245" y="0" width="235" height="42" rx="12" fill="rgba(168, 85, 247, 0.2)" stroke="#a855f7" stroke-width="1.2" />
-    <text x="261" y="26" font-size="16">🍻</text>
-    <text x="291" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Evening Drinks &amp; Chakhna</text>
-  </g>
+    <!-- Card Top Header -->
+    <rect width="410" height="70" rx="22" fill="#F7F8F5" />
+    <rect x="24" y="20" width="36" height="36" rx="10" fill="#145B4A" />
+    <text x="34" y="43" fill="#FFFFFF" font-family="'Inter', -apple-system, sans-serif" font-size="14" font-weight="800">TT</text>
+    <text x="70" y="36" fill="#192B3D" font-family="'Inter', -apple-system, sans-serif" font-size="15" font-weight="700">Road Trip 2026</text>
+    <text x="70" y="51" fill="#718096" font-family="'Inter', -apple-system, sans-serif" font-size="11">7 participants • 8 expenses</text>
 
-  <g transform="translate(110, 424)">
-    <!-- Item 5: Advance Trip Kitty -->
-    <rect x="0" y="0" width="480" height="42" rx="12" fill="rgba(56, 189, 248, 0.18)" stroke="#38bdf8" stroke-width="1.2" />
-    <text x="16" y="26" font-size="16">💰</text>
-    <text x="46" y="26" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="700">Advance Trip Fund &amp; Common Pool Support</text>
-  </g>
+    <!-- Hero Balance Banner inside Mockup -->
+    <rect x="24" y="88" width="362" height="96" rx="16" fill="#145B4A" />
+    <text x="44" y="116" fill="#78C5A7" font-family="'Inter', -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="0.5">NET BALANCE</text>
+    <text x="44" y="152" fill="#FFFFFF" font-family="'Inter', -apple-system, sans-serif" font-size="28" font-weight="900">+₹6,214.29</text>
+    <text x="240" y="150" fill="#78C5A7" font-family="'Inter', -apple-system, sans-serif" font-size="12" font-weight="700">You are owed</text>
 
-  <!-- Bottom Features Bar inside Card -->
-  <g transform="translate(110, 482)">
-    <rect width="480" height="46" rx="12" fill="rgba(0, 0, 0, 0.28)" stroke="rgba(255, 255, 255, 0.15)" />
-    <!-- Bullet 1 -->
-    <text x="22" y="28" fill="#6ee7b7" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">⚡ Live Cloud Sync</text>
-    <text x="165" y="28" fill="#cbd5e1" font-family="-apple-system, sans-serif" font-size="12">•</text>
-    <!-- Bullet 2 -->
-    <text x="185" y="28" fill="#6ee7b7" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">💳 1-Tap UPI (GPay/PhonePe)</text>
-    <text x="375" y="28" fill="#cbd5e1" font-family="-apple-system, sans-serif" font-size="12">•</text>
-    <!-- Bullet 3 -->
-    <text x="395" y="28" fill="#fbbf24" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">🔒 PIN Protected</text>
-  </g>
+    <!-- Sample Expense Row 1 -->
+    <g transform="translate(24, 202)">
+      <rect width="362" height="60" rx="12" fill="#F7F8F5" stroke="#E4EAF0" stroke-width="1" />
+      <text x="16" y="36" font-size="18">⛽</text>
+      <text x="48" y="28" fill="#192B3D" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="700">Car Diesel Full Tank</text>
+      <text x="48" y="44" fill="#718096" font-family="'Inter', -apple-system, sans-serif" font-size="11">You paid ₹5,800 • Split 7</text>
+      <text x="280" y="35" fill="#145B4A" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="800">+₹4,971.43</text>
+    </g>
 
-  <!-- Floating URL badge in top right -->
-  <g transform="translate(930, 45)">
-    <rect width="200" height="34" rx="17" fill="rgba(255, 255, 255, 0.18)" stroke="rgba(255, 255, 255, 0.3)" />
-    <text x="100" y="22" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="12" font-weight="700" text-anchor="middle">srikant5g.github.io</text>
+    <!-- Sample Expense Row 2 -->
+    <g transform="translate(24, 272)">
+      <rect width="362" height="60" rx="12" fill="#F7F8F5" stroke="#E4EAF0" stroke-width="1" />
+      <text x="16" y="36" font-size="18">🏡</text>
+      <text x="48" y="28" fill="#192B3D" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="700">Private Villa Stay</text>
+      <text x="48" y="44" fill="#718096" font-family="'Inter', -apple-system, sans-serif" font-size="11">Rabbani paid ₹24,500</text>
+      <text x="280" y="35" fill="#FF784F" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="800">-₹3,500.00</text>
+    </g>
+
+    <!-- Quick Settle Pill Action -->
+    <g transform="translate(24, 348)">
+      <rect width="362" height="48" rx="12" fill="#145B4A" />
+      <text x="181" y="30" fill="#FFFFFF" font-family="'Inter', -apple-system, sans-serif" font-size="13" font-weight="700" text-anchor="middle">Settle Up via UPI ⚡</text>
+    </g>
   </g>
 </svg>

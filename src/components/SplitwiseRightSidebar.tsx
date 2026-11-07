@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Member, MemberBalance, DebtTransaction } from '../types';
 import { formatCurrency } from '../utils/settlement';
+import { copyToClipboard } from '../utils/clipboard';
 import { Share2, Sparkles, Fuel, Coffee, Utensils, Beer, CheckCircle2, ArrowRight } from 'lucide-react';
 
 interface SplitwiseRightSidebarProps {
@@ -21,27 +22,35 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
   onOpenShare,
   onLoadSample,
 }) => {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const avg = members.length > 0 ? totalSpend / members.length : 0;
 
+  const handleCopyUpi = async (e: React.MouseEvent, txId: string, upi: string) => {
+    e.stopPropagation();
+    await copyToClipboard(upi);
+    setCopiedId(txId);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   return (
-    <aside className="hidden xl:block xl:w-72 shrink-0 space-y-4 text-xs text-slate-600">
+    <aside className="hidden xl:block xl:w-72 shrink-0 space-y-4 text-xs text-[#718096]">
       {/* 1. Trip Summary Box */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3.5">
+      <div className="bg-white border border-[#E4EAF0] rounded-3xl p-5 shadow-xs space-y-3.5">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold uppercase tracking-wider text-[11px] text-slate-400">
-            Trip Total Spend
+          <h3 className="font-bold uppercase tracking-wider text-[11px] text-[#718096]">
+            Total Trip Spend
           </h3>
-          <span className="text-[10px] bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-full">
+          <span className="text-[10px] bg-[#78C5A7]/20 text-[#145B4A] font-bold px-2 py-0.5 rounded-full">
             {members.length} friends
           </span>
         </div>
 
         <div>
-          <div className="text-3xl font-black text-slate-900 tracking-tight">
+          <div className="text-3xl font-black text-[#192B3D] tracking-tight">
             {formatCurrency(totalSpend)}
           </div>
-          <div className="text-xs text-slate-500 font-medium mt-1">
-            Avg <span className="font-bold text-slate-700">{formatCurrency(avg)}</span> per person
+          <div className="text-xs text-[#718096] font-medium mt-1">
+            Avg <span className="font-bold text-[#192B3D]">{formatCurrency(avg)}</span> per person
           </div>
         </div>
 
@@ -56,43 +65,55 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
       </div>
 
       {/* 2. Simplified Settlements Checklist */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
+      <div className="bg-white border border-[#E4EAF0] rounded-3xl p-5 shadow-xs space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-bold uppercase tracking-wider text-[11px] text-slate-400">
+          <h3 className="font-bold uppercase tracking-wider text-[11px] text-[#718096]">
             Direct Settlements
           </h3>
-          <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
+          <span className="text-[10px] text-[#145B4A] font-bold bg-[#78C5A7]/20 px-2 py-0.5 rounded-full">
             {settlements.length} transfers
           </span>
         </div>
 
         {settlements.length === 0 ? (
           <div className="py-4 text-center space-y-1">
-            <CheckCircle2 className="w-7 h-7 text-emerald-500 mx-auto" />
-            <p className="text-xs font-bold text-slate-700">All Settled Up!</p>
-            <p className="text-[11px] text-slate-400">No pending debts among friends</p>
+            <CheckCircle2 className="w-7 h-7 text-[#145B4A] mx-auto" />
+            <p className="text-xs font-bold text-[#192B3D]">All Settled Up!</p>
+            <p className="text-[11px] text-[#718096]">No pending debts among friends</p>
           </div>
         ) : (
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
             {settlements.slice(0, 5).map((tx) => (
               <div
                 key={tx.id}
-                className="p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs"
+                className="p-2.5 rounded-2xl bg-[#F7F8F5] border border-[#E4EAF0] flex items-center justify-between text-xs"
               >
                 <div className="min-w-0 pr-2">
-                  <div className="font-semibold text-slate-800 flex items-center gap-1 truncate">
+                  <div className="font-semibold text-[#192B3D] flex items-center gap-1 truncate">
                     <span>{tx.fromName}</span>
-                    <ArrowRight className="w-3 h-3 text-slate-400 shrink-0" />
+                    <ArrowRight className="w-3 h-3 text-[#718096] shrink-0" />
                     <span>{tx.toName}</span>
                   </div>
+                  {tx.toUpiId && (
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="text-[10px] text-[#718096] font-mono truncate">{tx.toUpiId}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => handleCopyUpi(e, tx.id, tx.toUpiId!)}
+                        className="text-[9px] px-1 py-0.2 rounded bg-white border border-[#E4EAF0] text-[#718096] hover:text-[#192B3D]"
+                      >
+                        {copiedId === tx.id ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <span className="font-black text-slate-900 shrink-0">
+                <span className="font-black text-[#192B3D] shrink-0">
                   {formatCurrency(tx.amount)}
                 </span>
               </div>
             ))}
             {settlements.length > 5 && (
-              <p className="text-[10px] text-center text-slate-400 pt-1">
+              <p className="text-[10px] text-center text-[#718096] pt-1">
                 + {settlements.length - 5} more settlements
               </p>
             )}
@@ -100,23 +121,23 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
         )}
       </div>
 
-      {/* 3. Quick Car Trip Presets */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
-        <h3 className="font-bold uppercase tracking-wider text-[11px] text-slate-400">
-          Quick Road Trip Bills
+      {/* 3. Quick Trip Presets */}
+      <div className="bg-white border border-[#E4EAF0] rounded-3xl p-5 shadow-xs space-y-3">
+        <h3 className="font-bold uppercase tracking-wider text-[11px] text-[#718096]">
+          Quick Trip Shortcuts
         </h3>
         <div className="grid grid-cols-2 gap-2 text-[11px]">
           <button
             onClick={onOpenAddExpense}
-            className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 font-semibold text-slate-700 flex items-center gap-2 transition active:scale-95 text-left"
+            className="p-2.5 rounded-xl bg-[#F7F8F5] hover:bg-white border border-[#E4EAF0] font-semibold text-[#192B3D] flex items-center gap-2 transition active:scale-95 text-left shadow-2xs hover:border-[#78C5A7]"
           >
             <Fuel className="w-4 h-4 text-amber-500 shrink-0" />
-            <span className="truncate">Diesel Fill</span>
+            <span className="truncate">Diesel / Petrol</span>
           </button>
 
           <button
             onClick={onOpenAddExpense}
-            className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 font-semibold text-slate-700 flex items-center gap-2 transition active:scale-95 text-left"
+            className="p-2.5 rounded-xl bg-[#F7F8F5] hover:bg-white border border-[#E4EAF0] font-semibold text-[#192B3D] flex items-center gap-2 transition active:scale-95 text-left shadow-2xs hover:border-[#78C5A7]"
           >
             <Coffee className="w-4 h-4 text-yellow-600 shrink-0" />
             <span className="truncate">Breakfast</span>
@@ -124,28 +145,28 @@ export const SplitwiseRightSidebar: React.FC<SplitwiseRightSidebarProps> = ({
 
           <button
             onClick={onOpenAddExpense}
-            className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 font-semibold text-slate-700 flex items-center gap-2 transition active:scale-95 text-left"
+            className="p-2.5 rounded-xl bg-[#F7F8F5] hover:bg-white border border-[#E4EAF0] font-semibold text-[#192B3D] flex items-center gap-2 transition active:scale-95 text-left shadow-2xs hover:border-[#78C5A7]"
           >
-            <Utensils className="w-4 h-4 text-orange-500 shrink-0" />
-            <span className="truncate">Highway Lunch</span>
+            <Utensils className="w-4 h-4 text-[#FF784F] shrink-0" />
+            <span className="truncate">Lunch / Food</span>
           </button>
 
           <button
             onClick={onOpenAddExpense}
-            className="p-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 font-semibold text-slate-700 flex items-center gap-2 transition active:scale-95 text-left"
+            className="p-2.5 rounded-xl bg-[#F7F8F5] hover:bg-white border border-[#E4EAF0] font-semibold text-[#192B3D] flex items-center gap-2 transition active:scale-95 text-left shadow-2xs hover:border-[#78C5A7]"
           >
             <Beer className="w-4 h-4 text-purple-500 shrink-0" />
-            <span className="truncate">Beers / Drinks</span>
+            <span className="truncate">Drinks & Stay</span>
           </button>
         </div>
 
-        <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+        <div className="pt-2 border-t border-[#E4EAF0] flex items-center justify-between text-[11px] text-[#718096]">
           <button
             onClick={onLoadSample}
-            className="hover:text-[#5bc5a7] font-semibold underline transition flex items-center gap-1.5"
+            className="hover:text-[#145B4A] font-semibold underline transition flex items-center gap-1.5"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#5bc5a7]" />
-            Reload road trip sample
+            <Sparkles className="w-3.5 h-3.5 text-[#145B4A]" />
+            Reload sample data
           </button>
         </div>
       </div>

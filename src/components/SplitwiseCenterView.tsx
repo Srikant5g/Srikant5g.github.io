@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import type { Expense, Member, DebtTransaction, Category } from '../types';
 import { formatCurrency, formatExpenseDate } from '../utils/settlement';
 import { CATEGORY_ICONS } from '../utils/sampleData';
-import { Plus, Check, ArrowRight, Trash2, Edit3, QrCode, Search, Sparkles, X } from 'lucide-react';
+import { copyToClipboard } from '../utils/clipboard';
+import { Plus, Check, ArrowRight, Trash2, Edit3, QrCode, Search, Sparkles, X, Copy, PieChart } from 'lucide-react';
 
 interface SplitwiseCenterViewProps {
   expenses: Expense[];
@@ -36,6 +37,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   const [internalTab, setInternalTab] = useState<'expenses' | 'debts' | 'breakdown'>('expenses');
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+  const [copiedUpiId, setCopiedUpiId] = useState<string | null>(null);
 
   const tab = onChangeSubTab ? activeSubTab : internalTab;
   const setTab = (t: 'expenses' | 'debts' | 'breakdown') => {
@@ -44,6 +46,13 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
     } else {
       setInternalTab(t);
     }
+  };
+
+  const handleCopyUpi = async (e: React.MouseEvent, txId: string, upi: string) => {
+    e.stopPropagation();
+    await copyToClipboard(upi);
+    setCopiedUpiId(txId);
+    setTimeout(() => setCopiedUpiId(null), 2000);
   };
 
   const memberMap = new Map<string, Member>();
@@ -109,28 +118,68 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
     'Stay & Hotel',
   ];
 
+  // Category Spend calculation for Tab 3 & Donut
+  const categorySpendMap: Record<string, number> = {};
+  expenses.forEach((e) => {
+    categorySpendMap[e.category] = (categorySpendMap[e.category] || 0) + e.amount;
+  });
+  const grandTotalSpend = expenses.reduce((sum, e) => sum + e.amount, 0);
+
+  // Colors for Donut segments
+  const DONUT_COLORS = [
+    '#145B4A', // Forest Green
+    '#78C5A7', // Mint Green
+    '#FF784F', // Coral
+    '#3B82F6', // Blue
+    '#F59E0B', // Amber
+    '#8B5CF6', // Purple
+    '#EC4899', // Pink
+    '#10B981', // Emerald
+  ];
+
+  const sortedCategories = Object.entries(categorySpendMap)
+    .filter(([_, amt]) => amt > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  // Compute SVG Donut Chart strokes
+  let cumulativePercent = 0;
+  const donutSegments = sortedCategories.map(([cat, amt], index) => {
+    const percent = grandTotalSpend > 0 ? (amt / grandTotalSpend) * 100 : 0;
+    const strokeDasharray = `${percent} ${100 - percent}`;
+    const strokeDashoffset = -cumulativePercent;
+    cumulativePercent += percent;
+    return {
+      cat,
+      amt,
+      percent,
+      color: DONUT_COLORS[index % DONUT_COLORS.length],
+      strokeDasharray,
+      strokeDashoffset,
+    };
+  });
+
   return (
-    <div className="flex-1 min-w-0 bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden w-full">
-      {/* Top Header Bar with Wrap Protection */}
-      <div className="bg-[#f8f9fa] border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+    <div className="flex-1 min-w-0 bg-white border border-[#E4EAF0] rounded-3xl shadow-xs overflow-hidden w-full">
+      {/* Top Header Bar */}
+      <div className="bg-[#F7F8F5] border-b border-[#E4EAF0] px-4 py-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 m-0 flex items-center gap-2 truncate">
+          <h1 className="text-xl sm:text-2xl font-black text-[#192B3D] m-0 flex items-center gap-2 truncate">
             <span>
               {selectedFriend
                 ? `${selectedFriend.name} & You`
-                : 'Dashboard'}
+                : 'Expenses Dashboard'}
             </span>
           </h1>
-          <p className="text-xs text-slate-500 font-medium mt-0.5">
-            Road Trip 2026 • <span className="font-bold text-slate-700">{expenses.length} bills</span> recorded
+          <p className="text-xs text-[#718096] font-medium mt-0.5">
+            TripTally • <span className="font-bold text-[#192B3D]">{expenses.length} bills</span> recorded
           </p>
         </div>
 
-        {/* Action Buttons: Add an expense & Settle up (Never cut off!) */}
+        {/* Action Buttons: Add an expense & Settle up */}
         <div className="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
           <button
             onClick={onOpenAddExpense}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95 shrink-0"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95 shrink-0"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>Add an expense</span>
@@ -138,7 +187,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
           <button
             onClick={onOpenSettleUp}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95 shrink-0"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#78C5A7]/20 hover:bg-[#78C5A7]/30 text-[#145B4A] font-bold text-xs sm:text-sm border border-[#78C5A7]/40 transition active:scale-95 shrink-0"
           >
             <Check className="w-4 h-4 stroke-[3]" />
             <span>Settle up</span>
@@ -146,20 +195,20 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
         </div>
       </div>
 
-      {/* The Splitwise 3-Box Balance Banner */}
-      <div className="grid grid-cols-3 border-b border-slate-200 text-center py-4 bg-[#fbfbfb]">
+      {/* The 3-Box Balance Banner */}
+      <div className="grid grid-cols-3 border-b border-[#E4EAF0] text-center py-4 bg-white">
         {/* Total Balance */}
-        <div className="border-r border-slate-200 px-2 sm:px-4">
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 block">
+        <div className="border-r border-[#E4EAF0] px-2 sm:px-4">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#718096] block">
             total balance
           </span>
           <span
             className={`text-base sm:text-2xl font-black mt-1 block truncate ${
               netBalance > 0.01
-                ? 'text-[#0d9488]'
+                ? 'text-[#145B4A]'
                 : netBalance < -0.01
-                ? 'text-[#e05320]'
-                : 'text-slate-500'
+                ? 'text-[#FF784F]'
+                : 'text-[#718096]'
             }`}
           >
             {netBalance > 0.01 && '+'}
@@ -168,41 +217,41 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
         </div>
 
         {/* You Owe */}
-        <div className="border-r border-slate-200 px-2 sm:px-4">
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 block">
+        <div className="border-r border-[#E4EAF0] px-2 sm:px-4">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#718096] block">
             you owe
           </span>
-          <span className="text-base sm:text-2xl font-black text-[#e05320] mt-1 block truncate">
+          <span className="text-base sm:text-2xl font-black text-[#FF784F] mt-1 block truncate">
             {formatCurrency(youOweTotal)}
           </span>
         </div>
 
         {/* You Are Owed */}
         <div className="px-2 sm:px-4">
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 block">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#718096] block">
             you are owed
           </span>
-          <span className="text-base sm:text-2xl font-black text-[#0d9488] mt-1 block truncate">
+          <span className="text-base sm:text-2xl font-black text-[#145B4A] mt-1 block truncate">
             {formatCurrency(youAreOwedTotal)}
           </span>
         </div>
       </div>
 
       {/* Sub-Tabs: Expenses vs Debts vs Breakdown */}
-      <div className="border-b border-slate-200 px-4 sm:px-6 bg-white overflow-x-auto scrollbar-none">
-        <div className="flex items-center gap-6 sm:gap-8 whitespace-nowrap min-w-max text-xs sm:text-sm font-bold text-slate-500">
+      <div className="border-b border-[#E4EAF0] px-4 sm:px-6 bg-[#F7F8F5] overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-6 sm:gap-8 whitespace-nowrap min-w-max text-xs sm:text-sm font-bold text-[#718096]">
           <button
             onClick={() => setTab('expenses')}
-            className={`py-3.5 border-b-2 transition flex items-center gap-1.5 ${
+            className={`py-3.5 border-b-2 transition flex items-center gap-2 ${
               tab === 'expenses'
-                ? 'border-[#0d9488] text-[#0d9488]'
-                : 'border-transparent hover:text-slate-700'
+                ? 'border-[#145B4A] text-[#145B4A]'
+                : 'border-transparent hover:text-[#192B3D]'
             }`}
           >
             <span>All Expenses</span>
             <span
-              className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                tab === 'expenses' ? 'bg-[#0d9488]/15 text-[#0f766e]' : 'bg-slate-100 text-slate-600'
+              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                tab === 'expenses' ? 'bg-[#78C5A7]/25 text-[#145B4A]' : 'bg-[#E4EAF0] text-[#718096]'
               }`}
             >
               {filtered.length}
@@ -211,16 +260,16 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
           <button
             onClick={() => setTab('debts')}
-            className={`py-3.5 border-b-2 transition flex items-center gap-1.5 ${
+            className={`py-3.5 border-b-2 transition flex items-center gap-2 ${
               tab === 'debts'
-                ? 'border-[#0d9488] text-[#0d9488]'
-                : 'border-transparent hover:text-slate-700'
+                ? 'border-[#145B4A] text-[#145B4A]'
+                : 'border-transparent hover:text-[#192B3D]'
             }`}
           >
             <span>Who Owes Who</span>
             <span
-              className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                tab === 'debts' ? 'bg-[#0d9488]/15 text-[#0f766e]' : 'bg-slate-100 text-slate-600'
+              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                tab === 'debts' ? 'bg-[#78C5A7]/25 text-[#145B4A]' : 'bg-[#E4EAF0] text-[#718096]'
               }`}
             >
               {settlements.length}
@@ -229,12 +278,13 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
           <button
             onClick={() => setTab('breakdown')}
-            className={`py-3.5 border-b-2 transition flex items-center gap-1.5 ${
+            className={`py-3.5 border-b-2 transition flex items-center gap-2 ${
               tab === 'breakdown'
-                ? 'border-[#0d9488] text-[#0d9488]'
-                : 'border-transparent hover:text-slate-700'
+                ? 'border-[#145B4A] text-[#145B4A]'
+                : 'border-transparent hover:text-[#192B3D]'
             }`}
           >
+            <PieChart className="w-4 h-4" />
             <span>Category Spend</span>
           </button>
         </div>
@@ -244,13 +294,13 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
       {tab === 'expenses' && (
         <div className="pb-20 md:pb-6">
           {/* Filters Bar: Search & Category Pills */}
-          <div className="p-3.5 sm:p-4 bg-[#fafafa] border-b border-slate-100 space-y-2.5">
+          <div className="p-3.5 sm:p-4 bg-white border-b border-[#E4EAF0] space-y-2.5">
             {/* Search Input */}
             <div className="relative w-full">
               <label htmlFor="desktop-search-bills" className="sr-only">
                 Search bills by title, category, or friend
               </label>
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#718096] absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 id="desktop-search-bills"
                 name="search"
@@ -259,12 +309,12 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 aria-label="Search bills by title, category, or friend"
-                className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-9 py-2 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#5bc5a7] focus:ring-2 focus:ring-[#5bc5a7]/15 transition"
+                className="w-full bg-[#F7F8F5] border border-[#E4EAF0] rounded-xl pl-10 pr-9 py-2 text-xs sm:text-sm text-[#192B3D] placeholder-[#718096] focus:outline-none focus:border-[#145B4A] focus:bg-white focus:ring-2 focus:ring-[#78C5A7]/20 transition"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#718096] hover:text-[#192B3D] p-0.5"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -279,8 +329,8 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                   onClick={() => setCategoryFilter(cat)}
                   className={`whitespace-nowrap px-3 py-1.5 rounded-lg text-xs font-semibold transition active:scale-95 ${
                     categoryFilter === cat
-                      ? 'bg-[#5bc5a7] text-white shadow-xs'
-                      : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                      ? 'bg-[#145B4A] text-white shadow-xs'
+                      : 'bg-[#F7F8F5] border border-[#E4EAF0] text-[#718096] hover:text-[#192B3D] hover:bg-white'
                   }`}
                 >
                   {cat !== 'ALL' && <span className="mr-1">{CATEGORY_ICONS[cat]?.icon}</span>}
@@ -292,38 +342,39 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
           {/* Expenses List */}
           {filtered.length === 0 ? (
-            <div className="py-8 px-4 text-center max-w-lg mx-auto space-y-4">
-              <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-900 relative">
+            <div className="py-10 px-4 text-center max-w-lg mx-auto space-y-4">
+              <div className="rounded-3xl overflow-hidden border border-[#E4EAF0] shadow-sm bg-[#145B4A] relative">
                 <img
                   src="/og-thumbnail.svg"
-                  alt="Welcome to Road Trip 2026"
+                  alt="Welcome to TripTally"
                   className="w-full h-44 object-cover object-center"
                 />
               </div>
 
               <div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold uppercase tracking-wider">
-                  🚗 Road Trip 2026
+                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#78C5A7]/20 text-[#145B4A] border border-[#78C5A7]/40 text-[11px] font-black uppercase tracking-wider">
+                  <Sparkles className="w-3 h-3" />
+                  TripTally
                 </span>
-                <h3 className="font-black text-slate-900 text-lg mt-1.5">
-                  Welcome to TripTab! 🚗💨
+                <h3 className="font-black text-[#192B3D] text-lg mt-2">
+                  No expenses found
                 </h3>
-                <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
-                  Start logging your highway fuel, Fastag tolls, snacks, drinks, and villa stay for our 7 friends!
+                <p className="text-xs text-[#718096] mt-1 max-w-md mx-auto leading-relaxed">
+                  Start logging your trip fuel, meals, hotel, tolls, and activities for your group!
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
                 <button
                   onClick={onOpenAddExpense}
-                  className="px-5 py-2.5 rounded-xl bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95"
+                  className="px-5 py-2.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95"
                 >
-                  + Add First Expense
+                  + Add Expense
                 </button>
                 {onLoadSample && (
                   <button
                     onClick={onLoadSample}
-                    className="px-4 py-2.5 rounded-xl bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs sm:text-sm shadow-xs transition flex items-center gap-1.5 active:scale-95"
+                    className="px-4 py-2.5 rounded-xl bg-[#78C5A7]/20 hover:bg-[#78C5A7]/30 text-[#145B4A] border border-[#78C5A7]/40 font-bold text-xs sm:text-sm shadow-xs transition flex items-center gap-1.5 active:scale-95"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Load Sample Bills</span>
@@ -332,7 +383,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
               </div>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-[#E4EAF0]">
               {filtered.map((expense) => {
                 const payer = memberMap.get(expense.paidById);
                 const isPayer = expense.paidById === currentUserId;
@@ -369,43 +420,43 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                   <div
                     key={expense.id}
                     onClick={() => onEditExpense(expense)}
-                    className="p-3.5 sm:px-6 hover:bg-slate-50/70 transition flex items-center justify-between gap-3 group cursor-pointer"
+                    className="p-3.5 sm:px-6 hover:bg-[#F7F8F5]/80 transition flex items-center justify-between gap-3 group cursor-pointer"
                   >
                     {/* Left: Date + Icon + Title + Info */}
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      {/* Splitwise Date Badge */}
-                      <div className="w-10 text-center shrink-0 border border-slate-200 rounded-lg bg-white overflow-hidden shadow-2xs">
-                        <div className="bg-slate-100 text-[8px] font-bold text-slate-500 py-0.5 border-b border-slate-200 leading-tight">
+                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                      {/* Date Badge */}
+                      <div className="w-10 text-center shrink-0 border border-[#E4EAF0] rounded-xl bg-white overflow-hidden shadow-2xs">
+                        <div className="bg-[#F7F8F5] text-[8px] font-bold text-[#718096] py-0.5 border-b border-[#E4EAF0] leading-tight uppercase">
                           {month}
                         </div>
-                        <div className="text-xs font-black text-slate-800 py-0.5 leading-tight">
+                        <div className="text-xs font-black text-[#192B3D] py-0.5 leading-tight">
                           {day}
                         </div>
                       </div>
 
                       {/* Category Icon Badge */}
-                      <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl shrink-0">
+                      <div className="w-10 h-10 rounded-2xl bg-[#F7F8F5] border border-[#E4EAF0] flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition">
                         {catMeta.icon}
                       </div>
 
                       {/* Title & Detail */}
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-bold text-slate-900 text-xs sm:text-sm leading-snug truncate">
+                        <h4 className="font-bold text-[#192B3D] text-xs sm:text-sm leading-snug truncate">
                           {expense.title}
                         </h4>
-                        <div className="text-[11px] text-slate-500 mt-0.5 truncate">
-                          <span className="font-semibold text-slate-700">
+                        <div className="text-[11px] text-[#718096] mt-0.5 truncate">
+                          <span className="font-semibold text-[#192B3D]">
                             {isPayer ? 'You' : payer?.name}
                           </span>{' '}
                           paid{' '}
-                          <span className="font-bold text-slate-800">
+                          <span className="font-bold text-[#192B3D]">
                             {formatCurrency(expense.amount)}
                           </span>
                           {' • '}
                           <span>Split with {splitCount}</span>
                         </div>
                         {expense.notes && (
-                          <p className="text-[11px] text-slate-400 italic mt-0.5 truncate">
+                          <p className="text-[11px] text-[#718096]/80 italic mt-0.5 truncate">
                             "{expense.notes}"
                           </p>
                         )}
@@ -415,16 +466,16 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                     {/* Right: Personal Share Amount + Action Buttons */}
                     <div className="flex items-center gap-3 sm:gap-4 shrink-0">
                       <div className="text-right">
-                        <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
+                        <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[#718096] block tracking-wider">
                           {statusLabel}
                         </span>
                         <span
                           className={`text-xs sm:text-base font-black block ${
                             isLent
-                              ? 'text-[#0d9488]'
+                              ? 'text-[#145B4A]'
                               : statusLabel === 'you borrowed'
-                              ? 'text-[#e05320]'
-                              : 'text-slate-400'
+                              ? 'text-[#FF784F]'
+                              : 'text-[#718096]'
                           }`}
                         >
                           {statusAmount > 0 ? formatCurrency(statusAmount) : '—'}
@@ -438,7 +489,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                             e.stopPropagation();
                             onEditExpense(expense);
                           }}
-                          className="p-1.5 sm:px-2 sm:py-1 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg text-slate-400 transition flex items-center gap-1"
+                          className="p-1.5 sm:px-2.5 sm:py-1 hover:text-[#192B3D] hover:bg-[#E4EAF0] rounded-xl text-[#718096] transition flex items-center gap-1"
                           title="Edit Bill"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
@@ -450,7 +501,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                             e.stopPropagation();
                             onDeleteExpense(expense.id);
                           }}
-                          className="p-1.5 sm:px-2 sm:py-1 hover:text-rose-600 hover:bg-rose-50 rounded-lg text-slate-400 transition flex items-center gap-1"
+                          className="p-1.5 sm:px-2.5 sm:py-1 hover:text-[#FF784F] hover:bg-rose-50 rounded-xl text-[#718096] transition flex items-center gap-1"
                           title="Delete Bill (Requires Security PIN)"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -469,23 +520,23 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
       {/* TAB 2: Simplified Debts */}
       {tab === 'debts' && (
         <div className="p-4 sm:p-6 space-y-4 pb-20 md:pb-6">
-          <div className="bg-[#f0f9f6] border border-[#5bc5a7]/30 rounded-2xl p-4 text-xs text-[#28816a] flex items-center justify-between">
+          <div className="bg-[#78C5A7]/10 border border-[#78C5A7]/30 rounded-2xl p-4 text-xs text-[#145B4A] flex items-center justify-between">
             <div>
               <strong className="block text-sm font-black flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-[#5bc5a7]" />
-                Smart Simplified Debts
+                <Sparkles className="w-4 h-4 text-[#145B4A]" />
+                TripTally Debt Simplification
               </strong>
-              <span className="text-slate-600 mt-0.5 block">
+              <span className="text-[#718096] mt-0.5 block">
                 Calculates direct transfers so everyone settles with the minimum number of UPI payments.
               </span>
             </div>
           </div>
 
-          <div className="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
+          <div className="divide-y divide-[#E4EAF0] border border-[#E4EAF0] rounded-3xl overflow-hidden bg-white shadow-xs">
             {settlements.length === 0 ? (
-              <div className="text-center py-12 text-slate-500 text-xs space-y-1">
-                <p className="font-bold text-slate-700 text-sm">All Friends Settled Up! 🎉</p>
-                <p className="text-slate-400">No debts or payments pending.</p>
+              <div className="text-center py-12 text-[#718096] text-xs space-y-1">
+                <p className="font-bold text-[#192B3D] text-sm">All Friends Settled Up! 🎉</p>
+                <p className="text-[#718096]">No debts or payments pending.</p>
               </div>
             ) : (
               settlements.map((tx, idx) => {
@@ -495,35 +546,57 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                 return (
                   <div
                     key={tx.id || idx}
-                    className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition"
+                    className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F7F8F5]/80 transition"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 shrink-0">
+                      <div className="w-8 h-8 rounded-xl bg-[#F7F8F5] border border-[#E4EAF0] flex items-center justify-center text-xs font-black text-[#192B3D] shrink-0">
                         {idx + 1}
                       </div>
                       <div className="flex items-center gap-2 text-xs sm:text-sm flex-wrap font-medium">
-                        <strong className={isYouPaying ? 'text-[#e05320]' : 'text-slate-900'}>
+                        <strong className={isYouPaying ? 'text-[#FF784F]' : 'text-[#192B3D]'}>
                           {tx.fromName} {isYouPaying && '(You)'}
                         </strong>
-                        <span className="text-slate-400 flex items-center gap-1 text-xs">
-                          owes <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-[#718096] flex items-center gap-1 text-xs">
+                          owes <ArrowRight className="w-3.5 h-3.5 text-[#718096]" />
                         </span>
-                        <strong className={isYouReceiving ? 'text-[#0d9488]' : 'text-slate-900'}>
+                        <strong className={isYouReceiving ? 'text-[#145B4A]' : 'text-[#192B3D]'}>
                           {tx.toName} {isYouReceiving && '(You)'}
                         </strong>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                      <span className="text-base sm:text-lg font-black text-slate-900">
+                    <div className="flex items-center justify-between sm:justify-end gap-2.5 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#E4EAF0]">
+                      <span className="text-base sm:text-lg font-black text-[#192B3D]">
                         {formatCurrency(tx.amount)}
                       </span>
+
+                      {tx.toUpiId && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleCopyUpi(e, tx.id, tx.toUpiId!)}
+                          className="px-2.5 py-1.5 text-xs font-bold rounded-xl border border-[#E4EAF0] bg-white hover:bg-[#F7F8F5] text-[#718096] transition flex items-center gap-1"
+                          title="Copy UPI ID"
+                        >
+                          {copiedUpiId === tx.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-[#145B4A]" />
+                              <span className="text-[#145B4A]">Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy UPI</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+
                       {tx.toUpiId && (
                         <a
-                          href={`upi://pay?pa=${tx.toUpiId}&pn=${encodeURIComponent(
+                          href={`upi://pay?pa=${encodeURIComponent(tx.toUpiId)}&pn=${encodeURIComponent(
                             tx.toName
-                          )}&am=${tx.amount}&cu=INR&tn=RoadTripSettlement`}
-                          className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#5bc5a7] hover:bg-[#48b396] text-white transition flex items-center gap-1.5 shadow-xs"
+                          )}&am=${tx.amount}&cu=INR&tn=TripTallySettlement`}
+                          className="px-3 py-1.5 text-xs font-bold rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white transition flex items-center gap-1.5 shadow-xs"
                         >
                           <QrCode className="w-3.5 h-3.5" />
                           <span>Pay UPI</span>
@@ -538,44 +611,93 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
         </div>
       )}
 
-      {/* TAB 3: Category Spend Breakdown */}
+      {/* TAB 3: Category Spend Breakdown & SVG Donut Chart */}
       {tab === 'breakdown' && (
-        <div className="p-4 sm:p-6 space-y-4 pb-20 md:pb-6">
-          <h3 className="font-extrabold text-slate-900 text-sm">Where your trip money went</h3>
-          <div className="space-y-3.5">
-            {categories
-              .filter((c) => c !== 'ALL')
-              .map((cat) => {
-                const total = expenses
-                  .filter((e) => e.category === cat)
-                  .reduce((sum, e) => sum + e.amount, 0);
-                const grandTotal = expenses.reduce((s, e) => s + e.amount, 0);
-                const pct = grandTotal > 0 ? (total / grandTotal) * 100 : 0;
-                const meta = CATEGORY_ICONS[cat];
+        <div className="p-4 sm:p-6 space-y-6 pb-20 md:pb-6">
+          <div className="flex flex-col md:flex-row items-center gap-6 p-6 rounded-3xl bg-[#F7F8F5] border border-[#E4EAF0]">
+            {/* SVG Donut Chart */}
+            <div className="relative w-44 h-44 shrink-0 flex items-center justify-center">
+              <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="15.91549430918954"
+                  fill="none"
+                  stroke="#E4EAF0"
+                  strokeWidth="3.2"
+                />
+                {donutSegments.map((seg) => (
+                  <circle
+                    key={seg.cat}
+                    cx="18"
+                    cy="18"
+                    r="15.91549430918954"
+                    fill="none"
+                    stroke={seg.color}
+                    strokeWidth="3.2"
+                    strokeDasharray={seg.strokeDasharray}
+                    strokeDashoffset={seg.strokeDashoffset}
+                    className="transition-all duration-500"
+                  />
+                ))}
+              </svg>
 
-                if (total === 0) return null;
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider">
+                  Total
+                </span>
+                <span className="text-sm font-black text-[#192B3D]">
+                  {formatCurrency(grandTotalSpend)}
+                </span>
+              </div>
+            </div>
 
-                return (
-                  <div key={cat} className="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                    <div className="flex items-center justify-between text-xs font-medium">
-                      <span className="flex items-center gap-2 text-slate-800 font-bold">
-                        <span className="text-base">{meta.icon}</span>
-                        <span>{cat}</span>
-                      </span>
-                      <span className="font-black text-slate-900 text-sm">
-                        {formatCurrency(total)}{' '}
-                        <span className="text-slate-400 font-normal text-xs">({pct.toFixed(0)}%)</span>
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                      <div
-                        className="bg-[#5bc5a7] h-full rounded-full transition-all duration-300"
-                        style={{ width: `${pct}%` }}
+            {/* Spending Overview */}
+            <div className="flex-1 space-y-2 text-center md:text-left">
+              <span className="px-2.5 py-1 rounded-full bg-[#78C5A7]/20 text-[#145B4A] text-xs font-bold uppercase tracking-wider">
+                Financial Insights
+              </span>
+              <h3 className="text-lg font-black text-[#192B3D] mt-1">
+                Category Spending Distribution
+              </h3>
+              <p className="text-xs text-[#718096] leading-relaxed">
+                Visual proportion of where trip funds were allocated across {sortedCategories.length} categories.
+              </p>
+            </div>
+          </div>
+
+          {/* List of Category Breakdown Rows */}
+          <div className="space-y-3">
+            {sortedCategories.map(([cat, total], idx) => {
+              const pct = grandTotalSpend > 0 ? (total / grandTotalSpend) * 100 : 0;
+              const meta = CATEGORY_ICONS[cat] || { icon: '📝' };
+              const color = DONUT_COLORS[idx % DONUT_COLORS.length];
+
+              return (
+                <div key={cat} className="space-y-1.5 p-3.5 rounded-2xl bg-white border border-[#E4EAF0] shadow-2xs">
+                  <div className="flex items-center justify-between text-xs font-medium">
+                    <span className="flex items-center gap-2.5 text-[#192B3D] font-bold">
+                      <span
+                        className="w-3 h-3 rounded-full shrink-0"
+                        style={{ backgroundColor: color }}
                       />
-                    </div>
+                      <span className="text-base">{meta.icon}</span>
+                      <span>{cat}</span>
+                    </span>
+                    <span className="font-black text-[#192B3D] text-sm">
+                      {formatCurrency(total)}{' '}
+                      <span className="text-[#718096] font-normal text-xs">({pct.toFixed(0)}%)</span>
+                    </span>
                   </div>
-                );
-              })}
+                  <div className="w-full bg-[#F7F8F5] h-2.5 rounded-full overflow-hidden border border-[#E4EAF0]">
+                    <div
+                      className="h-full rounded-full transition-all duration-300"
+                      style={{ width: `${pct}%`, backgroundColor: color }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

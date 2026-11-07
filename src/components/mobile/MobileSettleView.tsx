@@ -30,25 +30,27 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
   return (
     <div className="space-y-3.5 pb-32">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-emerald-700 to-teal-600 rounded-2xl p-4 text-white shadow-sm">
+      <div className="bg-[#145B4A] rounded-3xl p-4 sm:p-5 text-white shadow-xs">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-emerald-200" />
+          <div className="w-7 h-7 rounded-lg bg-[#78C5A7]/20 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-[#78C5A7]" />
+          </div>
           <h2 className="text-base font-black text-white m-0">
             Simplified Debt Settlements
           </h2>
         </div>
-        <p className="text-xs text-emerald-100 mt-1 leading-relaxed">
-          The smart algorithm minimized group transfers to just {settlements.length} payments.
+        <p className="text-xs text-[#78C5A7] mt-1.5 leading-relaxed">
+          The smart settlement algorithm minimized group transfers to just {settlements.length} payments.
         </p>
       </div>
 
       {/* Settlements List */}
       {settlements.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center space-y-2">
+        <div className="bg-white border border-[#E4EAF0] rounded-3xl p-8 text-center space-y-2 shadow-2xs">
           <div className="text-4xl">🎉</div>
-          <h3 className="font-bold text-slate-800 text-sm">Everyone is all settled!</h3>
-          <p className="text-xs text-slate-400">
-            Nobody owes anything across all 7 friends. Time to chill! 🏖️🍹
+          <h3 className="font-black text-[#192B3D] text-sm">Everyone is all settled!</h3>
+          <p className="text-xs text-[#718096]">
+            Nobody owes anything across all friends. Time to relax!
           </p>
         </div>
       ) : (
@@ -61,30 +63,30 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
             const upiUrl = tx.toUpiId
               ? `upi://pay?pa=${encodeURIComponent(tx.toUpiId)}&pn=${encodeURIComponent(
                   tx.toName
-                )}&am=${tx.amount}&cu=INR&tn=RoadTripSettlement`
+                )}&am=${tx.amount}&cu=INR&tn=TripTallySettlement`
               : null;
 
             return (
               <div
                 key={tx.id || idx}
-                className={`bg-white border rounded-2xl p-3.5 shadow-2xs transition space-y-2.5 ${
+                className={`bg-white border rounded-3xl p-4 shadow-2xs transition space-y-3 ${
                   isDone
-                    ? 'border-slate-200 bg-slate-50/80 opacity-60'
-                    : 'border-slate-200/90 hover:border-slate-300'
+                    ? 'border-[#E4EAF0] bg-[#F7F8F5]/80 opacity-60'
+                    : 'border-[#E4EAF0] hover:border-[#78C5A7]'
                 }`}
               >
                 {/* Row 1: Who owes whom + Amount */}
                 <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     {/* Checkbox */}
                     <button
                       onClick={() => toggleCompleted(tx.id)}
                       className={`w-6 h-6 rounded-lg border flex items-center justify-center transition shrink-0 ${
                         isDone
-                          ? 'bg-emerald-500 border-emerald-500 text-white'
-                          : 'border-slate-300 bg-white hover:border-slate-400'
+                          ? 'bg-[#145B4A] border-[#145B4A] text-white'
+                          : 'border-[#E4EAF0] bg-white hover:border-[#145B4A]'
                       }`}
-                      title={isDone ? 'Mark as pending' : 'Mark as completed'}
+                      title={isDone ? 'Mark as pending' : 'Mark as settled'}
                     >
                       {isDone && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                     </button>
@@ -94,26 +96,26 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
                         <span
                           className={`font-bold ${
                             isDone
-                              ? 'line-through text-slate-400'
+                              ? 'line-through text-[#718096]'
                               : isYouPaying
-                              ? 'text-[#e05320]'
-                              : 'text-slate-800'
+                              ? 'text-[#FF784F]'
+                              : 'text-[#192B3D]'
                           }`}
                         >
                           {tx.fromName} {isYouPaying && '(You)'}
                         </span>
 
-                        <span className="text-slate-400 flex items-center gap-1 text-[11px]">
-                          pays <ArrowRight className="w-3 h-3 text-slate-400" />
+                        <span className="text-[#718096] flex items-center gap-1 text-[11px]">
+                          pays <ArrowRight className="w-3 h-3 text-[#718096]" />
                         </span>
 
                         <span
                           className={`font-bold ${
                             isDone
-                              ? 'line-through text-slate-400'
+                              ? 'line-through text-[#718096]'
                               : isYouReceiving
-                              ? 'text-[#0d9488]'
-                              : 'text-slate-800'
+                              ? 'text-[#145B4A]'
+                              : 'text-[#192B3D]'
                           }`}
                         >
                           {tx.toName} {isYouReceiving && '(You)'}
@@ -121,7 +123,7 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
                       </div>
 
                       {tx.toUpiId && (
-                        <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                        <p className="text-[11px] text-[#718096] font-mono mt-0.5">
                           UPI: {tx.toUpiId}
                         </p>
                       )}
@@ -132,7 +134,7 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
                   <div className="text-right shrink-0">
                     <span
                       className={`text-base font-black ${
-                        isDone ? 'line-through text-slate-400' : 'text-slate-900'
+                        isDone ? 'line-through text-[#718096]' : 'text-[#192B3D]'
                       }`}
                     >
                       {formatCurrency(tx.amount)}
@@ -142,19 +144,19 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
 
                 {/* Row 2: Direct Actions (Pay UPI, Copy UPI) */}
                 {tx.toUpiId && !isDone && (
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                  <div className="flex items-center justify-end gap-2 pt-2.5 border-t border-[#E4EAF0]">
                     <button
                       onClick={() => handleCopy(tx)}
-                      className="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 bg-white text-xs font-semibold flex items-center gap-1"
+                      className="px-3 py-1.5 rounded-xl border border-[#E4EAF0] text-[#718096] hover:text-[#192B3D] bg-white text-xs font-semibold flex items-center gap-1 transition active:scale-95"
                     >
                       {copiedId === tx.id ? (
                         <>
-                          <Check className="w-3 h-3 text-emerald-600" />
-                          <span className="text-emerald-700">Copied!</span>
+                          <Check className="w-3.5 h-3.5 text-[#145B4A] stroke-[3]" />
+                          <span className="text-[#145B4A] font-bold">Copied!</span>
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3 h-3" />
+                          <Copy className="w-3.5 h-3.5 text-[#718096]" />
                           <span>Copy UPI</span>
                         </>
                       )}
@@ -163,10 +165,10 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
                     {upiUrl && (
                       <a
                         href={upiUrl}
-                        className="px-3.5 py-1.5 rounded-lg bg-[#5bc5a7] hover:bg-[#48b396] text-white text-xs font-bold flex items-center gap-1 shadow-xs transition"
+                        className="px-4 py-1.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition active:scale-95"
                       >
                         <QrCode className="w-3.5 h-3.5" />
-                        <span>Pay via UPI</span>
+                        <span>Pay UPI</span>
                       </a>
                     )}
                   </div>

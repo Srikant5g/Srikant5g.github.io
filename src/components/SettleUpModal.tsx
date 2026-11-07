@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { DebtTransaction, Member } from '../types';
 import { formatCurrency } from '../utils/settlement';
+import { copyToClipboard } from '../utils/clipboard';
 import { X, Check, QrCode, ArrowRight, Wallet, HandCoins } from 'lucide-react';
 
 interface SettleUpModalProps {
@@ -22,6 +23,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 }) => {
   const [tab, setTab] = useState<'settle' | 'deposit'>('settle');
   const [selectedTxId, setSelectedTxId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Deposit mode state
   const [depositFromId, setDepositFromId] = useState<string>(
@@ -32,7 +34,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
     return other ? other.id : members[1]?.id || members[0]?.id || '';
   });
   const [depositAmount, setDepositAmount] = useState<string>('10000');
-  const [depositNote, setDepositNote] = useState<string>('Trip Kitty / Advance Pool Deposit');
+  const [depositNote, setDepositNote] = useState<string>('Advance Fund Deposit / Pool Kitty');
   const [depositError, setDepositError] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -44,6 +46,13 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
     if (!activeTx) return;
     onRecordPayment(activeTx.fromId, activeTx.toId, activeTx.amount);
     onClose();
+  };
+
+  const handleCopyUpi = async (e: React.MouseEvent, txId: string, upi: string) => {
+    e.stopPropagation();
+    await copyToClipboard(upi);
+    setCopiedId(txId);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleRecordDeposit = (e?: React.SyntheticEvent) => {
@@ -65,13 +74,12 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
       depositFromId,
       depositToId,
       amt,
-      depositNote.trim() || 'Trip Kitty / Advance Pool Deposit'
+      depositNote.trim() || 'Advance Fund Deposit / Pool Kitty'
     );
     onClose();
   };
 
   const recipientMember = members.find((m) => m.id === depositToId);
-  const fromMember = members.find((m) => m.id === depositFromId);
   const numDepositAmt = parseFloat(depositAmount) || 0;
 
   const depositUpiUrl = recipientMember?.upiId && numDepositAmt > 0
@@ -81,37 +89,37 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
     : null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
-      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden my-auto flex flex-col text-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150">
+      <div className="bg-white border border-[#E4EAF0] rounded-3xl w-full max-w-md shadow-2xl overflow-hidden my-auto flex flex-col text-[#192B3D]">
         {/* Header */}
-        <div className="px-6 py-4 bg-[#5bc5a7] text-white flex items-center justify-between sticky top-0 z-10">
+        <div className="px-6 py-4 bg-[#145B4A] text-white flex items-center justify-between sticky top-0 z-10">
           <div>
             <h2 className="text-lg font-black text-white m-0">Settle Up & Advance Pool</h2>
-            <p className="text-xs text-white/90 mt-0.5">
+            <p className="text-xs text-[#78C5A7] mt-0.5">
               Clear debts or deposit advance money into the trip fund
             </p>
           </div>
           <button
             onClick={onClose}
             aria-label="Close settle modal"
-            className="p-1.5 rounded-lg text-white hover:bg-white/20 transition"
+            className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab Selection */}
-        <div className="flex border-b border-slate-200 bg-slate-50/75 p-1.5 gap-1.5">
+        <div className="flex border-b border-[#E4EAF0] bg-[#F7F8F5] p-1.5 gap-1.5">
           <button
             type="button"
             onClick={() => setTab('settle')}
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
               tab === 'settle'
-                ? 'bg-white text-slate-800 shadow-xs border border-slate-200/80'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'bg-white text-[#192B3D] shadow-xs border border-[#E4EAF0]'
+                : 'text-[#718096] hover:text-[#192B3D]'
             }`}
           >
-            <HandCoins className="w-4 h-4 text-[#5bc5a7]" />
+            <HandCoins className="w-4 h-4 text-[#145B4A]" />
             <span>Settle Debts ({settlements.length})</span>
           </button>
 
@@ -120,11 +128,11 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             onClick={() => setTab('deposit')}
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
               tab === 'deposit'
-                ? 'bg-white text-slate-800 shadow-xs border border-slate-200/80'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'bg-white text-[#192B3D] shadow-xs border border-[#E4EAF0]'
+                : 'text-[#718096] hover:text-[#192B3D]'
             }`}
           >
-            <Wallet className="w-4 h-4 text-[#ff652f]" />
+            <Wallet className="w-4 h-4 text-[#FF784F]" />
             <span>Advance Trip Fund</span>
           </button>
         </div>
@@ -136,21 +144,21 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
             settlements.length === 0 ? (
               <div className="text-center py-6">
                 <div className="text-3xl mb-2">🎉</div>
-                <h3 className="font-bold text-slate-700 text-sm">Everyone is even!</h3>
-                <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-                  No debts remaining. To deposit pooled money in advance to the hotel/trip manager, switch to <strong>Advance Trip Fund</strong> above.
+                <h3 className="font-bold text-[#192B3D] text-sm">Everyone is all settled!</h3>
+                <p className="text-xs text-[#718096] mt-1 max-w-xs mx-auto">
+                  No debts remaining. To deposit pooled money in advance to the trip manager, switch to <strong>Advance Trip Fund</strong> above.
                 </p>
                 <button
                   type="button"
                   onClick={() => setTab('deposit')}
-                  className="mt-4 px-4 py-2 rounded-xl text-xs font-bold bg-[#5bc5a7] text-white hover:bg-[#48b396] transition"
+                  className="mt-4 px-4 py-2 rounded-xl text-xs font-bold bg-[#145B4A] text-white hover:bg-[#0f4437] transition shadow-xs"
                 >
                   Deposit Advance to Trip Fund
                 </button>
               </div>
             ) : (
               <div className="space-y-3">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#718096]">
                   Choose a transfer to settle:
                 </label>
 
@@ -160,34 +168,44 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                     const upiUrl = tx.toUpiId
                       ? `upi://pay?pa=${encodeURIComponent(tx.toUpiId)}&pn=${encodeURIComponent(
                           tx.toName
-                        )}&am=${tx.amount}&cu=INR&tn=RoadTripSettlement`
+                        )}&am=${tx.amount}&cu=INR&tn=TripTallySettlement`
                       : null;
 
                     return (
                       <div
                         key={tx.id}
                         onClick={() => setSelectedTxId(tx.id)}
-                        className={`p-3 rounded-xl border cursor-pointer transition flex items-center justify-between ${
+                        className={`p-3 rounded-2xl border cursor-pointer transition flex items-center justify-between ${
                           isSelected
-                            ? 'border-[#5bc5a7] bg-[#5bc5a7]/10 ring-1 ring-[#5bc5a7]'
-                            : 'border-slate-200 hover:bg-slate-50'
+                            ? 'border-[#145B4A] bg-[#78C5A7]/10 ring-1 ring-[#145B4A]'
+                            : 'border-[#E4EAF0] hover:bg-[#F7F8F5]'
                         }`}
                       >
                         <div className="flex items-center gap-2 text-xs">
-                          <strong className="text-slate-800">{tx.fromName}</strong>
-                          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
-                          <strong className="text-slate-800">{tx.toName}</strong>
+                          <strong className="text-[#192B3D]">{tx.fromName}</strong>
+                          <ArrowRight className="w-3.5 h-3.5 text-[#718096]" />
+                          <strong className="text-[#192B3D]">{tx.toName}</strong>
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <span className="font-black text-sm text-slate-800">
+                          <span className="font-black text-sm text-[#192B3D]">
                             {formatCurrency(tx.amount)}
                           </span>
+                          {tx.toUpiId && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleCopyUpi(e, tx.id, tx.toUpiId!)}
+                              className="px-1.5 py-0.5 rounded text-[10px] font-semibold text-[#718096] bg-slate-100 hover:bg-slate-200 transition"
+                              title="Copy UPI ID"
+                            >
+                              {copiedId === tx.id ? 'Copied' : 'Copy'}
+                            </button>
+                          )}
                           {upiUrl && (
                             <a
                               href={upiUrl}
                               onClick={(e) => e.stopPropagation()}
-                              className="px-2 py-0.5 rounded bg-[#5bc5a7] text-white text-[10px] font-bold flex items-center gap-0.5"
+                              className="px-2 py-0.5 rounded-lg bg-[#145B4A] text-white text-[10px] font-bold flex items-center gap-0.5"
                             >
                               <QrCode className="w-2.5 h-2.5" />
                               UPI
@@ -200,40 +218,77 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                 </div>
 
                 {activeTx && (
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600">
-                    <span>
-                      Paying <strong>{activeTx.toName}</strong> {formatCurrency(activeTx.amount)} will mark this debt as settled in your trip history.
-                    </span>
+                  <div className="mt-4 pt-3 border-t border-[#E4EAF0] space-y-3">
+                    <div className="p-3 bg-[#F7F8F5] rounded-2xl text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-[#718096]">Selected Settlement:</span>
+                        <span className="font-bold text-[#192B3D]">
+                          {activeTx.fromName} ➡️ {activeTx.toName}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[#718096]">Amount:</span>
+                        <span className="font-black text-[#145B4A] text-sm">
+                          {formatCurrency(activeTx.amount)}
+                        </span>
+                      </div>
+                      {activeTx.toUpiId && (
+                        <div className="flex justify-between">
+                          <span className="text-[#718096]">Recipient UPI:</span>
+                          <span className="font-mono text-[#192B3D]">
+                            {activeTx.toUpiId}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="flex-1 py-2.5 rounded-xl border border-[#E4EAF0] text-xs font-bold text-[#718096] hover:bg-[#F7F8F5] transition"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleSettleDebt}
+                        className="flex-1 py-2.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white text-xs font-black transition flex items-center justify-center gap-1.5 shadow-xs"
+                      >
+                        <Check className="w-4 h-4 stroke-[3]" />
+                        <span>Record as Paid</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
             )
           ) : (
-            /* Tab 2: Advance Trip Fund / Pool Deposit */
-            <form onSubmit={handleRecordDeposit} className="space-y-3.5">
+            /* Tab 2: Advance Trip Fund / Kitty Pool */
+            <form onSubmit={handleRecordDeposit} className="space-y-4">
+              <div className="p-3 rounded-2xl bg-[#78C5A7]/10 border border-[#78C5A7]/30 text-xs text-[#145B4A] space-y-1">
+                <strong className="block font-bold">Advance Pool / Trip Kitty:</strong>
+                <p className="text-[11px] leading-relaxed">
+                  Record advance money deposited to a trip organizer (e.g. ₹10,000 for hotel/fuel). This records that <em>{recipientMember?.name}</em> owes the payer back until expenses are logged!
+                </p>
+              </div>
+
               {depositError && (
-                <div className="p-2.5 rounded-lg bg-rose-50 text-rose-600 text-xs font-semibold">
-                  ⚠️ {depositError}
+                <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+                  {depositError}
                 </div>
               )}
 
-              {/* Explainer card */}
-              <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200/80 text-[11px] text-amber-900 leading-relaxed">
-                <span className="font-black block text-amber-950 mb-0.5">💡 How Advance Pooling Works:</span>
-                Depositing ₹10,000 to the trip manager credits your tab. When the manager pays for the hotel or diesel, your share automatically deducts from your deposit!
-              </div>
-
-              {/* From Member */}
+              {/* Who deposited */}
               <div>
-                <label htmlFor="deposit-from-select" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                  Depositor (Who sent the money?)
+                <label className="block text-xs font-bold text-[#718096] mb-1">
+                  Who is depositing money?
                 </label>
                 <select
-                  id="deposit-from-select"
-                  name="depositFrom"
                   value={depositFromId}
                   onChange={(e) => setDepositFromId(e.target.value)}
-                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#5bc5a7]"
+                  className="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-[#E4EAF0] bg-white text-[#192B3D] focus:outline-none focus:border-[#145B4A]"
                 >
                   {members.map((m) => (
                     <option key={m.id} value={m.id}>
@@ -243,21 +298,19 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                 </select>
               </div>
 
-              {/* To Member (Treasurer) */}
+              {/* Who received the fund */}
               <div>
-                <label htmlFor="deposit-to-select" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                  Recipient / Fund Manager (Who holds the cash?)
+                <label className="block text-xs font-bold text-[#718096] mb-1">
+                  Who received the money (Fund Manager)?
                 </label>
                 <select
-                  id="deposit-to-select"
-                  name="depositTo"
                   value={depositToId}
                   onChange={(e) => setDepositToId(e.target.value)}
-                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#5bc5a7]"
+                  className="w-full text-xs font-bold px-3 py-2.5 rounded-xl border border-[#E4EAF0] bg-white text-[#192B3D] focus:outline-none focus:border-[#145B4A]"
                 >
                   {members.map((m) => (
                     <option key={m.id} value={m.id}>
-                      {m.name} {m.id === currentUserId ? '(You)' : ''}
+                      {m.name} {m.upiId ? `(${m.upiId})` : ''}
                     </option>
                   ))}
                 </select>
@@ -265,115 +318,72 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
 
               {/* Amount */}
               <div>
-                <label htmlFor="deposit-amount-input" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                <label className="block text-xs font-bold text-[#718096] mb-1">
                   Deposit Amount (₹)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">₹</span>
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-[#718096]">₹</span>
                   <input
-                    id="deposit-amount-input"
-                    name="depositAmount"
                     type="number"
+                    min="1"
                     step="any"
                     value={depositAmount}
                     onChange={(e) => setDepositAmount(e.target.value)}
                     placeholder="10000"
-                    required
-                    className="w-full bg-white border border-slate-300 rounded-lg pl-8 pr-3 py-2 text-sm font-black text-slate-800 focus:outline-none focus:border-[#5bc5a7]"
+                    className="w-full pl-8 pr-3 py-2.5 text-base font-black rounded-xl border border-[#E4EAF0] bg-white text-[#192B3D] focus:outline-none focus:border-[#145B4A]"
                   />
-                </div>
-
-                {/* Quick preset chips */}
-                <div className="flex items-center gap-1.5 mt-2">
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase">Quick:</span>
-                  {[2000, 5000, 10000, 15000].map((amt) => (
-                    <button
-                      key={amt}
-                      type="button"
-                      onClick={() => setDepositAmount(amt.toString())}
-                      className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-100 hover:bg-[#5bc5a7]/15 hover:text-[#28816a] text-slate-700 transition"
-                    >
-                      ₹{amt.toLocaleString('en-IN')}
-                    </button>
-                  ))}
                 </div>
               </div>
 
               {/* Note */}
               <div>
-                <label htmlFor="deposit-note-input" className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                  Note / Reference
+                <label className="block text-xs font-bold text-[#718096] mb-1">
+                  Description / Note
                 </label>
                 <input
-                  id="deposit-note-input"
-                  name="depositNote"
                   type="text"
                   value={depositNote}
                   onChange={(e) => setDepositNote(e.target.value)}
-                  placeholder="e.g. Hotel advance / trip pool"
-                  className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-[#5bc5a7]"
+                  placeholder="Villa deposit / Food kitty fund"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-[#E4EAF0] bg-white text-[#192B3D] focus:outline-none focus:border-[#145B4A]"
                 />
               </div>
 
-              {/* Summary / UPI Preview */}
-              {fromMember && recipientMember && numDepositAmt > 0 && (
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs flex items-center justify-between">
+              {/* Pay via UPI shortcut if recipient has UPI ID */}
+              {depositUpiUrl && (
+                <div className="p-3 bg-[#F7F8F5] rounded-xl border border-[#E4EAF0] flex items-center justify-between text-xs">
                   <div>
-                    <span className="text-slate-500 block text-[10px]">Transfer Summary</span>
-                    <strong className="text-slate-800">{fromMember.name}</strong> ➡️ <strong className="text-slate-800">{recipientMember.name}</strong>
+                    <span className="text-[#718096] block text-[11px]">Pay directly via UPI:</span>
+                    <strong className="text-[#192B3D]">{recipientMember?.upiId}</strong>
                   </div>
-                  <div className="text-right">
-                    <span className="font-black text-sm text-[#28816a] block">
-                      {formatCurrency(numDepositAmt)}
-                    </span>
-                    {depositUpiUrl && (
-                      <a
-                        href={depositUpiUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[10px] font-bold text-[#0d9488] hover:underline"
-                      >
-                        <QrCode className="w-3 h-3" />
-                        Pay via UPI
-                      </a>
-                    )}
-                  </div>
+                  <a
+                    href={depositUpiUrl}
+                    className="px-3 py-1.5 rounded-lg bg-[#145B4A] hover:bg-[#0f4437] text-white text-xs font-bold flex items-center gap-1 shadow-xs transition"
+                  >
+                    <QrCode className="w-3.5 h-3.5" />
+                    <span>Pay {formatCurrency(numDepositAmt)}</span>
+                  </a>
                 </div>
               )}
+
+              <div className="flex gap-2 pt-2 border-t border-[#E4EAF0]">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="flex-1 py-2.5 rounded-xl border border-[#E4EAF0] text-xs font-bold text-[#718096] hover:bg-[#F7F8F5] transition"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white text-xs font-black transition flex items-center justify-center gap-1.5 shadow-xs"
+                >
+                  <Check className="w-4 h-4 stroke-[3]" />
+                  <span>Save Advance Deposit</span>
+                </button>
+              </div>
             </form>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-slate-200 flex items-center justify-end gap-2 bg-slate-50">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-md text-xs font-semibold text-slate-600 hover:bg-slate-200 transition"
-          >
-            Cancel
-          </button>
-
-          {tab === 'settle' ? (
-            settlements.length > 0 && (
-              <button
-                type="button"
-                onClick={handleSettleDebt}
-                className="px-5 py-2 rounded-md text-xs font-bold bg-[#5bc5a7] hover:bg-[#48b396] text-white transition flex items-center gap-1.5 shadow-xs"
-              >
-                <Check className="w-4 h-4 stroke-[3]" />
-                <span>Record as Paid</span>
-              </button>
-            )
-          ) : (
-            <button
-              type="button"
-              onClick={handleRecordDeposit}
-              className="px-5 py-2 rounded-md text-xs font-bold bg-[#ff652f] hover:bg-[#e55320] text-white transition flex items-center gap-1.5 shadow-xs"
-            >
-              <Wallet className="w-4 h-4 stroke-[2.5]" />
-              <span>Record Deposit</span>
-            </button>
           )}
         </div>
       </div>

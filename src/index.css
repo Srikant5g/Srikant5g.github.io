@@ -1,44 +1,44 @@
 @import "tailwindcss";
 
 @layer base {
+  :root {
+    --color-primary: #145B4A;
+    --color-secondary: #78C5A7;
+    --color-bg: #F7F8F5;
+    --color-accent: #FF784F;
+    --color-text-primary: #192B3D;
+    --color-text-secondary: #718096;
+    --color-card: #FFFFFF;
+    --color-border: #E4EAF0;
+  }
+
   body {
-    background-color: #f6f6f6;
-    color: #333333;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #F7F8F5;
+    color: #192B3D;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
   }
 }
 
-/* Authentic Splitwise Colors */
-:root {
-  --splitwise-teal: #5bc5a7;
-  --splitwise-teal-dark: #48b396;
-  --splitwise-orange: #ff652f;
-  --splitwise-orange-hover: #e55320;
-  --splitwise-gray: #eee;
-  --splitwise-text-dark: #333333;
-  --splitwise-text-muted: #999999;
-}
-
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(150, 150, 150, 0.3);
+  background: rgba(113, 128, 150, 0.25);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(150, 150, 150, 0.5);
+  background: rgba(113, 128, 150, 0.45);
 }
 
-/* Welcome Progress Bar (2 seconds auto-dismiss) */
+/* Welcome Progress Bar */
 @keyframes welcomeProgress {
   0% {
     width: 0%;
@@ -50,4 +50,9 @@
 
 .animate-welcome-progress {
   animation: welcomeProgress 2s linear forwards;
+}
+
+/* Safe area bottom padding for iPhone notch / home indicator */
+.pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }

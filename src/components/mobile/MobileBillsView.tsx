@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Expense, Member, Category } from '../../types';
 import { formatCurrency, formatExpenseDate } from '../../utils/settlement';
 import { CATEGORY_ICONS } from '../../utils/sampleData';
-import { Search, Plus, Edit3, Trash2, X } from 'lucide-react';
+import { Search, Plus, Edit3, Trash2, X, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 
 interface MobileBillsViewProps {
   expenses: Expense[];
@@ -14,6 +14,7 @@ interface MobileBillsViewProps {
   onEditExpense: (expense: Expense) => void;
   onDeleteExpense: (id: string) => void;
   onLoadSample: () => void;
+  tripName?: string;
 }
 
 export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
@@ -26,6 +27,7 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   onEditExpense,
   onDeleteExpense,
   onLoadSample,
+  tripName = 'Road Trip 2026',
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -33,6 +35,7 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   const memberMap = new Map<string, Member>();
   members.forEach((m) => memberMap.set(m.id, m));
 
+  const currentUser = memberMap.get(currentUserId) || members[0];
   const selectedFriend = selectedFriendId ? memberMap.get(selectedFriendId) : null;
 
   // Calculate personal metrics
@@ -95,54 +98,105 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   ];
 
   return (
-    <div className="space-y-3.5 pb-32">
-      {/* 1. Mobile Summary Hero Card */}
-      <div className="bg-gradient-to-r from-teal-700 to-emerald-600 rounded-2xl p-4 text-white shadow-sm relative overflow-hidden">
+    <div className="space-y-4 pb-32">
+      {/* 1. TripTally Mobile Hero Balance Card (Inspired by Modern Fintech) */}
+      <div className="bg-[#145B4A] rounded-2xl p-5 text-white shadow-sm relative overflow-hidden border border-[#0f4639]">
+        {/* Subtle background glow */}
+        <div className="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-[#78C5A7]/10 pointer-events-none blur-2xl" />
+
         <div className="flex items-center justify-between">
-          <div>
-            <span className="text-[11px] font-semibold text-teal-100 uppercase tracking-wider block">
-              Your Net Balance
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-[#78C5A7] text-[#145B4A] text-xs font-black flex items-center justify-center">
+              {currentUser?.name.charAt(0)}
+            </div>
+            <span className="text-xs font-semibold text-emerald-100">
+              {currentUser?.name}’s Balance
             </span>
-            <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className="text-2xl font-black">
-                {netBalance > 0.01 && '+'}
-                {formatCurrency(netBalance)}
-              </span>
-              <span className="text-xs text-teal-100 font-medium">
-                {netBalance > 0.01 ? '(you get back 🟢)' : netBalance < -0.01 ? '(you owe 🔴)' : '(settled ⚪)'}
-              </span>
+          </div>
+
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-white/10 px-2.5 py-0.5 rounded-full text-white/90 border border-white/10">
+            {tripName}
+          </span>
+        </div>
+
+        {/* Large Net Balance Number */}
+        <div className="mt-3.5">
+          <span className="text-[11px] font-medium text-emerald-200 uppercase tracking-wider block">
+            Net Balance
+          </span>
+          <div className="flex items-baseline gap-2 mt-0.5">
+            <span
+              className={`text-3xl font-black tracking-tight ${
+                netBalance > 0.01
+                  ? 'text-[#78C5A7]'
+                  : netBalance < -0.01
+                  ? 'text-[#FF784F]'
+                  : 'text-white'
+              }`}
+            >
+              {netBalance > 0.01 && '+'}
+              {formatCurrency(netBalance)}
+            </span>
+            <span className="text-xs font-semibold text-emerald-100/90">
+              {netBalance > 0.01
+                ? 'you are owed'
+                : netBalance < -0.01
+                ? 'you owe'
+                : 'all settled up'}
+            </span>
+          </div>
+        </div>
+
+        {/* Breakdown Row: Total Lent / Total Borrowed / Trip Total */}
+        <div className="mt-4 pt-3.5 border-t border-white/15 grid grid-cols-2 gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-[#78C5A7]/20 flex items-center justify-center text-[#78C5A7]">
+              <ArrowDownLeft className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <span className="text-[10px] text-emerald-200 block">Total Lent</span>
+              <strong className="font-bold text-white text-xs">{formatCurrency(youAreOwedTotal)}</strong>
             </div>
           </div>
 
-          <button
-            onClick={onOpenAddExpense}
-            className="px-3 py-1.5 rounded-xl bg-white text-slate-900 font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95 transition"
-          >
-            <Plus className="w-3.5 h-3.5 stroke-[3] text-[#ff652f]" />
-            <span>Add Bill</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-[#FF784F]/20 flex items-center justify-center text-[#FF784F]">
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <span className="text-[10px] text-emerald-200 block">Total Borrowed</span>
+              <strong className="font-bold text-white text-xs">{formatCurrency(youOweTotal)}</strong>
+            </div>
+          </div>
         </div>
 
-        <div className="mt-3 pt-2.5 border-t border-white/20 flex items-center justify-between text-xs text-teal-100">
-          <span>
-            Trip Total: <strong className="text-white">{formatCurrency(totalSpend)}</strong>
+        {/* Quick Footer: Trip Total Spend & Prominent Add Action */}
+        <div className="mt-3.5 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+          <span className="text-emerald-100 text-[11px]">
+            Trip Spend: <strong className="text-white">{formatCurrency(totalSpend)}</strong> ({expenses.length} bills)
           </span>
-          <span>
-            {expenses.length} bills recorded
-          </span>
+
+          <button
+            onClick={onOpenAddExpense}
+            className="px-3 py-1.5 rounded-xl bg-white text-[#145B4A] font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95 transition"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[3] text-[#145B4A]" />
+            <span>Add Expense</span>
+          </button>
         </div>
       </div>
 
-      {/* 2. Active Friend Filter Banner (if selected) */}
+      {/* 2. Active Friend Filter Banner (if filtering by a specific member) */}
       {selectedFriend && (
-        <div className="bg-teal-50 border border-teal-200 rounded-xl px-3 py-2 flex items-center justify-between text-xs text-teal-800">
+        <div className="bg-[#78C5A7]/15 border border-[#78C5A7]/30 rounded-xl px-3.5 py-2 flex items-center justify-between text-xs text-[#145B4A]">
           <div className="flex items-center gap-1.5">
-            <span>Showing bills with:</span>
-            <strong className="font-bold">{selectedFriend.name}</strong>
+            <span>Filtered by friend:</span>
+            <strong className="font-bold text-[#192B3D]">{selectedFriend.name}</strong>
           </div>
           <button
             onClick={onClearFriendFilter}
-            className="p-1 hover:bg-teal-100 rounded-lg text-teal-700 transition"
+            className="p-1 hover:bg-[#78C5A7]/25 rounded-lg text-[#145B4A] transition"
+            title="Clear friend filter"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -152,30 +206,30 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
       {/* 3. Search Bar */}
       <div className="relative">
         <label htmlFor="mobile-search-bills" className="sr-only">
-          Search bills, food, petrol...
+          Search bills by title, payer, or category
         </label>
-        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <Search className="w-4 h-4 text-[#718096] absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           id="mobile-search-bills"
           name="search"
           type="text"
-          placeholder="Search bills, food, petrol..."
+          placeholder="Search expenses, fuel, food, hotel..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          aria-label="Search bills, food, petrol..."
-          className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#5bc5a7] shadow-2xs"
+          aria-label="Search expenses by title, payer, or category"
+          className="w-full bg-white border border-[#E4EAF0] rounded-xl pl-10 pr-9 py-2.5 text-xs text-[#192B3D] placeholder-[#718096] focus:outline-none focus:border-[#145B4A] focus:ring-1 focus:ring-[#145B4A] shadow-xs"
         />
         {searchTerm && (
           <button
             onClick={() => setSearchTerm('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#718096] hover:text-[#192B3D] p-1"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
 
-      {/* 4. Quick Category Filter Chips */}
+      {/* 4. Category Filter Chips (Smooth horizontal scroll) */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
         {categories.map((cat) => {
           const isSelected = selectedCategory === cat;
@@ -185,66 +239,47 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold transition shrink-0 flex items-center gap-1 ${
+              className={`whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-semibold transition shrink-0 flex items-center gap-1.5 ${
                 isSelected
-                  ? 'bg-[#5bc5a7] text-white shadow-2xs'
-                  : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                  ? 'bg-[#145B4A] text-white shadow-xs'
+                  : 'bg-white border border-[#E4EAF0] text-[#718096] hover:bg-slate-50'
               }`}
             >
               {meta && <span>{meta.icon}</span>}
-              <span>{cat === 'ALL' ? 'All Bills' : cat}</span>
+              <span>{cat === 'ALL' ? 'All Expenses' : cat}</span>
             </button>
           );
         })}
       </div>
 
-      {/* 5. Bills List */}
+      {/* 5. Expenses List */}
       {filtered.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-          {expenses.length === 0 && !searchTerm && selectedCategory === 'ALL' && !selectedFriendId ? (
-            <div>
-              <div className="bg-[#0a3c36] relative overflow-hidden">
-                <img
-                  src="/og-thumbnail.svg"
-                  alt="Welcome to Road Trip 2026"
-                  className="w-full h-36 object-cover object-center"
-                />
-              </div>
-              <div className="p-5 text-center space-y-3">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 inline-block">
-                  🚗 Road Trip 2026
-                </span>
-                <h3 className="font-black text-slate-900 text-base">
-                  Welcome to TripTab! 🚗💨
-                </h3>
-                <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
-                  Start logging fuel, Fastag tolls, snacks, drinks, and villa bills for the 7 friends!
-                </p>
-                <div className="flex flex-col gap-2 pt-1">
-                  <button
-                    onClick={onOpenAddExpense}
-                    className="w-full py-2.5 rounded-xl bg-[#ff652f] hover:bg-[#e55320] text-white font-bold text-xs shadow-xs active:scale-95 transition"
-                  >
-                    + Add First Bill
-                  </button>
-                  <button
-                    onClick={onLoadSample}
-                    className="w-full py-2.5 rounded-xl bg-[#5bc5a7] hover:bg-[#48b396] text-white font-bold text-xs shadow-xs active:scale-95 transition flex items-center justify-center gap-1"
-                  >
-                    <span>Load Road Trip Bills</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="p-8 text-center space-y-3">
-              <div className="text-4xl">🌴🚗</div>
-              <h3 className="font-bold text-slate-800 text-sm">No expenses found</h3>
-              <p className="text-xs text-slate-400 max-w-xs mx-auto">
-                Try resetting your filters or search keywords.
-              </p>
-            </div>
-          )}
+        <div className="bg-white border border-[#E4EAF0] rounded-2xl p-8 text-center space-y-3 shadow-xs">
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-[#78C5A7]/15 flex items-center justify-center text-2xl">
+            📝
+          </div>
+          <h3 className="font-bold text-[#192B3D] text-sm">No expenses found</h3>
+          <p className="text-xs text-[#718096] max-w-xs mx-auto">
+            {searchTerm || selectedCategory !== 'ALL'
+              ? 'Try adjusting your search terms or clearing the category filter.'
+              : 'Start tracking bills for your trip or load the sample trip expenses.'}
+          </p>
+          <div className="flex flex-col gap-2 pt-2 max-w-xs mx-auto">
+            <button
+              onClick={onOpenAddExpense}
+              className="w-full py-2.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4639] text-white font-bold text-xs shadow-xs active:scale-95 transition"
+            >
+              + Add First Expense
+            </button>
+            {expenses.length === 0 && (
+              <button
+                onClick={onLoadSample}
+                className="w-full py-2.5 rounded-xl bg-white border border-[#E4EAF0] text-[#192B3D] font-bold text-xs shadow-xs active:scale-95 transition"
+              >
+                Load Sample Expenses
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div className="space-y-2.5">
@@ -259,8 +294,6 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
                 : isSplitter && splitCount > 0
                 ? expense.amount / splitCount
                 : 0;
-            const catMeta =
-              CATEGORY_ICONS[expense.category] || CATEGORY_ICONS['Misc'];
 
             const { month, day } = formatExpenseDate(expense.date);
 
@@ -282,54 +315,54 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
               <div
                 key={expense.id}
                 onClick={() => onEditExpense(expense)}
-                className="bg-white border border-slate-200/90 rounded-2xl p-3.5 shadow-2xs space-y-2 hover:border-slate-300 active:scale-[0.99] cursor-pointer transition"
+                className="bg-white border border-[#E4EAF0] rounded-2xl p-4 shadow-xs space-y-2.5 hover:border-[#78C5A7]/60 active:scale-[0.99] cursor-pointer transition"
               >
-                {/* Row 1: Date + Category + Title + Total Amount */}
-                <div className="flex items-start justify-between gap-2.5">
-                  <div className="flex items-start gap-2.5 min-w-0 flex-1">
-                    {/* Date Badge */}
-                    <div className="w-9 text-center shrink-0 border border-slate-200 rounded-lg bg-slate-50 overflow-hidden shadow-2xs">
-                      <div className="bg-slate-200/80 text-[8px] font-bold text-slate-600 py-0.5 leading-tight">
+                {/* Row 1: Date + Category Icon + Title + Status Amount */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                    {/* Modern Date Pill */}
+                    <div className="w-10 text-center shrink-0 border border-[#E4EAF0] rounded-xl bg-[#F7F8F5] overflow-hidden shadow-2xs">
+                      <div className="bg-[#E4EAF0]/60 text-[9px] font-bold text-[#718096] py-0.5 uppercase tracking-wider">
                         {month}
                       </div>
-                      <div className="text-xs font-black text-slate-800 py-0.5 leading-tight">
+                      <div className="text-xs font-black text-[#192B3D] py-0.5">
                         {day}
                       </div>
                     </div>
 
-                    {/* Emoji Icon */}
-                    <div className="text-lg shrink-0 mt-0.5">
-                      {catMeta.icon}
+                    {/* Category Icon Badge */}
+                    <div className="w-10 h-10 rounded-xl bg-[#F7F8F5] border border-[#E4EAF0]/60 flex items-center justify-center text-lg shrink-0">
+                      {CATEGORY_ICONS[expense.category]?.icon || '💳'}
                     </div>
 
-                    {/* Title */}
+                    {/* Title & Payer Details */}
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-slate-800 text-xs sm:text-sm leading-snug break-words">
+                      <h4 className="font-bold text-[#192B3D] text-sm leading-snug break-words">
                         {expense.title}
                       </h4>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        {isPayer ? 'You' : payer?.name} paid{' '}
-                        <strong className="text-slate-700">
-                          {formatCurrency(expense.amount)}
-                        </strong>
+                      <p className="text-[11px] text-[#718096] mt-0.5">
+                        <span className="font-semibold text-[#192B3D]">
+                          {isPayer ? 'You' : payer?.name}
+                        </span>{' '}
+                        paid <strong className="text-[#192B3D]">{formatCurrency(expense.amount)}</strong>
                         {' • '}
                         <span>Split with {splitCount}</span>
                       </p>
                     </div>
                   </div>
 
-                  {/* Personal Share Status */}
+                  {/* Personal Status Badge */}
                   <div className="text-right shrink-0">
-                    <span className="text-[9px] uppercase font-bold text-slate-400 block">
+                    <span className="text-[9px] uppercase font-bold text-[#718096] block tracking-wider">
                       {statusLabel}
                     </span>
                     <span
-                      className={`text-xs sm:text-sm font-black block ${
+                      className={`text-sm font-black block mt-0.5 ${
                         isLent
-                          ? 'text-[#0d9488]'
+                          ? 'text-[#145B4A]'
                           : statusLabel === 'you borrowed'
-                          ? 'text-[#e05320]'
-                          : 'text-slate-400'
+                          ? 'text-[#FF784F]'
+                          : 'text-[#718096]'
                       }`}
                     >
                       {statusAmount > 0 ? formatCurrency(statusAmount) : '—'}
@@ -339,35 +372,38 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
 
                 {/* Optional note */}
                 {expense.notes && (
-                  <p className="text-[11px] text-slate-400 italic bg-slate-50 px-2.5 py-1 rounded-lg">
+                  <p className="text-[11px] text-[#718096] italic bg-[#F7F8F5] px-3 py-1.5 rounded-lg border border-[#E4EAF0]/60">
                     "{expense.notes}"
                   </p>
                 )}
 
-                {/* Row 2: Footer Actions */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-400">
-                  <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-medium">
+                {/* Row 2: Category Pill & Edit / Delete */}
+                <div className="flex items-center justify-between pt-2 border-t border-[#E4EAF0] text-xs text-[#718096]">
+                  <span className="text-[10px] bg-[#F7F8F5] text-[#192B3D] px-2.5 py-0.5 rounded-full font-semibold border border-[#E4EAF0]">
                     {expense.category}
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         onEditExpense(expense);
                       }}
-                      className="px-2 py-1 hover:text-slate-700 hover:bg-slate-100 rounded-md flex items-center gap-1 transition"
+                      className="px-2.5 py-1 text-xs font-semibold text-[#718096] hover:text-[#192B3D] hover:bg-[#F7F8F5] rounded-lg flex items-center gap-1 transition"
                     >
                       <Edit3 className="w-3 h-3" />
                       <span>Edit</span>
                     </button>
-                    <span>•</span>
+                    <span className="text-[#E4EAF0]">•</span>
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         onDeleteExpense(expense.id);
                       }}
-                      className="px-2 py-1 hover:text-rose-600 hover:bg-rose-50 rounded-md flex items-center gap-1 transition"
+                      className="px-2.5 py-1 text-xs font-semibold text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg flex items-center gap-1 transition"
+                      title="Delete expense (Requires Security PIN)"
                     >
                       <Trash2 className="w-3 h-3" />
                       <span>Delete</span>

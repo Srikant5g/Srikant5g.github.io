@@ -94,14 +94,14 @@ export const PinModal: React.FC<PinModalProps> = ({
       }}
     >
       <div
-        className="bg-white border border-slate-200 rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden text-slate-800 animate-in zoom-in-95 duration-150"
+        className="bg-white border border-[#E4EAF0] rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden text-[#192B3D] animate-in zoom-in-95 duration-150"
         onKeyDown={handleKeyDown}
       >
         {/* Header */}
-        <div className="p-5 text-center bg-slate-50 border-b border-slate-100 relative">
+        <div className="p-5 text-center bg-[#F7F8F5] border-b border-[#E4EAF0] relative">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 transition"
+            className="absolute top-4 right-4 p-1 rounded-full text-[#718096] hover:text-[#192B3D] hover:bg-[#E4EAF0] transition"
             title="Cancel"
           >
             <X className="w-5 h-5" />
@@ -110,10 +110,10 @@ export const PinModal: React.FC<PinModalProps> = ({
           <div
             className={`w-14 h-14 mx-auto rounded-2xl flex items-center justify-center transition-colors shadow-sm ${
               isSuccess
-                ? 'bg-emerald-500 text-white'
+                ? 'bg-[#145B4A] text-white'
                 : error
                 ? 'bg-rose-100 text-rose-600'
-                : 'bg-amber-100 text-amber-700'
+                : 'bg-[#78C5A7]/20 text-[#145B4A]'
             }`}
           >
             {isSuccess ? (
@@ -125,10 +125,10 @@ export const PinModal: React.FC<PinModalProps> = ({
             )}
           </div>
 
-          <h3 className="mt-3 text-lg font-black text-slate-900 tracking-tight">
+          <h3 className="mt-3 text-lg font-black text-[#192B3D] tracking-tight">
             {isSuccess ? 'PIN Verified!' : actionTitle}
           </h3>
-          <p className="mt-1 text-xs text-slate-500 font-medium px-4">
+          <p className="mt-1 text-xs text-[#718096] font-medium px-4">
             {isSuccess ? 'Action confirmed.' : actionDescription}
           </p>
         </div>
@@ -168,14 +168,14 @@ export const PinModal: React.FC<PinModalProps> = ({
                   key={idx}
                   className={`w-12 h-14 rounded-2xl flex items-center justify-center text-3xl font-black transition-all ${
                     isSuccess
-                      ? 'border-2 border-emerald-500 bg-emerald-50 text-emerald-600 scale-105'
+                      ? 'border-2 border-[#145B4A] bg-[#78C5A7]/15 text-[#145B4A] scale-105'
                       : error
-                      ? 'border-2 border-rose-500 bg-rose-50 text-rose-600 animate-pulse'
+                      ? 'border-2 border-[#FF784F] bg-rose-50 text-[#FF784F] animate-pulse'
                       : isFilled
-                      ? 'border-2 border-[#5bc5a7] bg-[#5bc5a7]/10 text-[#216d59] shadow-inner'
+                      ? 'border-2 border-[#78C5A7] bg-[#78C5A7]/15 text-[#145B4A] shadow-inner'
                       : isCurrent
-                      ? 'border-2 border-slate-400 bg-white shadow-sm ring-2 ring-[#5bc5a7]/30'
-                      : 'border-2 border-slate-200 bg-slate-50 text-slate-400'
+                      ? 'border-2 border-[#145B4A] bg-white shadow-sm ring-2 ring-[#78C5A7]/30'
+                      : 'border-2 border-[#E4EAF0] bg-[#F7F8F5] text-[#718096]'
                   }`}
                 >
                   {isFilled ? '●' : ''}
@@ -186,13 +186,13 @@ export const PinModal: React.FC<PinModalProps> = ({
 
           {/* Error Message */}
           {error && (
-            <div className="text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 px-3 py-1 rounded-full mt-2 animate-bounce">
+            <div className="text-xs font-bold text-[#FF784F] bg-rose-50 border border-[#FF784F]/30 px-3 py-1 rounded-full mt-2 animate-bounce">
               {error}
             </div>
           )}
 
           {!error && !isSuccess && (
-            <p className="text-[11px] text-slate-400 mt-2 font-medium">
+            <p className="text-[11px] text-[#718096] mt-2 font-medium">
               Enter 4-digit security PIN to proceed
             </p>
           )}
@@ -204,7 +204,7 @@ export const PinModal: React.FC<PinModalProps> = ({
                 key={digit}
                 type="button"
                 onClick={() => handleDigitPress(digit)}
-                className="h-12 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-[#5bc5a7]/20 active:scale-95 text-xl font-bold text-slate-800 transition shadow-xs flex items-center justify-center"
+                className="h-12 rounded-xl bg-[#F7F8F5] hover:bg-[#E4EAF0] active:bg-[#78C5A7]/20 active:scale-95 text-xl font-bold text-[#192B3D] transition shadow-2xs flex items-center justify-center border border-[#E4EAF0]"
               >
                 {digit}
               </button>
@@ -213,7 +213,7 @@ export const PinModal: React.FC<PinModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="h-12 rounded-xl bg-slate-50 hover:bg-slate-100 active:scale-95 text-xs font-bold text-slate-500 transition flex items-center justify-center"
+              className="h-12 rounded-xl bg-white hover:bg-[#F7F8F5] active:scale-95 text-xs font-bold text-[#718096] transition flex items-center justify-center border border-[#E4EAF0]"
             >
               Cancel
             </button>
@@ -221,7 +221,7 @@ export const PinModal: React.FC<PinModalProps> = ({
             <button
               type="button"
               onClick={() => handleDigitPress('0')}
-              className="h-12 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-[#5bc5a7]/20 active:scale-95 text-xl font-bold text-slate-800 transition shadow-xs flex items-center justify-center"
+              className="h-12 rounded-xl bg-[#F7F8F5] hover:bg-[#E4EAF0] active:bg-[#78C5A7]/20 active:scale-95 text-xl font-bold text-[#192B3D] transition shadow-2xs flex items-center justify-center border border-[#E4EAF0]"
             >
               0
             </button>
@@ -229,7 +229,7 @@ export const PinModal: React.FC<PinModalProps> = ({
             <button
               type="button"
               onClick={handleBackspace}
-              className="h-12 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-rose-100 active:scale-95 text-slate-700 hover:text-rose-600 transition shadow-xs flex items-center justify-center"
+              className="h-12 rounded-xl bg-[#F7F8F5] hover:bg-rose-50 active:scale-95 text-[#718096] hover:text-[#FF784F] transition shadow-2xs flex items-center justify-center border border-[#E4EAF0]"
               title="Backspace"
             >
               <Delete className="w-5 h-5" />
@@ -240,4 +240,3 @@ export const PinModal: React.FC<PinModalProps> = ({
     </div>
   );
 };
-

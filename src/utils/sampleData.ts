@@ -131,15 +131,68 @@ export const SAMPLE_ROADTRIP_EXPENSES: Expense[] = [
 // Alias for backward compatibility
 export const SAMPLE_GOA_EXPENSES = SAMPLE_ROADTRIP_EXPENSES;
 
-export const CATEGORY_ICONS: Record<string, { label: string; icon: string; color: string }> = {
-  'Petrol & Diesel': { label: 'Petrol & Diesel', icon: '⛽', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-  'Tolls & Fastag': { label: 'Tolls & Fastag', icon: '🛣️', color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-  'Breakfast': { label: 'Breakfast', icon: '🥞', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
-  'Lunch': { label: 'Lunch', icon: '🍛', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20' },
-  'Dinner': { label: 'Dinner', icon: '🍽️', color: 'bg-rose-500/10 text-rose-400 border-rose-500/20' },
-  'Snacks & Chai': { label: 'Snacks & Chai', icon: '🥪', color: 'bg-teal-500/10 text-teal-400 border-teal-500/20' },
-  'Alcohol & Drinks': { label: 'Alcohol & Drinks', icon: '🍻', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
-  'Stay & Hotel': { label: 'Stay & Hotel', icon: '🏡', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-  'Activities & Beach': { label: 'Activities & Beach', icon: '🏖️', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
-  'Misc': { label: 'Misc', icon: '💳', color: 'bg-slate-500/10 text-slate-400 border-slate-500/20' },
+export const CATEGORY_ICONS: Record<
+  string,
+  { label: string; icon: string; color: string; hex: string }
+> = {
+  'Petrol & Diesel': {
+    label: 'Petrol & Diesel',
+    icon: '⛽',
+    color: 'bg-amber-50 text-amber-700 border-amber-200',
+    hex: '#F59E0B',
+  },
+  'Tolls & Fastag': {
+    label: 'Tolls & Fastag',
+    icon: '🛣️',
+    color: 'bg-blue-50 text-blue-700 border-blue-200',
+    hex: '#3B82F6',
+  },
+  Breakfast: {
+    label: 'Breakfast',
+    icon: '🥞',
+    color: 'bg-yellow-50 text-yellow-800 border-yellow-200',
+    hex: '#EAB308',
+  },
+  Lunch: {
+    label: 'Lunch',
+    icon: '🍛',
+    color: 'bg-orange-50 text-orange-700 border-orange-200',
+    hex: '#F97316',
+  },
+  Dinner: {
+    label: 'Dinner',
+    icon: '🍽️',
+    color: 'bg-rose-50 text-rose-700 border-rose-200',
+    hex: '#F43F5E',
+  },
+  'Snacks & Chai': {
+    label: 'Snacks & Chai',
+    icon: '🥪',
+    color: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    hex: '#78C5A7',
+  },
+  'Alcohol & Drinks': {
+    label: 'Alcohol & Drinks',
+    icon: '🍻',
+    color: 'bg-purple-50 text-purple-700 border-purple-200',
+    hex: '#A855F7',
+  },
+  'Stay & Hotel': {
+    label: 'Stay & Hotel',
+    icon: '🏡',
+    color: 'bg-teal-50 text-teal-800 border-teal-200',
+    hex: '#145B4A',
+  },
+  'Activities & Beach': {
+    label: 'Activities & Beach',
+    icon: '🏖️',
+    color: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+    hex: '#06B6D4',
+  },
+  Misc: {
+    label: 'Misc',
+    icon: '💳',
+    color: 'bg-slate-50 text-slate-700 border-slate-200',
+    hex: '#718096',
+  },
 };

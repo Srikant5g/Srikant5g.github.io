@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Member } from '../types';
 import type { SyncStatus } from '../utils/cloudSync';
-import { Users, Share2, Sparkles, RotateCcw, RefreshCw } from 'lucide-react';
+import { Users, Share2, Sparkles, RotateCcw, RefreshCw, Compass } from 'lucide-react';
 
 interface SplitwiseNavbarProps {
   members: Member[];
@@ -14,6 +14,7 @@ interface SplitwiseNavbarProps {
   syncStatus?: SyncStatus;
   onManualSync?: () => void;
   onOpenWelcome: () => void;
+  tripName?: string;
 }
 
 export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
@@ -27,45 +28,42 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   syncStatus = 'synced',
   onManualSync,
   onOpenWelcome,
+  tripName = 'Road Trip 2026',
 }) => {
+  const currentUser = members.find((m) => m.id === currentUserId) || members[0];
+
   return (
-    <nav className="bg-gradient-to-r from-[#0d9488] via-[#0f766e] to-[#047857] text-white shadow-md sticky top-0 z-40 border-b border-teal-500/20">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
-        {/* Left: TripTab Logo & Title */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center p-1 shadow-inner shrink-0 border border-white/30">
-            <svg
-              viewBox="0 0 32 32"
-              fill="none"
-              className="w-full h-full text-white"
-            >
-              <defs>
-                <linearGradient id="navSun" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#fef08a" />
-                  <stop offset="100%" stopColor="#f59e0b" />
-                </linearGradient>
-              </defs>
-              <path d="M3 22L10 14L16 20L22 13L29 22Z" fill="#042f2e" opacity="0.65" />
-              <circle cx="16" cy="11.5" r="4.5" fill="url(#navSun)" />
-              <path d="M12 32L14.5 18.5H17.5L20 32Z" fill="#1e293b" />
-              <line x1="16" y1="19.5" x2="16" y2="22.5" stroke="#fde047" strokeWidth="1.2" strokeLinecap="round" />
-              <line x1="16" y1="25" x2="16" y2="30" stroke="#fde047" strokeWidth="1.6" strokeLinecap="round" />
-              <path d="M7 26C11 24 21 24 25 26" stroke="#67e8f9" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
+    <nav className="bg-[#145B4A] text-white sticky top-0 z-40 border-b border-[#0f4639] shadow-sm">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between">
+        {/* Left: TripTally Logo & Tagline */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-[#78C5A7] flex items-center justify-center p-1.5 shadow-sm shrink-0">
+            {/* TripTally Tally Vector */}
+            <svg viewBox="0 0 32 32" fill="none" className="w-full h-full">
+              <rect x="6" y="8" width="3" height="16" rx="1.5" fill="#145B4A" />
+              <rect x="13" y="8" width="3" height="16" rx="1.5" fill="#145B4A" />
+              <rect x="20" y="8" width="3" height="16" rx="1.5" fill="#145B4A" />
+              <path d="M5 22L24 10" stroke="#FFFFFF" strokeWidth="2.8" strokeLinecap="round" />
+              <circle cx="26" cy="8" r="2.5" fill="#FF784F" />
             </svg>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-black text-lg sm:text-xl tracking-tight text-white font-sans">
-              Trip<span className="text-amber-300">Tab</span>
+
+          <div className="flex items-baseline gap-2">
+            <span className="font-black text-xl tracking-tight text-white font-sans">
+              Trip<span className="text-[#78C5A7]">Tally</span>
             </span>
-            <span className="hidden sm:inline-block text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full text-white">
-              🚗 Road Trip 2026
+            <span className="hidden lg:inline-block text-[11px] font-medium text-emerald-200/80">
+              Every trip. Every expense. Sorted.
+            </span>
+            <span className="hidden sm:inline-block text-[10px] font-bold bg-white/10 px-2 py-0.5 rounded-full text-white/90 border border-white/10">
+              {tripName}
             </span>
           </div>
 
           {/* Real-time Cloud Sync Pill */}
           <button
             onClick={onManualSync}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 hover:bg-white/25 transition text-[10px] font-medium border border-white/20 text-white ml-1"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 transition text-[11px] font-medium border border-white/15 text-white ml-0.5"
             title="Real-time Cloud Sync active across Mac, Mobile & All Tabs (Click to refresh)"
           >
             {syncStatus === 'syncing' ? (
@@ -73,7 +71,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
             ) : syncStatus === 'error' ? (
               <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
             ) : (
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 shadow-[0_0_6px_rgba(110,231,183,0.9)] animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#78C5A7] shadow-[0_0_8px_rgba(120,197,167,0.9)] animate-pulse" />
             )}
             <span className="hidden xs:inline">
               {syncStatus === 'syncing' ? 'Syncing...' : 'Live Sync'}
@@ -81,10 +79,13 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
           </button>
         </div>
 
-        {/* Right: User Switcher & Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Active User Switcher */}
-          <div className="flex items-center bg-black/15 hover:bg-black/25 px-2 py-1 rounded-lg text-xs font-semibold border border-white/20 transition">
+        {/* Right: Active Friend Switcher & Actions */}
+        <div className="flex items-center gap-2">
+          {/* Active Friend Switcher Pill */}
+          <div className="flex items-center gap-1.5 bg-black/20 hover:bg-black/30 pl-1.5 pr-2 py-1 rounded-xl text-xs font-semibold border border-white/15 transition">
+            <div className="w-5 h-5 rounded-full bg-[#78C5A7] text-[#145B4A] font-black text-[10px] flex items-center justify-center shrink-0">
+              {currentUser?.name.charAt(0)}
+            </div>
             <label htmlFor="navbar-active-user-select" className="sr-only">
               Switch active friend
             </label>
@@ -97,7 +98,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
               className="bg-transparent text-white font-bold cursor-pointer focus:outline-none text-xs"
             >
               {members.map((m) => (
-                <option key={m.id} value={m.id} className="text-slate-900 bg-white">
+                <option key={m.id} value={m.id} className="text-[#192B3D] bg-white">
                   {m.name}
                 </option>
               ))}
@@ -107,47 +108,47 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
           {/* Friends (7) Button */}
           <button
             onClick={onOpenMembers}
-            className="p-1.5 sm:px-2 sm:py-1 rounded-lg bg-white/15 hover:bg-white/25 transition text-xs font-semibold flex items-center gap-1"
-            title="Manage Friends"
+            className="p-1.5 sm:px-2.5 sm:py-1 rounded-xl bg-white/10 hover:bg-white/20 transition text-xs font-semibold flex items-center gap-1.5 border border-white/10"
+            title="Manage Trip Friends"
           >
-            <Users className="w-3.5 h-3.5" />
+            <Users className="w-3.5 h-3.5 text-[#78C5A7]" />
             <span className="hidden sm:inline">Friends ({members.length})</span>
           </button>
 
-          {/* Welcome / Trip Guide Button */}
+          {/* Trip Guide Button */}
           <button
             onClick={onOpenWelcome}
-            className="p-1.5 sm:px-2.5 sm:py-1 rounded-lg bg-white/20 hover:bg-white/30 transition text-xs font-bold flex items-center gap-1 border border-white/25 shadow-2xs active:scale-95"
-            title="Open Road Trip Welcome Guide & Summary"
+            className="p-1.5 sm:px-2.5 sm:py-1 rounded-xl bg-white/10 hover:bg-white/20 transition text-xs font-semibold flex items-center gap-1.5 border border-white/10 active:scale-95"
+            title="TripTally Overview & Guide"
           >
-            <span>🗺️</span>
+            <Compass className="w-3.5 h-3.5 text-[#78C5A7]" />
             <span className="hidden sm:inline">Guide</span>
           </button>
 
           {/* WhatsApp Share Button */}
           <button
             onClick={onOpenShare}
-            className="p-1.5 sm:px-2.5 sm:py-1 rounded-lg bg-[#25D366] hover:bg-[#20ba5a] text-white transition text-xs font-bold flex items-center gap-1 shadow-xs"
-            title="Share to WhatsApp"
+            className="p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white transition text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95"
+            title="Share Trip Summary to WhatsApp"
           >
-            <Share2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">WhatsApp</span>
+            <Share2 className="w-3.5 h-3.5 fill-white" />
+            <span className="hidden sm:inline">Share</span>
           </button>
 
           {/* Sample Data & Reset (Desktop only) */}
-          <div className="hidden lg:flex items-center gap-2 pl-2 border-l border-white/25 text-[11px]">
+          <div className="hidden xl:flex items-center gap-2 pl-2 border-l border-white/20 text-[11px]">
             <button
               onClick={onLoadSample}
-              className="hover:underline flex items-center gap-1 opacity-90 hover:opacity-100"
-              title="Reload sample bills for Road Trip"
+              className="hover:underline flex items-center gap-1 opacity-80 hover:opacity-100"
+              title="Reload sample expenses"
             >
-              <Sparkles className="w-3 h-3" />
+              <Sparkles className="w-3 h-3 text-[#78C5A7]" />
               Sample
             </button>
-            <span>•</span>
+            <span className="text-white/40">•</span>
             <button
               onClick={onResetData}
-              className="hover:underline opacity-90 hover:opacity-100 flex items-center gap-1"
+              className="hover:underline opacity-80 hover:opacity-100 flex items-center gap-1 text-rose-200 hover:text-white"
               title="Reset all bills (Requires Security PIN)"
             >
               <RotateCcw className="w-3 h-3" />

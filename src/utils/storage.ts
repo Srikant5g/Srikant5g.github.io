@@ -2,11 +2,16 @@ import type { Member, Expense, TripSettings } from '../types';
 import { DEFAULT_MEMBERS, DEFAULT_TRIP_SETTINGS } from './sampleData';
 
 const STORAGE_KEYS = {
-  MEMBERS: 'triptab_members_v1',
-  EXPENSES: 'triptab_expenses_v1',
-  SETTINGS: 'triptab_settings_v1',
-  UPDATED_AT: 'triptab_updated_at_v1',
-  IS_INITIALIZED: 'triptab_initialized_v1',
+  MEMBERS: 'triptally_members_v1',
+  EXPENSES: 'triptally_expenses_v1',
+  SETTINGS: 'triptally_settings_v1',
+  UPDATED_AT: 'triptally_updated_at_v1',
+  IS_INITIALIZED: 'triptally_initialized_v1',
+  FALLBACK_MEMBERS: 'triptab_members_v1',
+  FALLBACK_EXPENSES: 'triptab_expenses_v1',
+  FALLBACK_SETTINGS: 'triptab_settings_v1',
+  FALLBACK_UPDATED_AT: 'triptab_updated_at_v1',
+  FALLBACK_IS_INITIALIZED: 'triptab_initialized_v1',
   LEGACY_MEMBERS: 'goa_splitwise_members_v1',
   LEGACY_EXPENSES: 'goa_splitwise_expenses_v1',
   LEGACY_SETTINGS: 'goa_splitwise_settings_v1',
@@ -16,7 +21,10 @@ const STORAGE_KEYS = {
 
 export function loadTripSettings(): TripSettings {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS) || localStorage.getItem(STORAGE_KEYS.LEGACY_SETTINGS);
+    const raw =
+      localStorage.getItem(STORAGE_KEYS.SETTINGS) ||
+      localStorage.getItem(STORAGE_KEYS.FALLBACK_SETTINGS) ||
+      localStorage.getItem(STORAGE_KEYS.LEGACY_SETTINGS);
     return raw ? JSON.parse(raw) : DEFAULT_TRIP_SETTINGS;
   } catch {
     return DEFAULT_TRIP_SETTINGS;
@@ -46,7 +54,10 @@ export function enforceFixedMembers(members?: Member[]): Member[] {
 
 export function loadMembers(): Member[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.MEMBERS) || localStorage.getItem(STORAGE_KEYS.LEGACY_MEMBERS);
+    const raw =
+      localStorage.getItem(STORAGE_KEYS.MEMBERS) ||
+      localStorage.getItem(STORAGE_KEYS.FALLBACK_MEMBERS) ||
+      localStorage.getItem(STORAGE_KEYS.LEGACY_MEMBERS);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -103,7 +114,10 @@ export function setLastUpdatedAt(ts: number) {
 
 export function loadExpenses(): Expense[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.EXPENSES) || localStorage.getItem(STORAGE_KEYS.LEGACY_EXPENSES);
+    const raw =
+      localStorage.getItem(STORAGE_KEYS.EXPENSES) ||
+      localStorage.getItem(STORAGE_KEYS.FALLBACK_EXPENSES) ||
+      localStorage.getItem(STORAGE_KEYS.LEGACY_EXPENSES);
     if (raw !== null) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) return parsed;

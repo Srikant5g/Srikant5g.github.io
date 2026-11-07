@@ -61,6 +61,7 @@ export function App() {
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(() => {
     try {
       return (
+        !sessionStorage.getItem('triptally_welcome_shown') &&
         !sessionStorage.getItem('triptab_welcome_shown') &&
         !sessionStorage.getItem('goatab_welcome_shown')
       );
@@ -72,7 +73,7 @@ export function App() {
   const handleCloseWelcome = () => {
     setIsWelcomeModalOpen(false);
     try {
-      sessionStorage.setItem('triptab_welcome_shown', 'true');
+      sessionStorage.setItem('triptally_welcome_shown', 'true');
     } catch {
       // ignore
     }
@@ -403,8 +404,8 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f6f6] text-[#333333] flex flex-col font-sans pb-16 md:pb-0">
-      {/* TripTab Navigation Bar with Live Cloud Sync */}
+    <div className="min-h-screen bg-[#F7F8F5] text-[#192B3D] flex flex-col font-sans pb-16 md:pb-0">
+      {/* TripTally Navigation Bar with Live Cloud Sync */}
       <SplitwiseNavbar
         members={members}
         currentUserId={currentUserId}

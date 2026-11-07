@@ -28,21 +28,21 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
   balances.forEach((b) => balanceMap.set(b.memberId, b.netBalance));
 
   return (
-    <aside className="hidden md:block md:w-56 shrink-0 space-y-6 text-sm text-[#333333]">
+    <aside className="hidden md:block md:w-56 shrink-0 space-y-6 text-sm text-[#192B3D]">
       {/* Primary Links */}
-      <div className="space-y-0.5">
+      <div className="space-y-1">
         <button
           onClick={() => {
             onSelectFriend(null);
             onChangeView('dashboard');
           }}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition text-left ${
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-medium transition text-left ${
             activeView === 'dashboard' && selectedFriendId === null
-              ? 'bg-[#0d9488]/15 text-[#0f766e] font-bold border-l-4 border-[#0d9488]'
-              : 'hover:bg-slate-200/70 text-slate-700'
+              ? 'bg-[#145B4A] text-white font-bold shadow-xs'
+              : 'hover:bg-white text-[#718096] hover:text-[#192B3D]'
           }`}
         >
-          <LayoutDashboard className="w-4 h-4 text-[#0d9488]" />
+          <LayoutDashboard className={`w-4 h-4 ${activeView === 'dashboard' && selectedFriendId === null ? 'text-[#78C5A7]' : 'text-[#718096]'}`} />
           <span>Dashboard</span>
         </button>
 
@@ -51,13 +51,13 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
             onSelectFriend(null);
             onChangeView('recent');
           }}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition text-left ${
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-medium transition text-left ${
             activeView === 'recent'
-              ? 'bg-[#0d9488]/15 text-[#0f766e] font-bold border-l-4 border-[#0d9488]'
-              : 'hover:bg-slate-200/70 text-slate-700'
+              ? 'bg-[#145B4A] text-white font-bold shadow-xs'
+              : 'hover:bg-white text-[#718096] hover:text-[#192B3D]'
           }`}
         >
-          <Activity className="w-4 h-4 text-[#e05320]" />
+          <Activity className={`w-4 h-4 ${activeView === 'recent' ? 'text-[#78C5A7]' : 'text-[#FF784F]'}`} />
           <span>Recent Activity</span>
         </button>
 
@@ -66,22 +66,22 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
             onSelectFriend(null);
             onChangeView('all');
           }}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition text-left ${
+          className={`w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-medium transition text-left ${
             activeView === 'all' && selectedFriendId === null
-              ? 'bg-[#0d9488]/15 text-[#0f766e] font-bold border-l-4 border-[#0d9488]'
-              : 'hover:bg-slate-200/70 text-slate-700'
+              ? 'bg-[#145B4A] text-white font-bold shadow-xs'
+              : 'hover:bg-white text-[#718096] hover:text-[#192B3D]'
           }`}
         >
-          <Receipt className="w-4 h-4 text-slate-500" />
+          <Receipt className={`w-4 h-4 ${activeView === 'all' && selectedFriendId === null ? 'text-[#78C5A7]' : 'text-[#718096]'}`} />
           <span>All Expenses</span>
         </button>
       </div>
 
       {/* GROUPS Section */}
       <div>
-        <div className="flex items-center justify-between px-3 mb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-          <span>Groups</span>
-          <span className="text-[10px] text-slate-400">1 active</span>
+        <div className="flex items-center justify-between px-3 mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#718096]">
+          <span>Active Trip</span>
+          <span className="text-[10px] text-[#145B4A] bg-[#78C5A7]/20 px-2 py-0.5 rounded-full font-bold">1 active</span>
         </div>
 
         <button
@@ -89,27 +89,27 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
             onSelectFriend(null);
             onChangeView('all');
           }}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-slate-800 bg-white border border-slate-200 shadow-sm text-left"
+          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl font-semibold text-[#192B3D] bg-white border border-[#E4EAF0] shadow-2xs hover:border-[#78C5A7] transition text-left"
         >
-          <Tag className="w-3.5 h-3.5 text-[#5bc5a7]" />
-          <span className="truncate">🚗 Road Trip 2026</span>
+          <Tag className="w-3.5 h-3.5 text-[#145B4A]" />
+          <span className="truncate">TripTally Group</span>
         </button>
       </div>
 
       {/* FRIENDS Section (The 7 Friends) */}
       <div>
-        <div className="flex items-center justify-between px-3 mb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+        <div className="flex items-center justify-between px-3 mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#718096]">
           <span>Friends ({members.length})</span>
           <button
             onClick={onOpenMembers}
-            className="text-[#0d9488] hover:underline font-bold text-xs"
+            className="text-[#145B4A] hover:underline font-bold text-xs"
             title="Configure UPI IDs"
           >
             UPI IDs
           </button>
         </div>
 
-        <div className="space-y-0.5">
+        <div className="space-y-1">
           {members.map((member) => {
             const isMe = member.id === currentUserId;
             const isSelected = selectedFriendId === member.id;
@@ -121,10 +121,10 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
                 onClick={() =>
                   onSelectFriend(isSelected ? null : member.id)
                 }
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition text-left text-xs ${
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition text-left text-xs ${
                   isSelected
-                    ? 'bg-[#0d9488]/15 text-[#0f766e] font-bold border-l-4 border-[#0d9488]'
-                    : 'hover:bg-slate-200/60 text-slate-700'
+                    ? 'bg-[#78C5A7]/20 text-[#145B4A] font-bold border border-[#78C5A7]/40'
+                    : 'hover:bg-white text-[#718096] hover:text-[#192B3D]'
                 }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
@@ -134,23 +134,23 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
                     {member.name.charAt(0)}
                   </div>
                   <span className="truncate">
-                    {member.name}{isMe && <span className="text-slate-400 font-normal ml-1"> (you)</span>}
+                    {member.name}{isMe && <span className="text-[#718096] font-normal ml-1"> (you)</span>}
                   </span>
                 </div>
 
                 <div className="shrink-0 pl-1 text-[11px] font-semibold text-right">
                   {net > 0.01 && (
-                    <span className="text-[#0d9488]">
+                    <span className="text-[#145B4A] font-bold">
                       +{formatCurrency(net)}
                     </span>
                   )}
                   {net < -0.01 && (
-                    <span className="text-[#e05320]">
+                    <span className="text-[#FF784F] font-bold">
                       -{formatCurrency(Math.abs(net))}
                     </span>
                   )}
                   {Math.abs(net) <= 0.01 && (
-                    <span className="text-slate-400">settled</span>
+                    <span className="text-[#718096]">settled</span>
                   )}
                 </div>
               </button>
