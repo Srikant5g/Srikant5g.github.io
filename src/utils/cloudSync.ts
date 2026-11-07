@@ -1,4 +1,4 @@
-import type { Expense, Member } from '../types';
+import type { Expense, Member, Group } from '../types';
 
 const NTFY_TOPIC = 'triptally_sync_2026_srikant5g';
 const NTFY_BASE_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
@@ -6,6 +6,8 @@ const NTFY_BASE_URL = `https://ntfy.sh/${NTFY_TOPIC}`;
 export interface CloudPayload {
   expenses: Expense[];
   members?: Member[];
+  groups?: Group[];
+  activeGroupId?: string;
   updatedAt: number;
   isCleared?: boolean;
 }
@@ -67,12 +69,14 @@ export function subscribeToTabs(onMessage: (payload: CloudPayload) => void): () 
 export async function pushToCloud(
   expenses: Expense[],
   members: Member[],
-  updatedAt: number,
+  groups?: Group[],
+  updatedAt: number = Date.now(),
   isCleared: boolean = false
 ): Promise<boolean> {
   const payload: CloudPayload = {
     expenses,
     members,
+    groups,
     updatedAt,
     isCleared,
   };

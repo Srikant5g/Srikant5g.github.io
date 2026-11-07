@@ -49,6 +49,40 @@ export function saveGroups(groups: Group[]) {
   }
 }
 
+export function mergeGroups(localGroups: Group[], remoteGroups: Group[]): Group[] {
+  const map = new Map<string, Group>();
+
+  const normalizeGroup = (g: Group): Group =>
+    g.id === DEFAULT_GROUP_ID || g.name === 'Road Trip 2026' || g.name === 'TripTally Group'
+      ? { ...g, name: 'Goa', location: g.location?.replace('Road Trip (By Car) 🚗💨', 'Goa 🏖️') || 'Goa 🏖️' }
+      : g;
+
+  (localGroups || []).forEach((g) => {
+    const norm = normalizeGroup(g);
+    map.set(norm.id, norm);
+  });
+
+  (remoteGroups || []).forEach((g) => {
+    const norm = normalizeGroup(g);
+    if (map.has(norm.id)) {
+      const existing = map.get(norm.id)!;
+      const combinedMembers = Array.from(
+        new Set([...(existing.memberIds || []), ...(norm.memberIds || [])])
+      );
+      map.set(norm.id, {
+        ...existing,
+        ...norm,
+        memberIds: combinedMembers.length > 0 ? combinedMembers : existing.memberIds,
+      });
+    } else {
+      map.set(norm.id, norm);
+    }
+  });
+
+  const merged = Array.from(map.values());
+  return merged.length > 0 ? merged : DEFAULT_GROUPS;
+}
+
 export function loadActiveGroupId(): string {
   try {
     return localStorage.getItem(STORAGE_KEYS.ACTIVE_GROUP_ID) || DEFAULT_GROUP_ID;

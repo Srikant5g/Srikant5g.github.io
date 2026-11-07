@@ -16,6 +16,7 @@ import {
   saveActiveGroupId,
   loadSavedUserId,
   saveCurrentUserId,
+  mergeGroups,
 } from './utils/storage';
 import {
   pullFromCloud,
@@ -111,9 +112,23 @@ export function App() {
   const applyRemoteData = (
     cloudExpenses: Expense[],
     cloudMembers?: Member[],
+    cloudGroups?: Group[],
     remoteUpdatedAt?: number,
     isCleared?: boolean
   ) => {
+    // 1. Always merge groups if provided so new groups appear immediately across all devices
+    if (cloudGroups && cloudGroups.length > 0) {
+      setGroups((prev) => {
+        const merged = isCleared ? cloudGroups : mergeGroups(prev, cloudGroups);
+        if (JSON.stringify(prev) === JSON.stringify(merged)) {
+          return prev;
+        }
+        saveGroups(merged);
+        return merged;
+      });
+    }
+
+    // 2. Adopt cloud expenses and members if remote is newer or explicitly cleared
     if ((remoteUpdatedAt && remoteUpdatedAt > lastUpdatedRef.current) || isCleared) {
       const ts = remoteUpdatedAt || Date.now();
       lastUpdatedRef.current = ts;
@@ -125,6 +140,7 @@ export function App() {
         return cloudExpenses;
       });
       saveExpenses(cloudExpenses);
+
       if (cloudMembers && cloudMembers.length > 0) {
         const enforced = enforceFixedMembers(cloudMembers);
         setMembers((prev) => {
@@ -138,6 +154,7 @@ export function App() {
           return enforced;
         });
       }
+
       setSyncStatus('synced');
     }
   };
@@ -145,6 +162,7 @@ export function App() {
   const syncToCloud = async (
     newExpenses: Expense[],
     newMembers: Member[],
+    newGroups: Group[] = groups,
     isCleared: boolean = false
   ) => {
     const now = Date.now();
@@ -153,7 +171,7 @@ export function App() {
     setSyncStatus('syncing');
 
     try {
-      const ok = await pushToCloud(newExpenses, newMembers, now, isCleared);
+      const ok = await pushToCloud(newExpenses, newMembers, newGroups, now, isCleared);
       setSyncStatus(ok ? 'synced' : 'error');
     } catch {
       setSyncStatus('error');
@@ -165,37 +183,28 @@ export function App() {
     // 1. Initial Cloud Fetch on Mount
     pullFromCloud().then((cloudData) => {
       if (cloudData) {
-        // If cloud data is newer or explicitly cleared, adopt cloud state
-        if (cloudData.updatedAt > lastUpdatedRef.current || cloudData.isCleared) {
-          lastUpdatedRef.current = cloudData.updatedAt;
-          setLastUpdatedAt(cloudData.updatedAt);
-          setExpenses(cloudData.expenses || []);
-          saveExpenses(cloudData.expenses || []);
-          if (cloudData.members && cloudData.members.length > 0) {
-            const enforced = enforceFixedMembers(cloudData.members);
-            setMembers((prev) => {
-              if (
-                prev.length === enforced.length &&
-                prev.every((m, i) => m.id === enforced[i].id && m.name === enforced[i].name && m.upiId === enforced[i].upiId)
-              ) {
-                return prev;
-              }
-              saveMembers(enforced);
-              return enforced;
-            });
-          }
+        applyRemoteData(
+          cloudData.expenses || [],
+          cloudData.members,
+          cloudData.groups,
+          cloudData.updatedAt,
+          cloudData.isCleared
+        );
+        if (cloudData.groups && groups.length > cloudData.groups.length) {
+          // Cloud is missing local groups! Push current state to cloud so all devices get all groups
+          pushToCloud(expenses, members, groups, Date.now());
         }
         setSyncStatus('synced');
       } else {
+        // No remote data yet, push local state to cloud
+        pushToCloud(expenses, members, groups, Date.now());
         setSyncStatus('synced');
       }
     });
 
     // 2. Cross-Tab Live Sync on same device (0ms latency via BroadcastChannel)
     const unsubTabs = subscribeToTabs((payload) => {
-      if (payload.updatedAt > lastUpdatedRef.current || payload.isCleared) {
-        applyRemoteData(payload.expenses, payload.members, payload.updatedAt, payload.isCleared);
-      }
+      applyRemoteData(payload.expenses, payload.members, payload.groups, payload.updatedAt, payload.isCleared);
     });
 
     // 3. Native Browser Storage Event for Instant Cross-Tab Sync
@@ -204,17 +213,20 @@ export function App() {
         e.key === 'triptab_expenses_v1' ||
         e.key === 'triptab_members_v1' ||
         e.key === 'triptab_updated_at_v1' ||
+        e.key === 'triptally_groups_v1' ||
         e.key === 'goa_splitwise_expenses_v1' ||
         e.key === 'goa_splitwise_members_v1' ||
         e.key === 'goa_splitwise_updated_at_v1'
       ) {
         const freshExpenses = loadExpenses();
         const freshMembers = loadMembers();
+        const freshGroups = loadGroups();
         const freshUpdatedAt = getLastUpdatedAt();
         if (freshUpdatedAt >= lastUpdatedRef.current) {
           lastUpdatedRef.current = freshUpdatedAt;
           setExpenses(freshExpenses);
           setMembers(freshMembers);
+          setGroups(freshGroups);
           setSyncStatus('synced');
         }
       }
@@ -223,8 +235,14 @@ export function App() {
 
     // 4. Remote Cloud SSE Push Listener via ntfy (sub-second cross-device)
     const unsubSSE = listenToCloudEvents((remotePayload) => {
-      if (remotePayload && (remotePayload.updatedAt > lastUpdatedRef.current || remotePayload.isCleared)) {
-        applyRemoteData(remotePayload.expenses, remotePayload.members, remotePayload.updatedAt, remotePayload.isCleared);
+      if (remotePayload) {
+        applyRemoteData(
+          remotePayload.expenses,
+          remotePayload.members,
+          remotePayload.groups,
+          remotePayload.updatedAt,
+          remotePayload.isCleared
+        );
       }
     });
 
@@ -232,8 +250,14 @@ export function App() {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         pullFromCloud().then((cloudData) => {
-          if (cloudData && (cloudData.updatedAt > lastUpdatedRef.current || cloudData.isCleared)) {
-            applyRemoteData(cloudData.expenses, cloudData.members, cloudData.updatedAt, cloudData.isCleared);
+          if (cloudData) {
+            applyRemoteData(
+              cloudData.expenses,
+              cloudData.members,
+              cloudData.groups,
+              cloudData.updatedAt,
+              cloudData.isCleared
+            );
           }
         });
       }
@@ -245,8 +269,14 @@ export function App() {
     const pollInterval = setInterval(() => {
       if (document.visibilityState === 'visible') {
         pullFromCloud().then((cloudData) => {
-          if (cloudData && (cloudData.updatedAt > lastUpdatedRef.current || cloudData.isCleared)) {
-            applyRemoteData(cloudData.expenses, cloudData.members, cloudData.updatedAt, cloudData.isCleared);
+          if (cloudData) {
+            applyRemoteData(
+              cloudData.expenses,
+              cloudData.members,
+              cloudData.groups,
+              cloudData.updatedAt,
+              cloudData.isCleared
+            );
           }
         });
       }
@@ -317,6 +347,7 @@ export function App() {
     setActiveGroupId(newGroup.id);
     saveActiveGroupId(newGroup.id);
     setSelectedFriendId(null);
+    syncToCloud(expenses, members, updated);
   };
 
   const handleSelectGroup = (groupId: string) => {
@@ -350,7 +381,7 @@ export function App() {
     setGroups(updatedGroups);
     saveGroups(updatedGroups);
 
-    syncToCloud(expenses, updatedMembers);
+    syncToCloud(expenses, updatedMembers, updatedGroups);
   };
 
   const handleOpenEditFriend = (member: Member) => {
@@ -465,7 +496,7 @@ export function App() {
       setExpenses(updated);
       setSelectedFriendId(null);
       saveExpenses(updated);
-      syncToCloud(updated, members, true);
+      syncToCloud(updated, members, groups, true);
     } else if (pendingPinAction.type === 'delete_group' && pendingPinAction.groupId) {
       const gId = pendingPinAction.groupId;
       const remainingGroups = groups.filter((g) => g.id !== gId);
@@ -497,7 +528,7 @@ export function App() {
       setExpenses(updatedExpenses);
       saveExpenses(updatedExpenses);
       setSelectedFriendId(null);
-      syncToCloud(updatedExpenses, members, true);
+      syncToCloud(updatedExpenses, members, finalGroups, true);
     }
 
     setPendingPinAction(null);

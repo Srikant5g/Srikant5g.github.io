@@ -220,10 +220,31 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
                               onSelectGroup?.(g.id);
                               setIsGroupMenuOpen(false);
                             }}
-                            className="flex-1 text-left flex items-center gap-2 truncate"
+                            className="flex-1 text-left flex flex-col min-w-0 pr-1 py-0.5"
                           >
-                            <span className="truncate">{g.name}</span>
-                            {g.id === activeGroupId && <span className="w-2 h-2 rounded-full bg-[#78C5A7] shrink-0" />}
+                            <div className="flex items-center gap-1.5 truncate">
+                              <span className="truncate font-bold text-xs">{g.name}</span>
+                              {g.id === activeGroupId && (
+                                <span className="w-2 h-2 rounded-full bg-[#78C5A7] shrink-0" />
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] opacity-80 font-normal">
+                              <span>{(g.memberIds?.length || members.length)} friends</span>
+                              {Boolean(
+                                currentUserId &&
+                                  (!g.memberIds || g.memberIds.length === 0 || g.memberIds.includes(currentUserId))
+                              ) && (
+                                <span
+                                  className={
+                                    g.id === activeGroupId
+                                      ? 'text-emerald-200 font-semibold'
+                                      : 'text-[#145B4A] font-semibold'
+                                  }
+                                >
+                                  • You're in
+                                </span>
+                              )}
+                            </div>
                           </button>
 
                           {onDeleteGroup && (

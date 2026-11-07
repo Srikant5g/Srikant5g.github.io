@@ -60,7 +60,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
               Every trip. Every expense. Sorted.
             </span>
             {groups && groups.length > 0 ? (
-              <div className="relative hidden md:inline-block">
+              <div className="relative inline-block">
                 <button
                   type="button"
                   onClick={() => setIsGroupMenuOpen(!isGroupMenuOpen)}
@@ -68,7 +68,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
                   title="Switch trip or create a new group"
                 >
                   <Tag className="w-2.5 h-2.5 text-[#78C5A7]" />
-                  <span className="truncate max-w-[120px]">{tripName}</span>
+                  <span className="truncate max-w-[80px] sm:max-w-[120px]">{tripName}</span>
                   <ChevronDown className="w-2.5 h-2.5 text-[#78C5A7]" />
                 </button>
                 {isGroupMenuOpen && (
