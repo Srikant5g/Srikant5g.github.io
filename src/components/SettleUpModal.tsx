@@ -46,8 +46,8 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
     onClose();
   };
 
-  const handleRecordDeposit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRecordDeposit = (e?: React.SyntheticEvent) => {
+    if (e) e.preventDefault();
     setDepositError(null);
 
     const amt = parseFloat(depositAmount);
