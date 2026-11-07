@@ -150,9 +150,9 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
             <button
               onClick={onOpenMembers}
               className="text-[#718096] hover:text-[#192B3D] font-bold text-xs active:scale-95 transition"
-              title="Configure UPI IDs"
+              title="Manage Friends & UPI IDs"
             >
-              UPI IDs
+              Manage
             </button>
           </div>
         </div>

@@ -14,6 +14,8 @@ import {
   saveGroups,
   loadActiveGroupId,
   saveActiveGroupId,
+  loadSavedUserId,
+  saveCurrentUserId,
 } from './utils/storage';
 import {
   pullFromCloud,
@@ -56,17 +58,20 @@ export function App() {
   const [settings] = useState<TripSettings>(() => loadTripSettings());
   const [, setSyncStatus] = useState<SyncStatus>('synced');
 
-  // Active viewing member - starts unselected so user must select their name on open
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  // Active viewing member - persists in localStorage across reloads
+  const [currentUserId, setCurrentUserId] = useState<string | null>(() => {
+    const saved = loadSavedUserId();
+    const allMembers = loadMembers();
+    if (saved && allMembers.some((m) => m.id === saved)) {
+      return saved;
+    }
+    return null;
+  });
 
   const handleSelectUser = (userId: string) => {
     setCurrentUserId(userId);
     setSelectedFriendId((prev) => (prev === userId ? null : prev));
-    try {
-      localStorage.setItem('triptally_current_user_id', userId);
-    } catch {
-      // ignore
-    }
+    saveCurrentUserId(userId);
   };
 
   // Left sidebar & mobile tab state
@@ -80,7 +85,11 @@ export function App() {
   const [isSettleUpModalOpen, setIsSettleUpModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [isUserSelectModalOpen, setIsUserSelectModalOpen] = useState(true);
+  const [isUserSelectModalOpen, setIsUserSelectModalOpen] = useState<boolean>(() => {
+    const saved = loadSavedUserId();
+    const allMembers = loadMembers();
+    return !(saved && allMembers.some((m) => m.id === saved));
+  });
   const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
   const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
   const [isEditFriendOpen, setIsEditFriendOpen] = useState(false);
@@ -514,7 +523,7 @@ export function App() {
     <div className="min-h-screen bg-[#F7F8F5] text-[#192B3D] flex flex-col font-sans pb-16 md:pb-0 w-full max-w-full overflow-x-hidden">
       {/* TripTally Navigation Bar with Live Cloud Sync */}
       <SplitwiseNavbar
-        members={members}
+        members={currentGroupMembers}
         currentUserId={currentUserId}
         onSelectCurrentUser={handleSelectUser}
         onOpenMembers={() => setIsMemberModalOpen(true)}
@@ -543,7 +552,10 @@ export function App() {
           selectedFriendId={selectedFriendId}
           onSelectFriend={setSelectedFriendId}
           activeView={activeView}
-          onChangeView={setActiveView}
+          onChangeView={(v) => {
+            setActiveView(v);
+            if (v === 'all') handleChangeSubTab('expenses');
+          }}
           onOpenMembers={() => setIsMemberModalOpen(true)}
           onOpenAddFriend={() => setIsAddFriendModalOpen(true)}
           onEditFriend={handleOpenEditFriend}
@@ -619,6 +631,12 @@ export function App() {
             settlements={settlements}
             activeSubTab={activeSubTab}
             onChangeSubTab={handleChangeSubTab}
+            activeView={activeView}
+            onChangeView={(v) => {
+              setActiveView(v);
+              if (v === 'all') handleChangeSubTab('expenses');
+            }}
+            groupName={activeGroup.name}
             onOpenAddExpense={() => {
               setEditingExpense(null);
               setIsExpenseModalOpen(true);
@@ -718,7 +736,7 @@ export function App() {
       <UserSelectModal
         isOpen={isUserSelectModalOpen}
         onClose={() => setIsUserSelectModalOpen(false)}
-        members={members}
+        members={currentGroupMembers}
         currentUserId={currentUserId}
         onSelectUser={handleSelectUser}
       />

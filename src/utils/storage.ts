@@ -27,9 +27,9 @@ export function loadGroups(): Group[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Ensure default group or 'Road Trip 2026' is updated to 'Goa'
+        // Ensure default group, 'TripTally Group', or 'Road Trip 2026' is updated to 'Goa'
         return parsed.map((g) =>
-          g.id === DEFAULT_GROUP_ID || g.name === 'Road Trip 2026'
+          g.id === DEFAULT_GROUP_ID || g.name === 'Road Trip 2026' || g.name === 'TripTally Group'
             ? { ...g, name: 'Goa', location: g.location?.replace('Road Trip (By Car) 🚗💨', 'Goa 🏖️') || 'Goa 🏖️' }
             : g
         );
@@ -76,11 +76,33 @@ export function loadTripSettings(): TripSettings {
     return {
       ...DEFAULT_TRIP_SETTINGS,
       ...parsed,
-      tripName: parsed.tripName === 'Road Trip 2026' ? 'Goa' : (parsed.tripName || 'Goa'),
-      location: parsed.location === 'Road Trip (By Car) 🚗💨' ? 'Goa 🏖️' : (parsed.location || 'Goa 🏖️'),
+      tripName:
+        parsed.tripName === 'Road Trip 2026' || parsed.tripName === 'TripTally Group'
+          ? 'Goa'
+          : parsed.tripName || 'Goa',
+      location:
+        parsed.location === 'Road Trip (By Car) 🚗💨' ? 'Goa 🏖️' : parsed.location || 'Goa 🏖️',
     };
   } catch {
     return DEFAULT_TRIP_SETTINGS;
+  }
+}
+
+const CURRENT_USER_KEY = 'triptally_current_user_id';
+
+export function loadSavedUserId(): string | null {
+  try {
+    return localStorage.getItem(CURRENT_USER_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function saveCurrentUserId(id: string) {
+  try {
+    localStorage.setItem(CURRENT_USER_KEY, id);
+  } catch (e) {
+    console.error('Failed to save current user id', e);
   }
 }
 

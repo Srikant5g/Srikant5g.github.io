@@ -3,7 +3,7 @@ import type { Expense, Member, DebtTransaction, Category } from '../types';
 import { formatCurrency, formatExpenseDate, calculateTotalTripSpend, getActualExpenses, isAdvanceOrTransfer, getUserExpenseShare } from '../utils/settlement';
 import { CATEGORY_ICONS } from '../utils/sampleData';
 import { UpiPaymentActions } from './UpiPaymentActions';
-import { Plus, Check, ArrowRight, Trash2, Edit3, Search, Sparkles, X, PieChart, Edit2 } from 'lucide-react';
+import { Plus, Check, ArrowRight, Trash2, Edit3, Search, Sparkles, X, PieChart, Edit2, ArrowLeft } from 'lucide-react';
 
 interface SplitwiseCenterViewProps {
   expenses: Expense[];
@@ -19,6 +19,9 @@ interface SplitwiseCenterViewProps {
   onDeleteExpense: (id: string) => void;
   onLoadSample?: () => void;
   onEditFriend?: (member: Member) => void;
+  activeView?: 'dashboard' | 'recent' | 'all';
+  onChangeView?: (v: 'dashboard' | 'recent' | 'all') => void;
+  groupName?: string;
 }
 
 export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
@@ -34,6 +37,9 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   onEditExpense,
   onDeleteExpense,
   onEditFriend,
+  activeView = 'dashboard',
+  onChangeView,
+  groupName = 'Goa',
 }) => {
   const [internalTab, setInternalTab] = useState<'expenses' | 'debts' | 'breakdown'>('expenses');
   const [searchTerm, setSearchTerm] = useState('');
@@ -188,7 +194,11 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
               <span>
                 {selectedFriend
                   ? `${selectedFriend.name} & You`
-                  : 'Expenses Dashboard'}
+                  : activeView === 'recent'
+                  ? 'Recent Activity'
+                  : activeView === 'all'
+                  ? `${groupName} Ledger`
+                  : `${groupName} Expenses`}
               </span>
             </h1>
             {selectedFriend && onEditFriend && (
@@ -204,7 +214,13 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             )}
           </div>
           <p className="text-xs text-[#718096] font-medium mt-0.5">
-            TripTally • <span className="font-bold text-[#192B3D]">{expenses.length} bills</span> recorded
+            {activeView === 'recent' ? (
+              <span>Live chronological feed for {groupName}</span>
+            ) : (
+              <span>
+                {groupName} • <span className="font-bold text-[#192B3D]">{expenses.length} bills</span> recorded
+              </span>
+            )}
           </p>
         </div>
 
@@ -228,8 +244,193 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
         </div>
       </div>
 
-      {/* The 3-Box Balance Banner */}
-      <div className="grid grid-cols-3 border-b border-[#E4EAF0] text-center py-4 bg-white">
+      {/* RECENT ACTIVITY VIEW */}
+      {activeView === 'recent' && (
+        <div className="p-4 sm:p-6 pb-20 md:pb-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-[#718096]">
+              Timeline of all bills, advance deposits, and transactions in <strong className="text-[#192B3D]">{groupName}</strong>
+            </p>
+            {onChangeView && (
+              <button
+                type="button"
+                onClick={() => onChangeView('dashboard')}
+                className="text-xs text-[#145B4A] hover:underline font-bold flex items-center gap-1 active:scale-95 transition"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Dashboard</span>
+              </button>
+            )}
+          </div>
+
+          {expenses.length === 0 ? (
+            <div className="py-14 px-4 text-center max-w-md mx-auto space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-[#78C5A7]/20 border border-[#78C5A7]/30 text-[#145B4A] flex items-center justify-center mx-auto text-2xl">
+                ⏳
+              </div>
+              <h3 className="font-black text-[#192B3D] text-base">No recent activity</h3>
+              <p className="text-xs text-[#718096]">
+                As soon as someone logs a bill or deposits advance money, the activity will appear here in real-time.
+              </p>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={onOpenAddExpense}
+                  className="px-5 py-2.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white font-bold text-xs transition active:scale-95"
+                >
+                  + Add First Expense
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {[...expenses]
+                .sort(
+                  (a, b) =>
+                    new Date(b.date).getTime() - new Date(a.date).getTime() ||
+                    (b.createdAt || 0) - (a.createdAt || 0)
+                )
+                .map((exp) => {
+                  const payer = memberMap.get(exp.paidById);
+                  const isPayer = Boolean(currentUserId && exp.paidById === currentUserId);
+                  const isAdv = isAdvanceOrTransfer(exp);
+                  const recipient =
+                    exp.splitMemberIds && exp.splitMemberIds.length > 0
+                      ? memberMap.get(exp.splitMemberIds[0])
+                      : null;
+                  const isRecipient = Boolean(
+                    currentUserId &&
+                      exp.splitMemberIds.length === 1 &&
+                      exp.splitMemberIds[0] === currentUserId
+                  );
+                  const userShare = currentUserId ? getUserExpenseShare(exp, currentUserId) : 0;
+                  const catMeta = CATEGORY_ICONS[exp.category] || {
+                    icon: '📝',
+                    color: 'bg-slate-100 text-slate-700',
+                  };
+
+                  let personalLabel = 'not involved';
+                  let personalAmt = 0;
+                  let isPositive = false;
+
+                  if (isAdv) {
+                    if (isPayer) {
+                      isPositive = true;
+                      personalLabel = 'you sent';
+                      personalAmt = exp.amount;
+                    } else if (isRecipient) {
+                      personalLabel = 'you received';
+                      personalAmt = exp.amount;
+                    }
+                  } else if (isPayer) {
+                    isPositive = true;
+                    personalLabel = 'you lent';
+                    personalAmt = exp.amount - userShare;
+                  } else if (currentUserId && exp.splitMemberIds.includes(currentUserId)) {
+                    personalLabel = 'you borrowed';
+                    personalAmt = userShare;
+                  }
+
+                  return (
+                    <div
+                      key={`act-${exp.id}`}
+                      onClick={() => onEditExpense(exp)}
+                      className="bg-white border border-[#E4EAF0] hover:border-[#78C5A7] rounded-2xl p-3.5 sm:p-4 shadow-2xs hover:shadow-xs transition flex items-start gap-3.5 cursor-pointer group"
+                    >
+                      {/* Avatar */}
+                      <div
+                        className={`w-10 h-10 rounded-2xl ${
+                          payer?.avatarColor || 'bg-teal-500'
+                        } text-white font-bold flex items-center justify-center text-sm shrink-0 shadow-xs group-hover:scale-105 transition`}
+                      >
+                        {payer?.name ? payer.name.charAt(0) : '?'}
+                      </div>
+
+                      {/* Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-[#192B3D] text-xs sm:text-sm">
+                            {isPayer ? 'You' : payer?.name || 'Friend'}
+                          </span>
+                          {isAdv ? (
+                            <span className="text-[11px] font-bold text-[#145B4A] bg-[#78C5A7]/20 border border-[#78C5A7]/40 px-2 py-0.5 rounded-lg">
+                              💸 Sent Advance / Transfer
+                            </span>
+                          ) : (
+                            <span className="text-[11px] font-medium text-[#718096]">
+                              added a bill for
+                            </span>
+                          )}
+                          <span className="text-xs text-[#718096]">
+                            • {formatExpenseDate(exp.date).month} {formatExpenseDate(exp.date).day}
+                          </span>
+                        </div>
+
+                        <div className="mt-1 flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold text-[#192B3D] text-sm">
+                            {exp.title}
+                          </span>
+                          <span className="text-xs font-bold text-[#145B4A] bg-[#F7F8F5] border border-[#E4EAF0] px-2 py-0.5 rounded-lg">
+                            {formatCurrency(exp.amount)}
+                          </span>
+                          {!isAdv && (
+                            <span className="text-[11px] text-[#718096] flex items-center gap-1">
+                              <span>{catMeta.icon}</span>
+                              <span>{exp.category}</span>
+                              <span>• Split with {exp.splitMemberIds.length}</span>
+                            </span>
+                          )}
+                          {isAdv && recipient && (
+                            <span className="text-[11px] text-[#718096]">
+                              to{' '}
+                              <strong className="text-[#192B3D]">
+                                {isRecipient ? 'You' : recipient.name}
+                              </strong>
+                            </span>
+                          )}
+                        </div>
+
+                        {exp.notes && (
+                          <p className="text-[11px] text-[#718096] italic mt-1 bg-[#F7F8F5] p-1.5 px-2.5 rounded-lg border border-[#E4EAF0]/60 inline-block">
+                            "{exp.notes}"
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Right: Personal Impact */}
+                      <div className="text-right shrink-0">
+                        <span className="text-[9px] uppercase font-bold text-[#718096] block tracking-wider">
+                          {personalLabel}
+                        </span>
+                        <span
+                          className={`text-xs sm:text-sm font-black block ${
+                            isPositive
+                              ? 'text-[#145B4A]'
+                              : personalLabel === 'you borrowed' || personalLabel === 'you received'
+                              ? 'text-[#FF784F]'
+                              : 'text-[#718096]'
+                          }`}
+                        >
+                          {personalAmt > 0
+                            ? isPositive
+                              ? `+${formatCurrency(personalAmt)}`
+                              : `-${formatCurrency(personalAmt)}`
+                            : '—'}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* DASHBOARD / ALL EXPENSES VIEW */}
+      {activeView !== 'recent' && (
+        <>
+          {/* The 3-Box Balance Banner */}
+          <div className="grid grid-cols-3 border-b border-[#E4EAF0] text-center py-4 bg-white">
         {/* Total Balance */}
         <div className="border-r border-[#E4EAF0] px-2 sm:px-4">
           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#718096] block">
@@ -758,6 +959,8 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             })}
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );
