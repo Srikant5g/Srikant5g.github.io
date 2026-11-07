@@ -7,7 +7,7 @@ import { Search, Plus, Edit3, Trash2, X, ArrowUpRight, ArrowDownLeft } from 'luc
 interface MobileBillsViewProps {
   expenses: Expense[];
   members: Member[];
-  currentUserId: string;
+  currentUserId: string | null;
   selectedFriendId: string | null;
   onClearFriendFilter: () => void;
   onOpenAddExpense: () => void;
@@ -35,7 +35,7 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   const memberMap = new Map<string, Member>();
   members.forEach((m) => memberMap.set(m.id, m));
 
-  const currentUser = memberMap.get(currentUserId) || members[0];
+  const currentUser = currentUserId ? memberMap.get(currentUserId) : null;
   const selectedFriend = selectedFriendId ? memberMap.get(selectedFriendId) : null;
 
   // Calculate personal metrics
@@ -44,11 +44,11 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   const totalSpend = expenses.reduce((sum, e) => sum + e.amount, 0);
 
   expenses.forEach((e) => {
-    const isPayer = e.paidById === currentUserId;
-    const isSplitter = e.splitMemberIds.includes(currentUserId);
+    const isPayer = Boolean(currentUserId && e.paidById === currentUserId);
+    const isSplitter = Boolean(currentUserId && e.splitMemberIds.includes(currentUserId));
     const splitCount = e.splitMemberIds.length;
     const userShare =
-      e.splitMode === 'CUSTOM' && e.customSplits
+      currentUserId && e.splitMode === 'CUSTOM' && e.customSplits
         ? e.customSplits[currentUserId] || 0
         : isSplitter && splitCount > 0
         ? e.amount / splitCount
@@ -66,10 +66,10 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   // Filter bills
   const filtered = expenses.filter((e) => {
     if (selectedFriendId) {
-      const matchPayer = e.paidById === selectedFriendId || e.paidById === currentUserId;
+      const matchPayer = e.paidById === selectedFriendId || (currentUserId ? e.paidById === currentUserId : false);
       const matchSplitter =
         e.splitMemberIds.includes(selectedFriendId) ||
-        e.splitMemberIds.includes(currentUserId);
+        (currentUserId ? e.splitMemberIds.includes(currentUserId) : false);
       if (!matchPayer && !matchSplitter) return false;
     }
 
@@ -107,10 +107,10 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-full bg-[#78C5A7] text-[#145B4A] text-xs font-black flex items-center justify-center">
-              {currentUser?.name.charAt(0)}
+              {currentUser ? currentUser.name.charAt(0) : '?'}
             </div>
             <span className="text-xs font-semibold text-emerald-100">
-              {currentUser?.name}’s Balance
+              {currentUser ? `${currentUser.name}’s Balance` : 'Select Profile'}
             </span>
           </div>
 
@@ -285,11 +285,11 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
         <div className="space-y-2.5">
           {filtered.map((expense) => {
             const payer = memberMap.get(expense.paidById);
-            const isPayer = expense.paidById === currentUserId;
-            const isSplitter = expense.splitMemberIds.includes(currentUserId);
+            const isPayer = Boolean(currentUserId && expense.paidById === currentUserId);
+            const isSplitter = Boolean(currentUserId && expense.splitMemberIds.includes(currentUserId));
             const splitCount = expense.splitMemberIds.length;
             const userShare =
-              expense.splitMode === 'CUSTOM' && expense.customSplits
+              currentUserId && expense.splitMode === 'CUSTOM' && expense.customSplits
                 ? expense.customSplits[currentUserId] || 0
                 : isSplitter && splitCount > 0
                 ? expense.amount / splitCount

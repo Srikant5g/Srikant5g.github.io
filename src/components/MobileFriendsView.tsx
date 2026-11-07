@@ -7,7 +7,7 @@ import { ArrowDownLeft, ArrowUpRight, CheckCircle2, Copy, Check, QrCode } from '
 interface MobileFriendsViewProps {
   members: Member[];
   balances: MemberBalance[];
-  currentUserId: string;
+  currentUserId: string | null;
   selectedFriendId: string | null;
   onSelectFriend: (id: string | null) => void;
   onOpenMembers: () => void;
@@ -53,7 +53,7 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
       {/* Friends Cards */}
       <div className="space-y-2.5">
         {members.map((member) => {
-          const isMe = member.id === currentUserId;
+          const isMe = Boolean(currentUserId && member.id === currentUserId);
           const isSelected = selectedFriendId === member.id;
           const net = balanceMap.get(member.id) || 0;
           const isCreditor = net > 0.01;

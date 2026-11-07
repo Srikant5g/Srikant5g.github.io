@@ -5,7 +5,7 @@ import { Users, Share2, Sparkles, RotateCcw, RefreshCw, UserCheck } from 'lucide
 
 interface SplitwiseNavbarProps {
   members: Member[];
-  currentUserId: string;
+  currentUserId: string | null;
   onSelectCurrentUser: (id: string) => void;
   onOpenMembers: () => void;
   onOpenShare: () => void;
@@ -30,7 +30,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   onOpenUserSelect,
   tripName = 'Road Trip 2026',
 }) => {
-  const currentUser = members.find((m) => m.id === currentUserId) || members[0];
+  const currentUser = members.find((m) => m.id === currentUserId);
 
   return (
     <nav className="bg-[#145B4A] text-white sticky top-0 z-40 border-b border-[#0f4639] shadow-sm">
@@ -82,28 +82,38 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
         {/* Right: Active Friend Switcher & Actions */}
         <div className="flex items-center gap-2">
           {/* Active Friend Switcher Pill */}
-          <div className="flex items-center gap-1.5 bg-black/20 hover:bg-black/30 pl-1.5 pr-2 py-1 rounded-xl text-xs font-semibold border border-white/15 transition">
-            <div className="w-5 h-5 rounded-full bg-[#78C5A7] text-[#145B4A] font-black text-[10px] flex items-center justify-center shrink-0">
-              {currentUser?.name.charAt(0)}
+          {currentUser ? (
+            <div className="flex items-center gap-1.5 bg-black/20 hover:bg-black/30 pl-1.5 pr-2 py-1 rounded-xl text-xs font-semibold border border-white/15 transition">
+              <div className="w-5 h-5 rounded-full bg-[#78C5A7] text-[#145B4A] font-black text-[10px] flex items-center justify-center shrink-0">
+                {currentUser.name.charAt(0)}
+              </div>
+              <label htmlFor="navbar-active-user-select" className="sr-only">
+                Switch active friend
+              </label>
+              <select
+                id="navbar-active-user-select"
+                name="activeUser"
+                value={currentUserId || ''}
+                onChange={(e) => onSelectCurrentUser(e.target.value)}
+                aria-label="Switch active friend"
+                className="bg-transparent text-white font-bold cursor-pointer focus:outline-none text-xs"
+              >
+                {members.map((m) => (
+                  <option key={m.id} value={m.id} className="text-[#192B3D] bg-white">
+                    {m.name}
+                  </option>
+                ))}
+              </select>
             </div>
-            <label htmlFor="navbar-active-user-select" className="sr-only">
-              Switch active friend
-            </label>
-            <select
-              id="navbar-active-user-select"
-              name="activeUser"
-              value={currentUserId}
-              onChange={(e) => onSelectCurrentUser(e.target.value)}
-              aria-label="Switch active friend"
-              className="bg-transparent text-white font-bold cursor-pointer focus:outline-none text-xs"
+          ) : (
+            <button
+              onClick={onOpenUserSelect}
+              className="flex items-center gap-1.5 bg-[#78C5A7] text-[#145B4A] px-2.5 py-1 rounded-xl text-xs font-bold shadow-xs hover:bg-white transition"
             >
-              {members.map((m) => (
-                <option key={m.id} value={m.id} className="text-[#192B3D] bg-white">
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          </div>
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>Select Profile</span>
+            </button>
+          )}
 
           {/* Friends (7) Button */}
           <button

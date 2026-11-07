@@ -9,7 +9,7 @@ interface SettleUpModalProps {
   onClose: () => void;
   settlements: DebtTransaction[];
   members: Member[];
-  currentUserId: string;
+  currentUserId: string | null;
   onRecordPayment: (fromId: string, toId: string, amount: number, note?: string) => void;
 }
 

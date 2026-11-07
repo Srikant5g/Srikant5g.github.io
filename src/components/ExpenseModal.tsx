@@ -11,7 +11,7 @@ interface ExpenseModalProps {
   members: Member[];
   editingExpense?: Expense | null;
   onDeleteExpense?: (id: string) => void;
-  currentUserId?: string;
+  currentUserId?: string | null;
   tripName?: string;
 }
 

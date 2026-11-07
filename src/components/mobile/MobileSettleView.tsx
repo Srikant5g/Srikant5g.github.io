@@ -6,7 +6,7 @@ import { QrCode, ArrowRight, Check, Sparkles, Copy } from 'lucide-react';
 
 interface MobileSettleViewProps {
   settlements: DebtTransaction[];
-  currentUserId: string;
+  currentUserId: string | null;
 }
 
 export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
@@ -57,8 +57,8 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
         <div className="space-y-2.5">
           {settlements.map((tx, idx) => {
             const isDone = !!completedMap[tx.id];
-            const isYouPaying = tx.fromId === currentUserId;
-            const isYouReceiving = tx.toId === currentUserId;
+            const isYouPaying = Boolean(currentUserId && tx.fromId === currentUserId);
+            const isYouReceiving = Boolean(currentUserId && tx.toId === currentUserId);
 
             const upiUrl = tx.toUpiId
               ? `upi://pay?pa=${encodeURIComponent(tx.toUpiId)}&pn=${encodeURIComponent(

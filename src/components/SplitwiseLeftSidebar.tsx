@@ -6,7 +6,7 @@ import { LayoutDashboard, Receipt, Activity, Tag } from 'lucide-react';
 interface SplitwiseLeftSidebarProps {
   members: Member[];
   balances: MemberBalance[];
-  currentUserId: string;
+  currentUserId: string | null;
   selectedFriendId: string | null;
   onSelectFriend: (id: string | null) => void;
   activeView: 'dashboard' | 'all' | 'recent';
@@ -111,7 +111,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
 
         <div className="space-y-1">
           {members.map((member) => {
-            const isMe = member.id === currentUserId;
+            const isMe = Boolean(currentUserId && member.id === currentUserId);
             const isSelected = selectedFriendId === member.id;
             const net = balanceMap.get(member.id) || 0;
 

@@ -8,7 +8,7 @@ import { Plus, Check, ArrowRight, Trash2, Edit3, QrCode, Search, Sparkles, X, Co
 interface SplitwiseCenterViewProps {
   expenses: Expense[];
   members: Member[];
-  currentUserId: string;
+  currentUserId: string | null;
   selectedFriendId: string | null;
   settlements: DebtTransaction[];
   activeSubTab?: 'expenses' | 'debts' | 'breakdown';
@@ -65,11 +65,11 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   let youAreOwedTotal = 0;
 
   expenses.forEach((e) => {
-    const isPayer = e.paidById === currentUserId;
-    const isSplitter = e.splitMemberIds.includes(currentUserId);
+    const isPayer = Boolean(currentUserId && e.paidById === currentUserId);
+    const isSplitter = Boolean(currentUserId && e.splitMemberIds.includes(currentUserId));
     const splitCount = e.splitMemberIds.length;
     const userShare =
-      e.splitMode === 'CUSTOM' && e.customSplits
+      currentUserId && e.splitMode === 'CUSTOM' && e.customSplits
         ? e.customSplits[currentUserId] || 0
         : isSplitter && splitCount > 0
         ? e.amount / splitCount
@@ -87,10 +87,10 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   // Filter expenses
   const filtered = expenses.filter((e) => {
     if (selectedFriendId) {
-      const matchPayer = e.paidById === selectedFriendId || e.paidById === currentUserId;
+      const matchPayer = e.paidById === selectedFriendId || (currentUserId ? e.paidById === currentUserId : false);
       const matchSplitter =
         e.splitMemberIds.includes(selectedFriendId) ||
-        e.splitMemberIds.includes(currentUserId);
+        (currentUserId ? e.splitMemberIds.includes(currentUserId) : false);
       if (!matchPayer && !matchSplitter) return false;
     }
 
@@ -386,11 +386,11 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             <div className="divide-y divide-[#E4EAF0]">
               {filtered.map((expense) => {
                 const payer = memberMap.get(expense.paidById);
-                const isPayer = expense.paidById === currentUserId;
-                const isSplitter = expense.splitMemberIds.includes(currentUserId);
+                const isPayer = Boolean(currentUserId && expense.paidById === currentUserId);
+                const isSplitter = Boolean(currentUserId && expense.splitMemberIds.includes(currentUserId));
                 const splitCount = expense.splitMemberIds.length;
                 const userShare =
-                  expense.splitMode === 'CUSTOM' && expense.customSplits
+                  currentUserId && expense.splitMode === 'CUSTOM' && expense.customSplits
                     ? expense.customSplits[currentUserId] || 0
                     : isSplitter && splitCount > 0
                     ? expense.amount / splitCount

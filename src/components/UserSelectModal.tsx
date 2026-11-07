@@ -6,7 +6,7 @@ interface UserSelectModalProps {
   isOpen: boolean;
   onClose: () => void;
   members: Member[];
-  currentUserId: string;
+  currentUserId: string | null;
   onSelectUser: (userId: string) => void;
 }
 
@@ -24,10 +24,14 @@ export const UserSelectModal: React.FC<UserSelectModalProps> = ({
     onClose();
   };
 
+  const canDismiss = Boolean(currentUserId);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
-      onClick={onClose}
+      onClick={() => {
+        if (canDismiss) onClose();
+      }}
     >
       <div
         className="bg-white border border-[#E4EAF0] rounded-3xl w-full max-w-sm max-h-[88vh] shadow-2xl overflow-hidden my-auto flex flex-col text-[#192B3D] animate-in zoom-in-95 duration-150"
@@ -35,14 +39,16 @@ export const UserSelectModal: React.FC<UserSelectModalProps> = ({
       >
         {/* Header */}
         <div className="p-6 pb-4 text-center border-b border-[#E4EAF0] relative bg-[#F7F8F5]">
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-1.5 rounded-full text-[#718096] hover:text-[#192B3D] hover:bg-[#E4EAF0] transition"
-            title="Close"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          {canDismiss && (
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-[#718096] hover:text-[#192B3D] hover:bg-[#E4EAF0] transition"
+              title="Close"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
 
           <div className="w-12 h-12 rounded-2xl bg-[#145B4A] text-[#78C5A7] flex items-center justify-center mx-auto shadow-xs mb-3">
             <UserCheck className="w-6 h-6 stroke-[2.5]" />
@@ -56,20 +62,20 @@ export const UserSelectModal: React.FC<UserSelectModalProps> = ({
           </p>
         </div>
 
-        {/* Member Options List */}
+        {/* Member Options List (No default selection when opened) */}
         <div className="p-4 space-y-2 max-h-[60vh] overflow-y-auto">
           {members.map((member) => {
-            const isSelected = member.id === currentUserId;
+            const isSelected = Boolean(currentUserId && member.id === currentUserId);
 
             return (
               <button
                 key={member.id}
                 type="button"
                 onClick={() => handleSelect(member.id)}
-                className={`w-full flex items-center justify-between p-3 rounded-2xl transition border text-left group active:scale-[0.98] ${
+                className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition border text-left group active:scale-[0.98] ${
                   isSelected
                     ? 'border-[#145B4A] bg-[#78C5A7]/15 shadow-xs ring-1 ring-[#145B4A]'
-                    : 'border-[#E4EAF0] bg-white hover:bg-[#F7F8F5] hover:border-[#78C5A7]'
+                    : 'border-[#E4EAF0] bg-white hover:bg-[#F7F8F5] hover:border-[#145B4A]'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -80,7 +86,7 @@ export const UserSelectModal: React.FC<UserSelectModalProps> = ({
                   </div>
 
                   <div className="min-w-0">
-                    <span className="font-bold text-sm text-[#192B3D] block truncate">
+                    <span className="font-bold text-sm text-[#192B3D] block truncate group-hover:text-[#145B4A] transition-colors">
                       {member.name}
                     </span>
                     {member.upiId && (
@@ -97,13 +103,22 @@ export const UserSelectModal: React.FC<UserSelectModalProps> = ({
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
                     </div>
                   ) : (
-                    <div className="w-6 h-6 rounded-full border border-[#E4EAF0] group-hover:border-[#78C5A7] transition" />
+                    <div className="w-6 h-6 rounded-full border-2 border-[#E4EAF0] group-hover:border-[#145B4A] transition" />
                   )}
                 </div>
               </button>
             );
           })}
         </div>
+
+        {/* Footer Prompt */}
+        {!currentUserId && (
+          <div className="p-3 bg-[#F7F8F5] border-t border-[#E4EAF0] text-center">
+            <span className="text-[11px] font-bold text-[#718096]">
+              Tap your name above to enter dashboard
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

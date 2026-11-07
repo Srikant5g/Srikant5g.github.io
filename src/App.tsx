@@ -42,14 +42,8 @@ export function App() {
   const [settings] = useState<TripSettings>(() => loadTripSettings());
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('synced');
 
-  // Active viewing member
-  const [currentUserId, setCurrentUserId] = useState<string>(() => {
-    try {
-      return localStorage.getItem('triptally_current_user_id') || members[0]?.id || 'm1';
-    } catch {
-      return members[0]?.id || 'm1';
-    }
-  });
+  // Active viewing member - starts unselected so user must select their name on open
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const handleSelectUser = (userId: string) => {
     setCurrentUserId(userId);
