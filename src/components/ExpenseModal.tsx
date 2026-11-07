@@ -18,7 +18,7 @@ const PRESETS = [
   { title: '⛽ Petrol / Diesel Fill', category: 'Petrol & Diesel' as Category },
   { title: '🛣️ Highway Tolls / Fastag', category: 'Tolls & Fastag' as Category },
   { title: '🥞 Highway Breakfast', category: 'Breakfast' as Category },
-  { title: '🍛 Highway / Dhabha Lunch', category: 'Lunch' as Category },
+  { title: '🍛 Highway Dhaba Lunch', category: 'Lunch' as Category },
   { title: '🍽️ Beach Shack Dinner', category: 'Dinner' as Category },
   { title: '🥪 Evening Snacks & Chai', category: 'Snacks & Chai' as Category },
   { title: '🍻 Alcohol & Beers', category: 'Alcohol & Drinks' as Category },

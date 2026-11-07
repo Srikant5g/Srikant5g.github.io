@@ -106,13 +106,13 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
 
               <div className="text-right shrink-0">
                 {isCreditor && (
-                  <span className="inline-flex items-center gap-0.5 text-xs font-bold text-[#5bc5a7] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                  <span className="inline-flex items-center gap-0.5 text-xs font-bold text-[#0d9488] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
                     <ArrowDownLeft className="w-3 h-3" />
                     +{formatCurrency(net)}
                   </span>
                 )}
                 {isDebtor && (
-                  <span className="inline-flex items-center gap-0.5 text-xs font-bold text-[#ff652f] bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
+                  <span className="inline-flex items-center gap-0.5 text-xs font-bold text-[#e05320] bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100">
                     <ArrowUpRight className="w-3 h-3" />
                     -{formatCurrency(Math.abs(net))}
                   </span>

@@ -29,7 +29,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   onOpenWelcome,
 }) => {
   return (
-    <nav className="bg-[#5bc5a7] text-white shadow-md sticky top-0 z-40">
+    <nav className="bg-gradient-to-r from-[#0d9488] via-[#0f766e] to-[#047857] text-white shadow-md sticky top-0 z-40 border-b border-teal-500/20">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 h-13 sm:h-14 flex items-center justify-between">
         {/* Left: GoaTab Logo & Title */}
         <div className="flex items-center gap-2 sm:gap-2.5">

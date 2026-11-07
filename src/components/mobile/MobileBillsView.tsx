@@ -326,9 +326,9 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
                     <span
                       className={`text-xs sm:text-sm font-black block ${
                         isLent
-                          ? 'text-[#5bc5a7]'
+                          ? 'text-[#0d9488]'
                           : statusLabel === 'you borrowed'
-                          ? 'text-[#ff652f]'
+                          ? 'text-[#e05320]'
                           : 'text-slate-400'
                       }`}
                     >

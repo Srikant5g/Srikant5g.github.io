@@ -38,11 +38,11 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
           }}
           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition text-left ${
             activeView === 'dashboard' && selectedFriendId === null
-              ? 'bg-[#5bc5a7]/15 text-[#3ea78b] font-bold border-l-4 border-[#5bc5a7]'
+              ? 'bg-[#0d9488]/15 text-[#0f766e] font-bold border-l-4 border-[#0d9488]'
               : 'hover:bg-slate-200/70 text-slate-700'
           }`}
         >
-          <LayoutDashboard className="w-4 h-4 text-[#5bc5a7]" />
+          <LayoutDashboard className="w-4 h-4 text-[#0d9488]" />
           <span>Dashboard</span>
         </button>
 
@@ -53,11 +53,11 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
           }}
           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition text-left ${
             activeView === 'recent'
-              ? 'bg-[#5bc5a7]/15 text-[#3ea78b] font-bold border-l-4 border-[#5bc5a7]'
+              ? 'bg-[#0d9488]/15 text-[#0f766e] font-bold border-l-4 border-[#0d9488]'
               : 'hover:bg-slate-200/70 text-slate-700'
           }`}
         >
-          <Activity className="w-4 h-4 text-[#ff652f]" />
+          <Activity className="w-4 h-4 text-[#e05320]" />
           <span>Recent Activity</span>
         </button>
 
@@ -68,7 +68,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
           }}
           className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition text-left ${
             activeView === 'all' && selectedFriendId === null
-              ? 'bg-[#5bc5a7]/15 text-[#3ea78b] font-bold border-l-4 border-[#5bc5a7]'
+              ? 'bg-[#0d9488]/15 text-[#0f766e] font-bold border-l-4 border-[#0d9488]'
               : 'hover:bg-slate-200/70 text-slate-700'
           }`}
         >
@@ -102,7 +102,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
           <span>Friends ({members.length})</span>
           <button
             onClick={onOpenMembers}
-            className="text-[#5bc5a7] hover:underline font-bold text-xs"
+            className="text-[#0d9488] hover:underline font-bold text-xs"
             title="Configure UPI IDs"
           >
             UPI IDs
@@ -123,7 +123,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
                 }
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition text-left text-xs ${
                   isSelected
-                    ? 'bg-[#5bc5a7]/15 text-[#2d8b72] font-bold border-l-4 border-[#5bc5a7]'
+                    ? 'bg-[#0d9488]/15 text-[#0f766e] font-bold border-l-4 border-[#0d9488]'
                     : 'hover:bg-slate-200/60 text-slate-700'
                 }`}
               >
@@ -140,12 +140,12 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
 
                 <div className="shrink-0 pl-1 text-[11px] font-semibold text-right">
                   {net > 0.01 && (
-                    <span className="text-[#5bc5a7]">
+                    <span className="text-[#0d9488]">
                       +{formatCurrency(net)}
                     </span>
                   )}
                   {net < -0.01 && (
-                    <span className="text-[#ff652f]">
+                    <span className="text-[#e05320]">
                       -{formatCurrency(Math.abs(net))}
                     </span>
                   )}

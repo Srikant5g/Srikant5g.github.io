@@ -96,7 +96,7 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
                             isDone
                               ? 'line-through text-slate-400'
                               : isYouPaying
-                              ? 'text-[#ff652f]'
+                              ? 'text-[#e05320]'
                               : 'text-slate-800'
                           }`}
                         >
@@ -112,7 +112,7 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
                             isDone
                               ? 'line-through text-slate-400'
                               : isYouReceiving
-                              ? 'text-[#5bc5a7]'
+                              ? 'text-[#0d9488]'
                               : 'text-slate-800'
                           }`}
                         >

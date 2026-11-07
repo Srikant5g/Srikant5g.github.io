@@ -67,7 +67,7 @@ export const SAMPLE_GOA_EXPENSES: Expense[] = [
   },
   {
     id: 'e4',
-    title: 'Highway Dhabha Lunch',
+    title: 'Highway Dhaba Lunch',
     amount: 3850,
     date: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0],
     paidById: 'm3', // Raghavendra G paid

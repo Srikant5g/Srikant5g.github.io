@@ -331,7 +331,7 @@ export const SettleUpModal: React.FC<SettleUpModalProps> = ({
                         href={depositUpiUrl}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-[10px] font-bold text-[#5bc5a7] hover:underline"
+                        className="inline-flex items-center gap-1 text-[10px] font-bold text-[#0d9488] hover:underline"
                       >
                         <QrCode className="w-3 h-3" />
                         Pay via UPI

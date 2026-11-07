@@ -156,9 +156,9 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
           <span
             className={`text-base sm:text-2xl font-black mt-1 block truncate ${
               netBalance > 0.01
-                ? 'text-[#5bc5a7]'
+                ? 'text-[#0d9488]'
                 : netBalance < -0.01
-                ? 'text-[#ff652f]'
+                ? 'text-[#e05320]'
                 : 'text-slate-500'
             }`}
           >
@@ -172,7 +172,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 block">
             you owe
           </span>
-          <span className="text-base sm:text-2xl font-black text-[#ff652f] mt-1 block truncate">
+          <span className="text-base sm:text-2xl font-black text-[#e05320] mt-1 block truncate">
             {formatCurrency(youOweTotal)}
           </span>
         </div>
@@ -182,7 +182,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 block">
             you are owed
           </span>
-          <span className="text-base sm:text-2xl font-black text-[#5bc5a7] mt-1 block truncate">
+          <span className="text-base sm:text-2xl font-black text-[#0d9488] mt-1 block truncate">
             {formatCurrency(youAreOwedTotal)}
           </span>
         </div>
@@ -195,14 +195,14 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             onClick={() => setTab('expenses')}
             className={`py-3.5 border-b-2 transition flex items-center gap-1.5 ${
               tab === 'expenses'
-                ? 'border-[#5bc5a7] text-[#5bc5a7]'
+                ? 'border-[#0d9488] text-[#0d9488]'
                 : 'border-transparent hover:text-slate-700'
             }`}
           >
             <span>All Expenses</span>
             <span
               className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                tab === 'expenses' ? 'bg-[#5bc5a7]/15 text-[#216d59]' : 'bg-slate-100 text-slate-600'
+                tab === 'expenses' ? 'bg-[#0d9488]/15 text-[#0f766e]' : 'bg-slate-100 text-slate-600'
               }`}
             >
               {filtered.length}
@@ -213,14 +213,14 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             onClick={() => setTab('debts')}
             className={`py-3.5 border-b-2 transition flex items-center gap-1.5 ${
               tab === 'debts'
-                ? 'border-[#5bc5a7] text-[#5bc5a7]'
+                ? 'border-[#0d9488] text-[#0d9488]'
                 : 'border-transparent hover:text-slate-700'
             }`}
           >
             <span>Who Owes Who</span>
             <span
               className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
-                tab === 'debts' ? 'bg-[#5bc5a7]/15 text-[#216d59]' : 'bg-slate-100 text-slate-600'
+                tab === 'debts' ? 'bg-[#0d9488]/15 text-[#0f766e]' : 'bg-slate-100 text-slate-600'
               }`}
             >
               {settlements.length}
@@ -231,7 +231,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             onClick={() => setTab('breakdown')}
             className={`py-3.5 border-b-2 transition flex items-center gap-1.5 ${
               tab === 'breakdown'
-                ? 'border-[#5bc5a7] text-[#5bc5a7]'
+                ? 'border-[#0d9488] text-[#0d9488]'
                 : 'border-transparent hover:text-slate-700'
             }`}
           >
@@ -421,9 +421,9 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                         <span
                           className={`text-xs sm:text-base font-black block ${
                             isLent
-                              ? 'text-[#5bc5a7]'
+                              ? 'text-[#0d9488]'
                               : statusLabel === 'you borrowed'
-                              ? 'text-[#ff652f]'
+                              ? 'text-[#e05320]'
                               : 'text-slate-400'
                           }`}
                         >
@@ -502,13 +502,13 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                         {idx + 1}
                       </div>
                       <div className="flex items-center gap-2 text-xs sm:text-sm flex-wrap font-medium">
-                        <strong className={isYouPaying ? 'text-[#ff652f]' : 'text-slate-900'}>
+                        <strong className={isYouPaying ? 'text-[#e05320]' : 'text-slate-900'}>
                           {tx.fromName} {isYouPaying && '(You)'}
                         </strong>
                         <span className="text-slate-400 flex items-center gap-1 text-xs">
                           owes <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
                         </span>
-                        <strong className={isYouReceiving ? 'text-[#5bc5a7]' : 'text-slate-900'}>
+                        <strong className={isYouReceiving ? 'text-[#0d9488]' : 'text-slate-900'}>
                           {tx.toName} {isYouReceiving && '(You)'}
                         </strong>
                       </div>
