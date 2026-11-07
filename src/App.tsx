@@ -53,6 +53,7 @@ export function App() {
 
   const handleSelectUser = (userId: string) => {
     setCurrentUserId(userId);
+    setSelectedFriendId((prev) => (prev === userId ? null : prev));
     try {
       localStorage.setItem('triptally_current_user_id', userId);
     } catch {

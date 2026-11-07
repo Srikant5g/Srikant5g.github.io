@@ -146,11 +146,18 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         sumCustom += val;
       }
 
-      if (Math.abs(sumCustom - totalAmount) > 0.5) {
+      if (Math.abs(sumCustom - totalAmount) > 0.05) {
         setError(
           `Custom splits sum to ${formatCurrency(sumCustom)}, but total bill is ${formatCurrency(totalAmount)}`
         );
         return;
+      }
+
+      // Absorb any sub-5 paise rounding difference to the last member
+      const diff = Number((totalAmount - sumCustom).toFixed(2));
+      if (diff !== 0 && splitMemberIds.length > 0) {
+        const lastId = splitMemberIds[splitMemberIds.length - 1];
+        parsedCustomSplits[lastId] = Number(((parsedCustomSplits[lastId] || 0) + diff).toFixed(2));
       }
     }
 

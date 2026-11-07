@@ -30,7 +30,7 @@ export const UserSelectModal: React.FC<UserSelectModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white border border-[#E4EAF0] rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden my-auto flex flex-col text-[#192B3D] animate-in zoom-in-95 duration-150"
+        className="bg-white border border-[#E4EAF0] rounded-3xl w-full max-w-sm max-h-[88vh] shadow-2xl overflow-hidden my-auto flex flex-col text-[#192B3D] animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

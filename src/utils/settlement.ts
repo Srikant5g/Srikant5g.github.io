@@ -34,12 +34,17 @@ export function calculateBalances(members: Member[], expenses: Expense[]): Membe
           }
         });
       } else {
-        // Equal split
-        const sharePerPerson = expense.amount / expense.splitMemberIds.length;
-        expense.splitMemberIds.forEach((mId) => {
+        // Equal split with exact penny allocation (paise) to guarantee zero rounding drift
+        const count = expense.splitMemberIds.length;
+        const totalPaise = Math.round(expense.amount * 100);
+        const baseSharePaise = Math.floor(totalPaise / count);
+        const remainderPaise = totalPaise % count;
+
+        expense.splitMemberIds.forEach((mId, idx) => {
           const participant = memberMap.get(mId);
           if (participant) {
-            participant.totalShare += sharePerPerson;
+            const personPaise = baseSharePaise + (idx < remainderPaise ? 1 : 0);
+            participant.totalShare += personPaise / 100;
           }
         });
       }
@@ -121,6 +126,15 @@ export function calculateSettlements(
     }
     if (debtor.amount <= 0.01) {
       dIdx++;
+    }
+  }
+
+  // Absorb any microscopic residual penny difference into the last transaction
+  if (transactions.length > 0) {
+    const lastTx = transactions[transactions.length - 1];
+    if (cIdx < creditors.length && creditors[cIdx].amount > 0 && creditors[cIdx].amount <= 0.05) {
+      lastTx.amount = Number((lastTx.amount + creditors[cIdx].amount).toFixed(2));
+      creditors[cIdx].amount = 0;
     }
   }
 
