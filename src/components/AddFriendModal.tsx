@@ -175,3 +175,4 @@ export const AddFriendModal: React.FC<AddFriendModalProps> = ({
     </div>
   );
 };
+

@@ -36,7 +36,7 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   onOpenAddExpense,
   onEditExpense,
   onDeleteExpense,
-  tripName = 'Road Trip 2026',
+  tripName = 'Goa',
   groups,
   activeGroupId,
   onSelectGroup,

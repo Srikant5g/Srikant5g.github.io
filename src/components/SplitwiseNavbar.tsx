@@ -25,7 +25,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   onOpenShare,
   onResetData,
   onOpenUserSelect,
-  tripName = 'Road Trip 2026',
+  tripName = 'Goa',
   groups,
   activeGroupId,
   onSelectGroup,

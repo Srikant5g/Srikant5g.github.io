@@ -27,7 +27,12 @@ export function loadGroups(): Group[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        // Ensure default group or 'Road Trip 2026' is updated to 'Goa'
+        return parsed.map((g) =>
+          g.id === DEFAULT_GROUP_ID || g.name === 'Road Trip 2026'
+            ? { ...g, name: 'Goa', location: g.location?.replace('Road Trip (By Car) 🚗💨', 'Goa 🏖️') || 'Goa 🏖️' }
+            : g
+        );
       }
     }
   } catch (e) {
@@ -71,8 +76,8 @@ export function loadTripSettings(): TripSettings {
     return {
       ...DEFAULT_TRIP_SETTINGS,
       ...parsed,
-      tripName: (parsed.tripName || DEFAULT_TRIP_SETTINGS.tripName).replace(/Goa\s*/gi, '').trim() || 'Road Trip 2026',
-      location: (parsed.location || DEFAULT_TRIP_SETTINGS.location).replace(/Goa\s*/gi, '').trim() || 'Road Trip (By Car) 🚗💨',
+      tripName: parsed.tripName === 'Road Trip 2026' ? 'Goa' : (parsed.tripName || 'Goa'),
+      location: parsed.location === 'Road Trip (By Car) 🚗💨' ? 'Goa 🏖️' : (parsed.location || 'Goa 🏖️'),
     };
   } catch {
     return DEFAULT_TRIP_SETTINGS;

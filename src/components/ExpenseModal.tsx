@@ -35,7 +35,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   editingExpense,
   onDeleteExpense,
   currentUserId,
-  tripName = 'Road Trip 2026',
+  tripName = 'Goa',
 }) => {
   const [title, setTitle] = useState('');
   const [amountStr, setAmountStr] = useState('');

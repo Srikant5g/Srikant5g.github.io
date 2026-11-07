@@ -14,7 +14,7 @@ export interface SummaryParams {
  * Generate a clean, beautifully formatted WhatsApp road trip summary with emoji styling
  */
 export function generateWhatsAppTripSummary({
-  tripName = 'Road Trip 2026',
+  tripName = 'Goa',
   expenses,
   members,
   settlements,
