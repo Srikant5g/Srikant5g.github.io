@@ -21,17 +21,17 @@ export const MobileSettleView: React.FC<MobileSettleViewProps> = ({
 
   return (
     <div className="space-y-3.5 pb-32">
-      {/* Top Banner */}
-      <div className="bg-[#145B4A] rounded-3xl p-4 sm:p-5 text-white shadow-xs">
+      {/* Top Banner (Clean White Fintech Style) */}
+      <div className="bg-white border border-[#E4EAF0] rounded-3xl p-4 sm:p-5 text-[#192B3D] shadow-xs">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-[#78C5A7]/20 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-[#78C5A7]" />
+          <div className="w-7 h-7 rounded-xl bg-[#78C5A7]/20 flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-[#145B4A]" />
           </div>
-          <h2 className="text-base font-black text-white m-0">
+          <h2 className="text-base font-black text-[#192B3D] m-0">
             Simplified Debt Settlements
           </h2>
         </div>
-        <p className="text-xs text-[#78C5A7] mt-1.5 leading-relaxed">
+        <p className="text-xs text-[#718096] mt-1 leading-relaxed">
           The smart settlement algorithm minimized group transfers to just {settlements.length} payments.
         </p>
       </div>

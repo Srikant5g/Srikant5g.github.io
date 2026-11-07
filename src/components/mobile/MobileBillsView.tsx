@@ -99,45 +99,50 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
 
   return (
     <div className="space-y-4 pb-32">
-      {/* 1. TripTally Mobile Hero Balance Card (Inspired by Modern Fintech) */}
-      <div className="bg-[#145B4A] rounded-2xl p-5 text-white shadow-sm relative overflow-hidden border border-[#0f4639]">
-        {/* Subtle background glow */}
-        <div className="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-[#78C5A7]/10 pointer-events-none blur-2xl" />
-
+      {/* 1. TripTally Mobile Hero Balance Card (Airbnb / Wise Clean White Fintech Style) */}
+      <div className="bg-white rounded-3xl p-5 text-[#192B3D] shadow-xs border border-[#E4EAF0] space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-[#78C5A7] text-[#145B4A] text-xs font-black flex items-center justify-center">
+            <div className="w-7 h-7 rounded-full bg-[#145B4A] text-[#78C5A7] text-xs font-black flex items-center justify-center shadow-2xs">
               {currentUser ? currentUser.name.charAt(0) : '?'}
             </div>
-            <span className="text-xs font-semibold text-emerald-100">
+            <span className="text-xs font-bold text-[#192B3D]">
               {currentUser ? `${currentUser.name}’s Balance` : 'Select Profile'}
             </span>
           </div>
 
-          <span className="text-[10px] font-bold uppercase tracking-wider bg-white/10 px-2.5 py-0.5 rounded-full text-white/90 border border-white/10">
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-[#F7F8F5] px-2.5 py-0.5 rounded-full text-[#718096] border border-[#E4EAF0]">
             {tripName}
           </span>
         </div>
 
         {/* Large Net Balance Number */}
-        <div className="mt-3.5">
-          <span className="text-[11px] font-medium text-emerald-200 uppercase tracking-wider block">
+        <div>
+          <span className="text-[11px] font-bold text-[#718096] uppercase tracking-wider block">
             Net Balance
           </span>
           <div className="flex items-baseline gap-2 mt-0.5">
             <span
-              className={`text-3xl font-black tracking-tight ${
+              className={`text-3xl sm:text-4xl font-black tracking-tight ${
                 netBalance > 0.01
-                  ? 'text-[#78C5A7]'
+                  ? 'text-[#145B4A]'
                   : netBalance < -0.01
                   ? 'text-[#FF784F]'
-                  : 'text-white'
+                  : 'text-[#192B3D]'
               }`}
             >
               {netBalance > 0.01 && '+'}
               {formatCurrency(netBalance)}
             </span>
-            <span className="text-xs font-semibold text-emerald-100/90">
+            <span
+              className={`text-xs font-bold ${
+                netBalance > 0.01
+                  ? 'text-[#145B4A]'
+                  : netBalance < -0.01
+                  ? 'text-[#FF784F]'
+                  : 'text-[#718096]'
+              }`}
+            >
               {netBalance > 0.01
                 ? 'you are owed'
                 : netBalance < -0.01
@@ -147,40 +152,44 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
           </div>
         </div>
 
-        {/* Breakdown Row: Total Lent / Total Borrowed / Trip Total */}
-        <div className="mt-4 pt-3.5 border-t border-white/15 grid grid-cols-2 gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-[#78C5A7]/20 flex items-center justify-center text-[#78C5A7]">
+        {/* Breakdown Row: Total Lent & Total Borrowed Badges */}
+        <div className="pt-3.5 border-t border-[#E4EAF0] grid grid-cols-2 gap-2.5 text-xs">
+          <div className="bg-[#78C5A7]/10 border border-[#78C5A7]/30 rounded-2xl p-2.5 flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-xl bg-[#145B4A] text-white flex items-center justify-center shrink-0">
               <ArrowDownLeft className="w-3.5 h-3.5" />
             </div>
-            <div>
-              <span className="text-[10px] text-emerald-200 block">Total Lent</span>
-              <strong className="font-bold text-white text-xs">{formatCurrency(youAreOwedTotal)}</strong>
+            <div className="min-w-0">
+              <span className="text-[10px] text-[#718096] font-semibold block truncate">Total Lent</span>
+              <strong className="font-black text-[#145B4A] text-xs sm:text-sm block truncate">
+                {formatCurrency(youAreOwedTotal)}
+              </strong>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-[#FF784F]/20 flex items-center justify-center text-[#FF784F]">
+          <div className="bg-[#FF784F]/10 border border-[#FF784F]/30 rounded-2xl p-2.5 flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-xl bg-[#FF784F] text-white flex items-center justify-center shrink-0">
               <ArrowUpRight className="w-3.5 h-3.5" />
             </div>
-            <div>
-              <span className="text-[10px] text-emerald-200 block">Total Borrowed</span>
-              <strong className="font-bold text-white text-xs">{formatCurrency(youOweTotal)}</strong>
+            <div className="min-w-0">
+              <span className="text-[10px] text-[#718096] font-semibold block truncate">Total Borrowed</span>
+              <strong className="font-black text-[#FF784F] text-xs sm:text-sm block truncate">
+                {formatCurrency(youOweTotal)}
+              </strong>
             </div>
           </div>
         </div>
 
         {/* Quick Footer: Trip Total Spend & Prominent Add Action */}
-        <div className="mt-3.5 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
-          <span className="text-emerald-100 text-[11px]">
-            Trip Spend: <strong className="text-white">{formatCurrency(totalSpend)}</strong> ({expenses.length} bills)
+        <div className="pt-3 border-t border-[#E4EAF0] flex items-center justify-between text-xs">
+          <span className="text-[#718096] text-[11px]">
+            Trip Spend: <strong className="text-[#192B3D] font-bold">{formatCurrency(totalSpend)}</strong> ({expenses.length} bills)
           </span>
 
           <button
             onClick={onOpenAddExpense}
-            className="px-3 py-1.5 rounded-xl bg-white text-[#145B4A] font-bold text-xs flex items-center gap-1 shadow-sm active:scale-95 transition"
+            className="px-3.5 py-1.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4639] text-white font-bold text-xs flex items-center gap-1.5 shadow-xs active:scale-95 transition"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[3] text-[#145B4A]" />
+            <Plus className="w-3.5 h-3.5 stroke-[3] text-white" />
             <span>Add Expense</span>
           </button>
         </div>
