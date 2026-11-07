@@ -98,8 +98,9 @@ export function App() {
   // PIN Protection State (0852)
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [pendingPinAction, setPendingPinAction] = useState<{
-    type: 'delete_expense' | 'reset_all';
+    type: 'delete_expense' | 'reset_all' | 'delete_group';
     expenseId?: string;
+    groupId?: string;
     actionTitle: string;
     actionDescription: string;
   } | null>(null);
@@ -434,6 +435,22 @@ export function App() {
     setIsPinModalOpen(true);
   };
 
+  // PIN-Protected Group Deletion (PIN: 0852)
+  const handleDeleteGroup = (groupId: string) => {
+    const targetGroup = groups.find((g) => g.id === groupId);
+    const groupName = targetGroup ? `"${targetGroup.name}"` : 'this group';
+    const isOnlyGroup = groups.length <= 1;
+    setPendingPinAction({
+      type: 'delete_group',
+      groupId,
+      actionTitle: `Delete Group ${groupName}`,
+      actionDescription: isOnlyGroup
+        ? `Enter Security PIN (0852) to reset and clear ${groupName} and all its bills.`
+        : `Enter Security PIN (0852) to permanently delete ${groupName} and all its bills.`,
+    });
+    setIsPinModalOpen(true);
+  };
+
   // When PIN (0852) is correctly entered
   const handlePinSuccess = () => {
     if (!pendingPinAction) return;
@@ -449,6 +466,38 @@ export function App() {
       setSelectedFriendId(null);
       saveExpenses(updated);
       syncToCloud(updated, members, true);
+    } else if (pendingPinAction.type === 'delete_group' && pendingPinAction.groupId) {
+      const gId = pendingPinAction.groupId;
+      const remainingGroups = groups.filter((g) => g.id !== gId);
+      const finalGroups =
+        remainingGroups.length > 0
+          ? remainingGroups
+          : [
+              {
+                id: `grp_${Date.now()}`,
+                name: 'Goa',
+                location: 'Goa 🏖️',
+                currency: '₹',
+                memberIds: members.map((m) => m.id),
+                createdAt: Date.now(),
+              },
+            ];
+      setGroups(finalGroups);
+      saveGroups(finalGroups);
+
+      // If active group was deleted, switch to the first remaining group
+      if (activeGroupId === gId) {
+        const nextActiveId = finalGroups[0].id;
+        setActiveGroupId(nextActiveId);
+        saveActiveGroupId(nextActiveId);
+      }
+
+      // Delete all expenses belonging to this group
+      const updatedExpenses = expenses.filter((e) => (e.groupId || DEFAULT_GROUP_ID) !== gId);
+      setExpenses(updatedExpenses);
+      saveExpenses(updatedExpenses);
+      setSelectedFriendId(null);
+      syncToCloud(updatedExpenses, members, true);
     }
 
     setPendingPinAction(null);
@@ -536,6 +585,7 @@ export function App() {
         activeGroupId={activeGroup.id}
         onSelectGroup={handleSelectGroup}
         onOpenAddGroup={() => setIsAddGroupModalOpen(true)}
+        onDeleteGroup={handleDeleteGroup}
       />
 
       {/* Main Layout (Desktop 3-Column / Mobile Native Tabs) */}
@@ -546,6 +596,7 @@ export function App() {
           activeGroupId={activeGroup.id}
           onSelectGroup={handleSelectGroup}
           onOpenAddGroup={() => setIsAddGroupModalOpen(true)}
+          onDeleteGroup={handleDeleteGroup}
           members={currentGroupMembers}
           balances={balances}
           currentUserId={currentUserId}
@@ -582,6 +633,7 @@ export function App() {
               activeGroupId={activeGroup.id}
               onSelectGroup={handleSelectGroup}
               onOpenAddGroup={() => setIsAddGroupModalOpen(true)}
+              onDeleteGroup={handleDeleteGroup}
             />
           )}
 

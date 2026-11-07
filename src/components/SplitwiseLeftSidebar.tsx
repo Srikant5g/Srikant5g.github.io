@@ -1,13 +1,14 @@
 import React from 'react';
 import type { Member, MemberBalance, Group } from '../types';
 import { formatCurrency } from '../utils/settlement';
-import { LayoutDashboard, Receipt, Activity, Tag, Plus, UserPlus, Edit2 } from 'lucide-react';
+import { LayoutDashboard, Receipt, Activity, Tag, Plus, UserPlus, Edit2, Trash2 } from 'lucide-react';
 
 interface SplitwiseLeftSidebarProps {
   groups: Group[];
   activeGroupId: string;
   onSelectGroup: (groupId: string) => void;
   onOpenAddGroup: () => void;
+  onDeleteGroup?: (groupId: string) => void;
   members: Member[];
   balances: MemberBalance[];
   currentUserId: string | null;
@@ -25,6 +26,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
   activeGroupId,
   onSelectGroup,
   onOpenAddGroup,
+  onDeleteGroup,
   members,
   balances,
   currentUserId,
@@ -107,27 +109,50 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
           {groups.map((group) => {
             const isActive = group.id === activeGroupId;
             return (
-              <button
+              <div
                 key={group.id}
-                onClick={() => {
-                  onSelectFriend(null);
-                  onSelectGroup(group.id);
-                  onChangeView('dashboard');
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition text-left text-xs ${
+                className={`group/grp relative w-full flex items-center justify-between px-3 py-2 rounded-xl transition text-left text-xs ${
                   isActive
                     ? 'bg-[#145B4A] text-white font-bold shadow-xs'
                     : 'bg-white border border-[#E4EAF0] text-[#192B3D] hover:border-[#78C5A7]'
                 }`}
               >
-                <div className="flex items-center gap-2 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelectFriend(null);
+                    onSelectGroup(group.id);
+                    onChangeView('dashboard');
+                  }}
+                  className="flex items-center gap-2 min-w-0 flex-1 text-left"
+                >
                   <Tag className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#78C5A7]' : 'text-[#145B4A]'}`} />
                   <span className="truncate">{group.name}</span>
+                </button>
+
+                <div className="flex items-center gap-1 shrink-0 pl-1">
+                  {isActive && (
+                    <span className="w-2 h-2 rounded-full bg-[#78C5A7] shrink-0" />
+                  )}
+                  {onDeleteGroup && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteGroup(group.id);
+                      }}
+                      className={`p-1 rounded-md transition opacity-40 group-hover/grp:opacity-100 ${
+                        isActive
+                          ? 'text-white/80 hover:text-rose-200 hover:bg-white/10'
+                          : 'text-[#718096] hover:text-rose-600 hover:bg-rose-50'
+                      }`}
+                      title={`Delete group "${group.name}" (Requires PIN)`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
-                {isActive && (
-                  <span className="w-2 h-2 rounded-full bg-[#78C5A7] shrink-0" />
-                )}
-              </button>
+              </div>
             );
           })}
         </div>

@@ -27,6 +27,7 @@ interface MobileBillsViewProps {
   activeGroupId?: string;
   onSelectGroup?: (id: string) => void;
   onOpenAddGroup?: () => void;
+  onDeleteGroup?: (groupId: string) => void;
 }
 
 export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
@@ -43,6 +44,7 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   activeGroupId,
   onSelectGroup,
   onOpenAddGroup,
+  onDeleteGroup,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -204,22 +206,45 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
                     </div>
                     <div className="space-y-1 max-h-48 overflow-y-auto">
                       {groups.map((g) => (
-                        <button
+                        <div
                           key={g.id}
-                          type="button"
-                          onClick={() => {
-                            onSelectGroup?.(g.id);
-                            setIsGroupMenuOpen(false);
-                          }}
                           className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-left transition ${
                             g.id === activeGroupId
                               ? 'bg-[#145B4A] text-white'
                               : 'hover:bg-[#F7F8F5] text-[#192B3D]'
                           }`}
                         >
-                          <span className="truncate">{g.name}</span>
-                          {g.id === activeGroupId && <span className="w-2 h-2 rounded-full bg-[#78C5A7]" />}
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onSelectGroup?.(g.id);
+                              setIsGroupMenuOpen(false);
+                            }}
+                            className="flex-1 text-left flex items-center gap-2 truncate"
+                          >
+                            <span className="truncate">{g.name}</span>
+                            {g.id === activeGroupId && <span className="w-2 h-2 rounded-full bg-[#78C5A7] shrink-0" />}
+                          </button>
+
+                          {onDeleteGroup && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setIsGroupMenuOpen(false);
+                                onDeleteGroup(g.id);
+                              }}
+                              className={`p-1 rounded-md transition ${
+                                g.id === activeGroupId
+                                  ? 'text-white/80 hover:text-rose-200 hover:bg-white/10'
+                                  : 'text-[#718096] hover:text-rose-600 hover:bg-rose-50'
+                              }`}
+                              title={`Delete group "${g.name}" (Requires PIN)`}
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                     {onOpenAddGroup && (

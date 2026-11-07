@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Member, Group } from '../types';
-import { Users, Share2, RotateCcw, ChevronDown, Tag, Plus } from 'lucide-react';
+import { Users, Share2, RotateCcw, ChevronDown, Tag, Plus, Trash2 } from 'lucide-react';
 
 interface SplitwiseNavbarProps {
   members: Member[];
@@ -16,6 +16,7 @@ interface SplitwiseNavbarProps {
   activeGroupId?: string;
   onSelectGroup?: (id: string) => void;
   onOpenAddGroup?: () => void;
+  onDeleteGroup?: (groupId: string) => void;
 }
 
 export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
@@ -30,6 +31,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   activeGroupId,
   onSelectGroup,
   onOpenAddGroup,
+  onDeleteGroup,
 }) => {
   const [isGroupMenuOpen, setIsGroupMenuOpen] = useState(false);
   const currentUser = members.find((m) => m.id === currentUserId);
@@ -78,22 +80,45 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
                       </div>
                       <div className="space-y-0.5 max-h-48 overflow-y-auto">
                         {groups.map((g) => (
-                          <button
+                          <div
                             key={g.id}
-                            type="button"
-                            onClick={() => {
-                              onSelectGroup?.(g.id);
-                              setIsGroupMenuOpen(false);
-                            }}
-                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold text-left transition ${
+                            className={`group/navgrp w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold text-left transition ${
                               g.id === activeGroupId
                                 ? 'bg-[#145B4A] text-white font-bold'
                                 : 'hover:bg-[#F7F8F5] text-[#192B3D]'
                             }`}
                           >
-                            <span className="truncate">{g.name}</span>
-                            {g.id === activeGroupId && <span className="w-1.5 h-1.5 rounded-full bg-[#78C5A7]" />}
-                          </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                onSelectGroup?.(g.id);
+                                setIsGroupMenuOpen(false);
+                              }}
+                              className="flex items-center gap-2 truncate flex-1 text-left"
+                            >
+                              <span className="truncate">{g.name}</span>
+                              {g.id === activeGroupId && <span className="w-1.5 h-1.5 rounded-full bg-[#78C5A7] shrink-0" />}
+                            </button>
+
+                            {onDeleteGroup && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setIsGroupMenuOpen(false);
+                                  onDeleteGroup(g.id);
+                                }}
+                                className={`p-1 rounded-md transition opacity-40 hover:opacity-100 ${
+                                  g.id === activeGroupId
+                                    ? 'text-white/80 hover:text-rose-200 hover:bg-white/10'
+                                    : 'text-[#718096] hover:text-rose-600 hover:bg-rose-50'
+                                }`}
+                                title={`Delete group "${g.name}" (Requires PIN)`}
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
                         ))}
                       </div>
                       {onOpenAddGroup && (
