@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Expense, Member, Category, SplitMode } from '../types';
 import { CATEGORY_ICONS } from '../utils/sampleData';
-import { formatCurrency } from '../utils/settlement';
+import { formatCurrency, isAdvanceOrTransfer } from '../utils/settlement';
 import { X, Check, Sparkles, Trash2 } from 'lucide-react';
 
 interface ExpenseModalProps {
@@ -24,7 +24,7 @@ const PRESETS = [
   { label: '🏡 Villa / Hotel', title: 'Private Villa & Hotel Stay', category: 'Stay & Hotel' as Category },
   { label: '🍻 Drinks & Beers', title: 'Alcohol, Beers & Mixers', category: 'Alcohol & Drinks' as Category },
   { label: '🥪 Snacks & Chai', title: 'Evening Snacks & Tea', category: 'Snacks & Chai' as Category },
-  { label: '💰 Advance Fund', title: 'Advance Trip Fund Deposit', category: 'Misc' as Category },
+  { label: '💰 Advance to Friend', title: 'Advance for Hotel / Trip Fund', category: 'Misc' as Category },
 ];
 
 export const ExpenseModal: React.FC<ExpenseModalProps> = ({
@@ -37,6 +37,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   currentUserId,
   tripName = 'Goa',
 }) => {
+  const [entryType, setEntryType] = useState<'EXPENSE' | 'ADVANCE'>('EXPENSE');
+  const [advanceRecipientId, setAdvanceRecipientId] = useState<string>('');
   const [title, setTitle] = useState('');
   const [amountStr, setAmountStr] = useState('');
   const [paidById, setPaidById] = useState(currentUserId || members[0]?.id || '');
@@ -65,6 +67,15 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     }
 
     if (editingExpense) {
+      const isAdv = isAdvanceOrTransfer(editingExpense);
+      setEntryType(isAdv ? 'ADVANCE' : 'EXPENSE');
+      if (isAdv && editingExpense.splitMemberIds && editingExpense.splitMemberIds.length > 0) {
+        setAdvanceRecipientId(editingExpense.splitMemberIds[0]);
+      } else {
+        const other = members.find((m) => m.id !== editingExpense.paidById);
+        setAdvanceRecipientId(other ? other.id : members[0]?.id || '');
+      }
+
       setTitle(editingExpense.title);
       setAmountStr(editingExpense.amount.toString());
       setPaidById(editingExpense.paidById);
@@ -90,6 +101,9 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         setShares(initShares);
       }
     } else {
+      setEntryType('EXPENSE');
+      const other = members.find((m) => m.id !== (currentUserId || members[0]?.id));
+      setAdvanceRecipientId(other ? other.id : (members[1]?.id || members[0]?.id || ''));
       setTitle('');
       setAmountStr('');
       setPaidById(currentUserId || members[0]?.id || '');
@@ -128,7 +142,13 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     setError(null);
   };
 
-  const handleApplyPreset = (preset: { title: string; category: Category }) => {
+  const handleApplyPreset = (preset: { label: string; title: string; category: Category }) => {
+    if (preset.label.includes('Advance')) {
+      setEntryType('ADVANCE');
+      setTitle('Hotel / Trip Advance');
+      setCategory('Misc');
+      return;
+    }
     setTitle(preset.title);
     setCategory(preset.category);
   };
@@ -153,13 +173,46 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title.trim()) {
-      setError('Please enter an expense title');
+    if (isNaN(totalAmount) || totalAmount <= 0) {
+      setError('Please enter a valid amount greater than ₹0');
       return;
     }
 
-    if (isNaN(totalAmount) || totalAmount <= 0) {
-      setError('Please enter a valid amount greater than ₹0');
+    if (entryType === 'ADVANCE') {
+      if (!advanceRecipientId) {
+        setError('Please select who received this advance money');
+        return;
+      }
+      if (advanceRecipientId === paidById) {
+        setError('Sender and recipient cannot be the same person');
+        return;
+      }
+
+      const recipient = members.find((m) => m.id === advanceRecipientId);
+      const payer = members.find((m) => m.id === paidById);
+      const advTitle = title.trim() || `Advance to ${recipient?.name || 'Friend'}`;
+
+      onSave(
+        {
+          title: advTitle,
+          amount: totalAmount,
+          date,
+          paidById,
+          category: 'Misc',
+          splitMode: 'EQUAL',
+          splitMemberIds: [advanceRecipientId],
+          type: 'PAYMENT',
+          notes: notes.trim() || `Advance money sent by ${payer?.name || 'Friend'} to ${recipient?.name || 'Friend'} for trip expenses`,
+        },
+        editingExpense?.id
+      );
+
+      onClose();
+      return;
+    }
+
+    if (!title.trim()) {
+      setError('Please enter an expense title');
       return;
     }
 
@@ -205,6 +258,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
         splitMemberIds,
         customSplits: parsedCustomSplits,
         shares: splitMode === 'SHARES' ? shares : undefined,
+        type: 'EXPENSE',
         notes: notes.trim() || undefined,
       },
       editingExpense?.id
@@ -277,10 +331,55 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
               </div>
             )}
 
+            {/* Mode Selector Tabs: 🛒 Group Expense vs 💸 Advance to Friend */}
+            <div className="grid grid-cols-2 p-1 bg-[#F7F8F5] rounded-2xl border border-[#E4EAF0]">
+              <button
+                type="button"
+                onClick={() => setEntryType('EXPENSE')}
+                className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                  entryType === 'EXPENSE'
+                    ? 'bg-[#145B4A] text-white shadow-xs'
+                    : 'text-[#718096] hover:text-[#192B3D]'
+                }`}
+              >
+                <span>🛒 Group Expense</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEntryType('ADVANCE');
+                  if (!title.trim() || title === 'Car Fuel / Diesel Fill') {
+                    setTitle('Hotel / Trip Advance');
+                  }
+                  setCategory('Misc');
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                  entryType === 'ADVANCE'
+                    ? 'bg-[#145B4A] text-white shadow-xs'
+                    : 'text-[#718096] hover:text-[#192B3D]'
+                }`}
+              >
+                <span>💸 Advance to Friend</span>
+              </button>
+            </div>
+
+            {/* Advance Explainer Note */}
+            {entryType === 'ADVANCE' && (
+              <div className="p-3.5 bg-emerald-50 border border-emerald-200/80 rounded-2xl text-xs space-y-1">
+                <div className="font-bold text-[#145B4A] flex items-center gap-1.5">
+                  <span>💡 Advance / Money Transfer</span>
+                </div>
+                <p className="text-[#145B4A]/90 text-[11px] leading-relaxed">
+                  Money sent to a friend (e.g. paying Raghavendra ₹10,000 so he can book the hotel) balances out what you owe and is <strong>excluded from Total Trip Spend</strong> to prevent double-counting.
+                </p>
+              </div>
+            )}
+
             {/* 1. Large Amount Input (Fintech Inspired) */}
             <div className="bg-[#F7F8F5] border border-[#E4EAF0] rounded-2xl p-4 text-center focus-within:border-[#145B4A] focus-within:ring-2 focus-within:ring-[#145B4A]/10 transition">
               <span className="text-[11px] font-bold text-[#718096] uppercase tracking-wider block">
-                Total Amount (INR)
+                {entryType === 'ADVANCE' ? 'Advance Amount Sent (INR)' : 'Total Amount (INR)'}
               </span>
               <div className="flex items-center justify-center gap-1 mt-1">
                 <span className="text-2xl sm:text-3xl font-black text-[#145B4A]">₹</span>
@@ -299,12 +398,115 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
               </div>
             </div>
 
-            {/* 2. Quick Presets (Horizontal Chips) */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] font-bold text-[#718096] uppercase tracking-wider">
-                  Quick Road Trip Shortcuts
-                </span>
+            {entryType === 'ADVANCE' ? (
+              /* ADVANCE / TRANSFER FLOW */
+              <div className="space-y-4">
+                {/* Purpose / Description */}
+                <div>
+                  <label className="text-[11px] font-bold text-[#718096] uppercase tracking-wider block mb-1">
+                    Advance Purpose / Note *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Hotel advance to Raghavendra, Villa deposit..."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                    className="w-full bg-white border border-[#E4EAF0] rounded-xl px-3.5 py-2.5 text-sm text-[#192B3D] placeholder-[#718096] focus:outline-none focus:border-[#145B4A] focus:ring-1 focus:ring-[#145B4A] transition"
+                  />
+                </div>
+
+                {/* Who Sent the Money */}
+                <div>
+                  <label className="text-[11px] font-bold text-[#718096] uppercase tracking-wider block mb-1.5">
+                    Who Sent / Paid the Money?
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {members.map((m) => {
+                      const isSelected = paidById === m.id;
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => {
+                            setPaidById(m.id);
+                            if (advanceRecipientId === m.id) {
+                              const other = members.find((otherM) => otherM.id !== m.id);
+                              if (other) setAdvanceRecipientId(other.id);
+                            }
+                          }}
+                          className={`flex items-center gap-2 p-2 rounded-xl border text-xs font-semibold transition text-left ${
+                            isSelected
+                              ? 'border-[#145B4A] bg-[#145B4A]/5 text-[#145B4A] ring-1 ring-[#145B4A]'
+                              : 'border-[#E4EAF0] bg-white text-[#718096] hover:bg-slate-50'
+                          }`}
+                        >
+                          <div
+                            className={`w-6 h-6 rounded-full ${m.avatarColor} text-white font-bold text-[10px] flex items-center justify-center shrink-0`}
+                          >
+                            {m.name.charAt(0)}
+                          </div>
+                          <span className="truncate">{m.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Who Received the Money */}
+                <div>
+                  <label className="text-[11px] font-bold text-[#718096] uppercase tracking-wider block mb-1.5">
+                    Who Received the Money? (Booking Person)
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {members
+                      .filter((m) => m.id !== paidById)
+                      .map((m) => {
+                        const isSelected = advanceRecipientId === m.id;
+                        return (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onClick={() => setAdvanceRecipientId(m.id)}
+                            className={`flex items-center gap-2 p-2 rounded-xl border text-xs font-semibold transition text-left ${
+                              isSelected
+                                ? 'border-[#145B4A] bg-[#78C5A7]/20 text-[#145B4A] ring-1 ring-[#145B4A] font-bold'
+                                : 'border-[#E4EAF0] bg-white text-[#718096] hover:bg-slate-50'
+                            }`}
+                          >
+                            <div
+                              className={`w-6 h-6 rounded-full ${m.avatarColor} text-white font-bold text-[10px] flex items-center justify-center shrink-0`}
+                            >
+                              {m.name.charAt(0)}
+                            </div>
+                            <span className="truncate">{m.name}</span>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </div>
+
+                {/* Date Picker */}
+                <div>
+                  <label className="text-[11px] font-bold text-[#718096] uppercase tracking-wider block mb-1">
+                    Date of Transfer
+                  </label>
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full bg-white border border-[#E4EAF0] rounded-xl px-3.5 py-2 text-xs font-semibold text-[#192B3D] focus:outline-none focus:border-[#145B4A]"
+                  />
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* 2. Quick Presets (Horizontal Chips) */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] font-bold text-[#718096] uppercase tracking-wider">
+                      Quick Road Trip Shortcuts
+                    </span>
                 <span className="text-[10px] text-[#718096] flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-[#78C5A7]" /> 1-tap fill
                 </span>
@@ -581,6 +783,8 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                 })}
               </div>
             </div>
+          </>
+        )}
 
             {/* 7. Optional Notes */}
             <div>
@@ -607,7 +811,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                   onClose();
                 }}
                 className="px-3.5 py-2.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-bold text-xs flex items-center gap-1.5 transition active:scale-95"
-                title="Delete this expense"
+                title="Delete this entry"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Delete</span>
@@ -627,7 +831,15 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
               className="flex-1 py-3 px-5 rounded-xl bg-[#145B4A] hover:bg-[#0f4639] text-white font-bold text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 active:scale-95 transition"
             >
               <Check className="w-4 h-4 stroke-[3]" />
-              <span>{editingExpense ? 'Update Expense' : 'Save Expense'}</span>
+              <span>
+                {editingExpense
+                  ? entryType === 'ADVANCE'
+                    ? 'Update Advance Transfer'
+                    : 'Update Expense'
+                  : entryType === 'ADVANCE'
+                  ? 'Save Advance Transfer'
+                  : 'Save Expense'}
+              </span>
             </button>
           </div>
         </form>

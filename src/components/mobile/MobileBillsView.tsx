@@ -6,6 +6,7 @@ import {
   formatGroupDate,
   calculateTotalTripSpend,
   getActualExpenses,
+  isAdvanceOrTransfer,
 } from '../../utils/settlement';
 import { CATEGORY_ICONS } from '../../utils/sampleData';
 import { Search, Plus, Edit3, Trash2, X, ArrowUpRight, ArrowDownLeft, Calendar, ChevronDown, Tag } from 'lucide-react';
@@ -131,7 +132,7 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
     sortedDates.forEach((d) => {
       const items = map.get(d) || [];
       const dayTotal = items
-        .filter((e) => e.type !== 'PAYMENT')
+        .filter((e) => !isAdvanceOrTransfer(e))
         .reduce((sum, e) => sum + e.amount, 0);
 
       groups.push({
@@ -409,18 +410,20 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
               <div className="space-y-2.5">
                 {group.items.map((expense) => {
                   const isPayment = expense.type === 'PAYMENT';
+                  const isAdvance = isAdvanceOrTransfer(expense);
 
-                  // If this is a settlement/payment transfer
-                  if (isPayment) {
+                  // If this is a settlement or advance money transfer
+                  if (isPayment || isAdvance) {
                     const fromMember = memberMap.get(expense.paidById);
-                    const toMember = memberMap.get(expense.splitMemberIds[0]);
+                    const toMember = expense.splitMemberIds?.[0] ? memberMap.get(expense.splitMemberIds[0]) : undefined;
                     const isYouPaying = Boolean(currentUserId && expense.paidById === currentUserId);
-                    const isYouReceiving = Boolean(currentUserId && expense.splitMemberIds[0] === currentUserId);
+                    const isYouReceiving = Boolean(currentUserId && expense.splitMemberIds?.[0] === currentUserId);
 
                     return (
                       <div
                         key={expense.id}
-                        className="bg-white border border-emerald-100 rounded-2xl p-3.5 shadow-2xs space-y-2 bg-gradient-to-r from-emerald-50/40 to-white"
+                        onClick={() => onEditExpense(expense)}
+                        className="bg-white border border-[#78C5A7]/40 rounded-2xl p-3.5 shadow-2xs space-y-2 bg-gradient-to-r from-[#78C5A7]/10 to-white hover:border-[#145B4A] cursor-pointer transition"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2.5 min-w-0">
@@ -432,7 +435,7 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
                                 {expense.title}
                               </span>
                               <span className="text-[11px] text-[#718096] block truncate">
-                                {fromMember?.name} {isYouPaying && '(You)'} ➡️ {toMember?.name} {isYouReceiving && '(You)'}
+                                {isYouPaying ? 'You' : fromMember?.name} ➡️ {isYouReceiving ? 'You' : toMember?.name || 'Friend'}
                               </span>
                             </div>
                           </div>
@@ -441,9 +444,12 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
                             <span className="text-xs font-black text-[#145B4A] block">
                               {formatCurrency(expense.amount)}
                             </span>
-                            <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded-full">
-                              Settlement
-                            </span>
+                            <div className="flex items-center justify-end gap-1 mt-0.5">
+                              <span className="text-[9px] font-bold uppercase tracking-wider text-[#145B4A] bg-[#78C5A7]/25 px-1.5 py-0.5 rounded-full">
+                                {isPayment && !isAdvance ? 'Settlement' : 'Advance'}
+                              </span>
+                            </div>
+                            <span className="text-[9px] text-[#718096] italic block">(not in trip spend)</span>
                           </div>
                         </div>
 

@@ -189,19 +189,52 @@ export function formatCurrency(amount: number, currency = '₹'): string {
 }
 
 /**
- * Total Trip Spend excluding debt settlement / payment transfers
+ * Checks if an expense is a peer-to-peer transfer, settlement, or advance fund deposit
+ * (e.g. paying Raghavendra ₹10,000 so he can book the hotel).
+ * Such transactions adjust balances directly and should NOT be added to Total Trip Spend.
+ */
+export function isAdvanceOrTransfer(expense: Expense): boolean {
+  if (expense.type === 'PAYMENT') return true;
+
+  // Check 1-on-1 transfers with title or notes matching advance / kitty / deposit / transfer
+  if (
+    expense.splitMemberIds &&
+    expense.splitMemberIds.length === 1 &&
+    expense.splitMemberIds[0] !== expense.paidById
+  ) {
+    const lowerTitle = (expense.title || '').toLowerCase().trim();
+    const lowerNotes = (expense.notes || '').toLowerCase().trim();
+    const isAdv =
+      lowerTitle === 'adv' ||
+      lowerTitle.startsWith('adv ') ||
+      lowerTitle.endsWith(' adv') ||
+      lowerTitle.includes('advance') ||
+      lowerTitle.includes('deposit') ||
+      lowerTitle.includes('kitty') ||
+      lowerTitle.includes('fund') ||
+      lowerTitle.includes('transfer') ||
+      lowerNotes.includes('advance') ||
+      lowerNotes.includes('transfer');
+    if (isAdv) return true;
+  }
+
+  return false;
+}
+
+/**
+ * Total Trip Spend excluding debt settlements and advance money transfers between friends
  */
 export function calculateTotalTripSpend(expenses: Expense[]): number {
   return expenses
-    .filter((e) => e.type !== 'PAYMENT')
+    .filter((e) => !isAdvanceOrTransfer(e))
     .reduce((sum, e) => sum + e.amount, 0);
 }
 
 /**
- * Filter out settlement transfers to only get consumption expenses
+ * Filter out settlement transfers and advances to only get actual consumption expenses
  */
 export function getActualExpenses(expenses: Expense[]): Expense[] {
-  return expenses.filter((e) => e.type !== 'PAYMENT');
+  return expenses.filter((e) => !isAdvanceOrTransfer(e));
 }
 
 /**

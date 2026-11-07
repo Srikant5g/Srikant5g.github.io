@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Expense, Member, DebtTransaction, Category } from '../types';
-import { formatCurrency, formatExpenseDate, calculateTotalTripSpend, getActualExpenses } from '../utils/settlement';
+import { formatCurrency, formatExpenseDate, calculateTotalTripSpend, getActualExpenses, isAdvanceOrTransfer } from '../utils/settlement';
 import { CATEGORY_ICONS } from '../utils/sampleData';
 import { UpiPaymentActions } from './UpiPaymentActions';
 import { Plus, Check, ArrowRight, Trash2, Edit3, Search, Sparkles, X, PieChart } from 'lucide-react';
@@ -376,13 +376,33 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                 };
 
                 const { month, day } = formatExpenseDate(expense.date);
+                const isAdvance = isAdvanceOrTransfer(expense);
+                const recipientMember =
+                  expense.splitMemberIds && expense.splitMemberIds.length > 0
+                    ? memberMap.get(expense.splitMemberIds[0])
+                    : null;
+                const isRecipient = Boolean(
+                  currentUserId && expense.splitMemberIds.length === 1 && expense.splitMemberIds[0] === currentUserId
+                );
 
                 // Personal lend / borrow
                 let statusLabel = 'not involved';
                 let statusAmount = 0;
                 let isLent = false;
 
-                if (isPayer) {
+                if (isAdvance) {
+                  if (isPayer) {
+                    isLent = true;
+                    statusLabel = 'you sent';
+                    statusAmount = expense.amount;
+                  } else if (isRecipient) {
+                    statusLabel = 'you received';
+                    statusAmount = expense.amount;
+                  } else {
+                    statusLabel = 'transferred';
+                    statusAmount = expense.amount;
+                  }
+                } else if (isPayer) {
                   isLent = true;
                   statusLabel = 'you lent';
                   statusAmount = expense.amount - userShare;
@@ -410,8 +430,14 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                       </div>
 
                       {/* Category Icon Badge */}
-                      <div className="w-10 h-10 rounded-2xl bg-[#F7F8F5] border border-[#E4EAF0] flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition">
-                        {catMeta.icon}
+                      <div
+                        className={`w-10 h-10 rounded-2xl border flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition ${
+                          isAdvance
+                            ? 'bg-emerald-50 border-emerald-200/80 text-[#145B4A]'
+                            : 'bg-[#F7F8F5] border-[#E4EAF0]'
+                        }`}
+                      >
+                        {isAdvance ? '💸' : catMeta.icon}
                       </div>
 
                       {/* Title & Detail */}
@@ -419,17 +445,30 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                         <h4 className="font-bold text-[#192B3D] text-xs sm:text-sm leading-snug truncate">
                           {expense.title}
                         </h4>
-                        <div className="text-[11px] text-[#718096] mt-0.5 truncate">
-                          <span className="font-semibold text-[#192B3D]">
-                            {isPayer ? 'You' : payer?.name}
-                          </span>{' '}
-                          paid{' '}
-                          <span className="font-bold text-[#192B3D]">
-                            {formatCurrency(expense.amount)}
-                          </span>
-                          {' • '}
-                          <span>Split with {splitCount}</span>
-                        </div>
+                        {isAdvance ? (
+                          <div className="text-[11px] text-[#718096] mt-0.5 truncate flex items-center gap-1.5 flex-wrap">
+                            <span className="font-bold text-[#145B4A] bg-[#78C5A7]/25 border border-[#78C5A7]/40 px-1.5 py-0.5 rounded-md text-[10px]">
+                              Advance / Transfer
+                            </span>
+                            <span>
+                              <span className="font-semibold text-[#192B3D]">{isPayer ? 'You' : payer?.name}</span> sent to{' '}
+                              <span className="font-semibold text-[#192B3D]">{isRecipient ? 'You' : recipientMember?.name || 'Friend'}</span>
+                            </span>
+                            <span className="text-[10px] text-[#718096] italic">(not in trip spend)</span>
+                          </div>
+                        ) : (
+                          <div className="text-[11px] text-[#718096] mt-0.5 truncate">
+                            <span className="font-semibold text-[#192B3D]">
+                              {isPayer ? 'You' : payer?.name}
+                            </span>{' '}
+                            paid{' '}
+                            <span className="font-bold text-[#192B3D]">
+                              {formatCurrency(expense.amount)}
+                            </span>
+                            {' • '}
+                            <span>Split with {splitCount}</span>
+                          </div>
+                        )}
                         {expense.notes && (
                           <p className="text-[11px] text-[#718096]/80 italic mt-0.5 truncate">
                             "{expense.notes}"
@@ -446,9 +485,9 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                         </span>
                         <span
                           className={`text-xs sm:text-base font-black block ${
-                            isLent
+                            isLent || statusLabel === 'you sent'
                               ? 'text-[#145B4A]'
-                              : statusLabel === 'you borrowed'
+                              : statusLabel === 'you borrowed' || statusLabel === 'you received'
                               ? 'text-[#FF784F]'
                               : 'text-[#718096]'
                           }`}
