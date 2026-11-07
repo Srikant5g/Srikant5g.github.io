@@ -1,6 +1,6 @@
-import React from 'react';
-import type { Member } from '../types';
-import { Users, Share2, RotateCcw, ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import type { Member, Group } from '../types';
+import { Users, Share2, RotateCcw, ChevronDown, Tag, Plus } from 'lucide-react';
 
 interface SplitwiseNavbarProps {
   members: Member[];
@@ -12,6 +12,10 @@ interface SplitwiseNavbarProps {
   onLoadSample?: () => void;
   onOpenUserSelect: () => void;
   tripName?: string;
+  groups?: Group[];
+  activeGroupId?: string;
+  onSelectGroup?: (id: string) => void;
+  onOpenAddGroup?: () => void;
 }
 
 export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
@@ -22,7 +26,12 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
   onResetData,
   onOpenUserSelect,
   tripName = 'Road Trip 2026',
+  groups,
+  activeGroupId,
+  onSelectGroup,
+  onOpenAddGroup,
 }) => {
+  const [isGroupMenuOpen, setIsGroupMenuOpen] = useState(false);
   const currentUser = members.find((m) => m.id === currentUserId);
 
   return (
@@ -48,9 +57,67 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
             <span className="hidden lg:inline-block text-[11px] font-medium text-emerald-200/80 truncate">
               Every trip. Every expense. Sorted.
             </span>
-            <span className="hidden md:inline-block text-[10px] font-bold bg-white/10 px-2 py-0.5 rounded-full text-white/90 border border-white/10 truncate">
-              {tripName}
-            </span>
+            {groups && groups.length > 0 ? (
+              <div className="relative hidden md:inline-block">
+                <button
+                  type="button"
+                  onClick={() => setIsGroupMenuOpen(!isGroupMenuOpen)}
+                  className="flex items-center gap-1.5 text-[10px] font-bold bg-white/10 hover:bg-white/20 px-2 py-0.5 rounded-full text-white/90 border border-white/10 transition active:scale-95"
+                  title="Switch trip or create a new group"
+                >
+                  <Tag className="w-2.5 h-2.5 text-[#78C5A7]" />
+                  <span className="truncate max-w-[120px]">{tripName}</span>
+                  <ChevronDown className="w-2.5 h-2.5 text-[#78C5A7]" />
+                </button>
+                {isGroupMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsGroupMenuOpen(false)} />
+                    <div className="absolute left-0 mt-1.5 w-56 bg-white rounded-2xl shadow-xl border border-[#E4EAF0] p-1.5 z-50 text-[#192B3D] animate-in fade-in duration-100">
+                      <div className="px-2.5 py-1 text-[10px] font-bold text-[#718096] uppercase tracking-wider">
+                        Switch Trip / Group
+                      </div>
+                      <div className="space-y-0.5 max-h-48 overflow-y-auto">
+                        {groups.map((g) => (
+                          <button
+                            key={g.id}
+                            type="button"
+                            onClick={() => {
+                              onSelectGroup?.(g.id);
+                              setIsGroupMenuOpen(false);
+                            }}
+                            className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-semibold text-left transition ${
+                              g.id === activeGroupId
+                                ? 'bg-[#145B4A] text-white font-bold'
+                                : 'hover:bg-[#F7F8F5] text-[#192B3D]'
+                            }`}
+                          >
+                            <span className="truncate">{g.name}</span>
+                            {g.id === activeGroupId && <span className="w-1.5 h-1.5 rounded-full bg-[#78C5A7]" />}
+                          </button>
+                        ))}
+                      </div>
+                      {onOpenAddGroup && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsGroupMenuOpen(false);
+                            onOpenAddGroup();
+                          }}
+                          className="w-full mt-1 pt-1.5 border-t border-[#E4EAF0] flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#145B4A] hover:bg-[#78C5A7]/15 transition"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>+ Create New Group</span>
+                        </button>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <span className="hidden md:inline-block text-[10px] font-bold bg-white/10 px-2 py-0.5 rounded-full text-white/90 border border-white/10 truncate">
+                {tripName}
+              </span>
+            )}
           </div>
         </div>
 

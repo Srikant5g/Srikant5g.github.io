@@ -1,4 +1,17 @@
-import type { Member, Expense, TripSettings } from '../types';
+import type { Member, Expense, TripSettings, Group } from '../types';
+
+export const DEFAULT_GROUP_ID = 'group_default';
+
+export const DEFAULT_GROUPS: Group[] = [
+  {
+    id: DEFAULT_GROUP_ID,
+    name: 'Road Trip 2026',
+    location: 'Road Trip (By Car) 🚗💨',
+    currency: '₹',
+    memberIds: ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7'],
+    createdAt: 1730000000000,
+  },
+];
 
 export const DEFAULT_TRIP_SETTINGS: TripSettings = {
   tripName: 'Road Trip 2026',

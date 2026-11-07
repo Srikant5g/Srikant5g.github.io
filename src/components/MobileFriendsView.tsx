@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Member, MemberBalance } from '../types';
 import { formatCurrency } from '../utils/settlement';
 import { copyToClipboard } from '../utils/clipboard';
-import { ArrowDownLeft, ArrowUpRight, CheckCircle2, Copy, Check, QrCode } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, CheckCircle2, Copy, Check, QrCode, UserPlus } from 'lucide-react';
 
 interface MobileFriendsViewProps {
   members: Member[];
@@ -11,6 +11,7 @@ interface MobileFriendsViewProps {
   selectedFriendId: string | null;
   onSelectFriend: (id: string | null) => void;
   onOpenMembers: () => void;
+  onOpenAddFriend?: () => void;
 }
 
 export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
@@ -20,6 +21,7 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
   selectedFriendId,
   onSelectFriend,
   onOpenMembers,
+  onOpenAddFriend,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const balanceMap = new Map<string, number>();
@@ -35,19 +37,31 @@ export const MobileFriendsView: React.FC<MobileFriendsViewProps> = ({
   return (
     <div className="bg-white border border-[#E4EAF0] rounded-3xl p-4 sm:p-5 shadow-xs space-y-4 pb-32 md:pb-4 w-full">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#E4EAF0] pb-3">
-        <div>
+      <div className="flex items-center justify-between border-b border-[#E4EAF0] pb-3 gap-2">
+        <div className="min-w-0">
           <h2 className="text-base font-black text-[#192B3D] m-0">Trip Friends ({members.length})</h2>
-          <p className="text-xs text-[#718096] mt-0.5">Tap any friend to filter shared expenses</p>
+          <p className="text-xs text-[#718096] mt-0.5 truncate">Tap any friend to filter shared expenses</p>
         </div>
-        <button
-          onClick={onOpenMembers}
-          className="px-3.5 py-1.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white text-xs font-bold flex items-center gap-1 shadow-xs transition active:scale-95"
-          title="Configure UPI IDs for 1-click payments"
-        >
-          <QrCode className="w-3.5 h-3.5" />
-          <span>UPI IDs</span>
-        </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {onOpenAddFriend && (
+            <button
+              onClick={onOpenAddFriend}
+              className="px-3 py-1.5 rounded-xl bg-[#78C5A7]/20 hover:bg-[#78C5A7]/30 text-[#145B4A] border border-[#78C5A7]/40 text-xs font-bold flex items-center gap-1 transition active:scale-95"
+              title="Add a new friend"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              <span>+ Friend</span>
+            </button>
+          )}
+          <button
+            onClick={onOpenMembers}
+            className="px-3 py-1.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white text-xs font-bold flex items-center gap-1 shadow-xs transition active:scale-95"
+            title="Configure UPI IDs for 1-click payments"
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            <span>UPI IDs</span>
+          </button>
+        </div>
       </div>
 
       {/* Friends Cards */}

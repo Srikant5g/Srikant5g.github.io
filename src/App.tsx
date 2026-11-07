@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import type { Member, Expense, TripSettings } from './types';
+import type { Member, Expense, TripSettings, Group } from './types';
 import {
   loadMembers,
   saveMembers,
@@ -10,6 +10,10 @@ import {
   getLastUpdatedAt,
   setLastUpdatedAt,
   enforceFixedMembers,
+  loadGroups,
+  saveGroups,
+  loadActiveGroupId,
+  saveActiveGroupId,
 } from './utils/storage';
 import {
   pullFromCloud,
@@ -18,7 +22,12 @@ import {
   subscribeToTabs,
   type SyncStatus,
 } from './utils/cloudSync';
-import { SAMPLE_ROADTRIP_EXPENSES, DEFAULT_MEMBERS } from './utils/sampleData';
+import {
+  SAMPLE_ROADTRIP_EXPENSES,
+  DEFAULT_MEMBERS,
+  DEFAULT_GROUPS,
+  DEFAULT_GROUP_ID,
+} from './utils/sampleData';
 import { calculateBalances, calculateSettlements, formatCurrency, calculateTotalTripSpend } from './utils/settlement';
 import { SplitwiseNavbar } from './components/SplitwiseNavbar';
 import { SplitwiseLeftSidebar } from './components/SplitwiseLeftSidebar';
@@ -35,10 +44,14 @@ import { MemberModal } from './components/MemberModal';
 import { WhatsAppShareModal } from './components/WhatsAppShareModal';
 import { PinModal } from './components/PinModal';
 import { UserSelectModal } from './components/UserSelectModal';
+import { AddGroupModal } from './components/AddGroupModal';
+import { AddFriendModal } from './components/AddFriendModal';
 
 export function App() {
   const [members, setMembers] = useState<Member[]>(() => loadMembers());
   const [expenses, setExpenses] = useState<Expense[]>(() => loadExpenses());
+  const [groups, setGroups] = useState<Group[]>(() => loadGroups());
+  const [activeGroupId, setActiveGroupId] = useState<string>(() => loadActiveGroupId());
   const [settings] = useState<TripSettings>(() => loadTripSettings());
   const [, setSyncStatus] = useState<SyncStatus>('synced');
 
@@ -67,6 +80,8 @@ export function App() {
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isUserSelectModalOpen, setIsUserSelectModalOpen] = useState(true);
+  const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
+  const [isAddFriendModalOpen, setIsAddFriendModalOpen] = useState(false);
 
   // PIN Protection State (0852)
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -239,21 +254,91 @@ export function App() {
     saveTripSettings(settings);
   }, [settings]);
 
+  // Active group derived
+  const activeGroup = useMemo(() => {
+    return groups.find((g) => g.id === activeGroupId) || groups[0] || DEFAULT_GROUPS[0];
+  }, [groups, activeGroupId]);
+
+  // Members belonging to the current active group
+  const currentGroupMembers = useMemo(() => {
+    if (!activeGroup || !activeGroup.memberIds || activeGroup.memberIds.length === 0) {
+      return members;
+    }
+    const filtered = members.filter((m) => activeGroup.memberIds.includes(m.id));
+    return filtered.length > 0 ? filtered : members;
+  }, [activeGroup, members]);
+
+  // Expenses belonging to the current active group
+  const currentGroupExpenses = useMemo(() => {
+    return expenses.filter((e) => (e.groupId || DEFAULT_GROUP_ID) === activeGroup.id);
+  }, [expenses, activeGroup]);
+
   // Derived metrics
   const totalSpend = useMemo(
-    () => calculateTotalTripSpend(expenses),
-    [expenses]
+    () => calculateTotalTripSpend(currentGroupExpenses),
+    [currentGroupExpenses]
   );
 
   const balances = useMemo(
-    () => calculateBalances(members, expenses),
-    [members, expenses]
+    () => calculateBalances(currentGroupMembers, currentGroupExpenses),
+    [currentGroupMembers, currentGroupExpenses]
   );
 
   const settlements = useMemo(
-    () => calculateSettlements(members, balances),
-    [members, balances]
+    () => calculateSettlements(currentGroupMembers, balances),
+    [currentGroupMembers, balances]
   );
+
+  // Group Handlers
+  const handleCreateGroup = (name: string, location?: string, memberIds?: string[]) => {
+    const newGroup: Group = {
+      id: `grp_${Date.now()}`,
+      name: name.trim(),
+      location: location?.trim(),
+      memberIds: memberIds && memberIds.length > 0 ? memberIds : members.map((m) => m.id),
+      createdAt: Date.now(),
+    };
+    const updated = [...groups, newGroup];
+    setGroups(updated);
+    saveGroups(updated);
+    setActiveGroupId(newGroup.id);
+    saveActiveGroupId(newGroup.id);
+    setSelectedFriendId(null);
+  };
+
+  const handleSelectGroup = (groupId: string) => {
+    setActiveGroupId(groupId);
+    saveActiveGroupId(groupId);
+    setSelectedFriendId(null);
+  };
+
+  // Friend Handler
+  const handleAddFriend = (name: string, upiId?: string, avatarColor?: string) => {
+    const newMember: Member = {
+      id: `m_${Date.now()}`,
+      name: name.trim(),
+      upiId: upiId?.trim() || '',
+      avatarColor: avatarColor || '#145B4A',
+    };
+    const updatedMembers = [...members, newMember];
+    setMembers(updatedMembers);
+    saveMembers(updatedMembers);
+
+    const updatedGroups = groups.map((g) => {
+      if (g.id === activeGroup.id) {
+        const mIds = g.memberIds || [];
+        return {
+          ...g,
+          memberIds: mIds.includes(newMember.id) ? mIds : [...mIds, newMember.id],
+        };
+      }
+      return g;
+    });
+    setGroups(updatedGroups);
+    saveGroups(updatedGroups);
+
+    syncToCloud(expenses, updatedMembers);
+  };
 
   // Expense Handlers
   const handleSaveExpense = (
@@ -267,12 +352,14 @@ export function App() {
           ? {
               ...e,
               ...expenseData,
+              groupId: e.groupId || activeGroup.id,
             }
           : e
       );
     } else {
       const newExpense: Expense = {
         ...expenseData,
+        groupId: activeGroup.id,
         type: expenseData.type || 'EXPENSE',
         id: `exp_${Date.now()}`,
         createdAt: Date.now(),
@@ -309,7 +396,7 @@ export function App() {
     setPendingPinAction({
       type: 'reset_all',
       actionTitle: 'Clear All Expenses',
-      actionDescription: `Enter Security PIN to permanently clear all ${expenses.length} bills and sync across devices`,
+      actionDescription: `Enter Security PIN to permanently clear all bills in "${activeGroup.name}" and sync across devices`,
     });
     setIsPinModalOpen(true);
   };
@@ -324,10 +411,11 @@ export function App() {
       saveExpenses(updated);
       syncToCloud(updated, members);
     } else if (pendingPinAction.type === 'reset_all') {
-      setExpenses([]);
+      const updated = expenses.filter((e) => (e.groupId || DEFAULT_GROUP_ID) !== activeGroup.id);
+      setExpenses(updated);
       setSelectedFriendId(null);
-      saveExpenses([]);
-      syncToCloud([], members, true);
+      saveExpenses(updated);
+      syncToCloud(updated, members, true);
     }
 
     setPendingPinAction(null);
@@ -341,6 +429,7 @@ export function App() {
 
     const paymentExpense: Expense = {
       id: `pay_${Date.now()}`,
+      groupId: activeGroup.id,
       type: 'PAYMENT',
       title: isDeposit
         ? `${fromMember?.name || 'Friend'} deposited to ${toMember?.name || 'Friend'}`
@@ -409,13 +498,22 @@ export function App() {
         onResetData={handleResetData}
         onLoadSample={handleLoadSample}
         onOpenUserSelect={() => setIsUserSelectModalOpen(true)}
+        tripName={activeGroup.name}
+        groups={groups}
+        activeGroupId={activeGroup.id}
+        onSelectGroup={handleSelectGroup}
+        onOpenAddGroup={() => setIsAddGroupModalOpen(true)}
       />
 
       {/* Main Layout (Desktop 3-Column / Mobile Native Tabs) */}
       <main className="max-w-[1380px] mx-auto px-3 sm:px-6 py-4 sm:py-6 w-full flex-1 flex flex-col md:flex-row gap-5 lg:gap-6 items-start">
-        {/* Column 1: Left Navigation & 7 Friends List (Desktop only) */}
+        {/* Column 1: Left Navigation & Friends List (Desktop only) */}
         <SplitwiseLeftSidebar
-          members={members}
+          groups={groups}
+          activeGroupId={activeGroup.id}
+          onSelectGroup={handleSelectGroup}
+          onOpenAddGroup={() => setIsAddGroupModalOpen(true)}
+          members={currentGroupMembers}
           balances={balances}
           currentUserId={currentUserId}
           selectedFriendId={selectedFriendId}
@@ -423,14 +521,15 @@ export function App() {
           activeView={activeView}
           onChangeView={setActiveView}
           onOpenMembers={() => setIsMemberModalOpen(true)}
+          onOpenAddFriend={() => setIsAddFriendModalOpen(true)}
         />
 
         {/* Mobile View: Dedicated Screen for each Tab */}
         <div className="w-full md:hidden">
           {mobileTab === 'expenses' && (
             <MobileBillsView
-              expenses={expenses}
-              members={members}
+              expenses={currentGroupExpenses}
+              members={currentGroupMembers}
               currentUserId={currentUserId}
               selectedFriendId={selectedFriendId}
               onClearFriendFilter={() => setSelectedFriendId(null)}
@@ -441,12 +540,17 @@ export function App() {
               onEditExpense={handleEditExpense}
               onDeleteExpense={handleDeleteExpense}
               onLoadSample={handleLoadSample}
+              tripName={activeGroup.name}
+              groups={groups}
+              activeGroupId={activeGroup.id}
+              onSelectGroup={handleSelectGroup}
+              onOpenAddGroup={() => setIsAddGroupModalOpen(true)}
             />
           )}
 
           {mobileTab === 'friends' && (
             <MobileFriendsView
-              members={members}
+              members={currentGroupMembers}
               balances={balances}
               currentUserId={currentUserId}
               selectedFriendId={selectedFriendId}
@@ -455,6 +559,7 @@ export function App() {
                 setMobileTab('expenses');
               }}
               onOpenMembers={() => setIsMemberModalOpen(true)}
+              onOpenAddFriend={() => setIsAddFriendModalOpen(true)}
             />
           )}
 
@@ -467,8 +572,8 @@ export function App() {
 
           {mobileTab === 'totals' && (
             <MobileTotalsView
-              expenses={expenses}
-              members={members}
+              expenses={currentGroupExpenses}
+              members={currentGroupMembers}
               onOpenShare={() => setIsShareModalOpen(true)}
               onLoadSample={handleLoadSample}
               onResetData={handleResetData}
@@ -479,8 +584,8 @@ export function App() {
         {/* Desktop View (md:): Classic 3-Column Splitwise */}
         <div className="hidden md:block flex-1 min-w-0 w-full">
           <SplitwiseCenterView
-            expenses={expenses}
-            members={members}
+            expenses={currentGroupExpenses}
+            members={currentGroupMembers}
             currentUserId={currentUserId}
             selectedFriendId={selectedFriendId}
             settlements={settlements}
@@ -501,7 +606,7 @@ export function App() {
         <SplitwiseRightSidebar
           balances={balances}
           totalSpend={totalSpend}
-          members={members}
+          members={currentGroupMembers}
           settlements={settlements}
           onOpenAddExpense={() => {
             setEditingExpense(null);
@@ -520,8 +625,8 @@ export function App() {
           setEditingExpense(null);
           setIsExpenseModalOpen(true);
         }}
-        expensesCount={expenses.length}
-        friendsCount={members.length}
+        expensesCount={currentGroupExpenses.length}
+        friendsCount={currentGroupMembers.length}
         settlementsCount={settlements.length}
       />
 
@@ -533,17 +638,18 @@ export function App() {
           setEditingExpense(null);
         }}
         onSave={handleSaveExpense}
-        members={members}
+        members={currentGroupMembers}
         editingExpense={editingExpense}
         onDeleteExpense={handleDeleteExpense}
         currentUserId={currentUserId}
+        tripName={activeGroup.name}
       />
 
       <SettleUpModal
         isOpen={isSettleUpModalOpen}
         onClose={() => setIsSettleUpModalOpen(false)}
         settlements={settlements}
-        members={members}
+        members={currentGroupMembers}
         currentUserId={currentUserId}
         onRecordPayment={handleRecordPayment}
       />
@@ -562,8 +668,8 @@ export function App() {
         balances={balances}
         settlements={settlements}
         totalSpend={totalSpend}
-        expenses={expenses}
-        members={members}
+        expenses={currentGroupExpenses}
+        members={currentGroupMembers}
       />
 
       {/* PIN Security Modal (PIN: 0852) */}
@@ -585,6 +691,26 @@ export function App() {
         members={members}
         currentUserId={currentUserId}
         onSelectUser={handleSelectUser}
+      />
+
+      {/* Add New Group Modal */}
+      <AddGroupModal
+        isOpen={isAddGroupModalOpen}
+        onClose={() => setIsAddGroupModalOpen(false)}
+        onCreateGroup={handleCreateGroup}
+        allMembers={members}
+        onOpenAddFriend={() => {
+          setIsAddGroupModalOpen(false);
+          setIsAddFriendModalOpen(true);
+        }}
+      />
+
+      {/* Add New Friend Modal */}
+      <AddFriendModal
+        isOpen={isAddFriendModalOpen}
+        onClose={() => setIsAddFriendModalOpen(false)}
+        onAddFriend={handleAddFriend}
+        existingNames={members.map((m) => m.name)}
       />
     </div>
   );

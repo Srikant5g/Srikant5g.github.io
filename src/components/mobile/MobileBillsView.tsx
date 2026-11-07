@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import type { Expense, Member, Category } from '../../types';
+import type { Expense, Member, Category, Group } from '../../types';
 import {
   formatCurrency,
   formatExpenseDate,
@@ -8,7 +8,7 @@ import {
   getActualExpenses,
 } from '../../utils/settlement';
 import { CATEGORY_ICONS } from '../../utils/sampleData';
-import { Search, Plus, Edit3, Trash2, X, ArrowUpRight, ArrowDownLeft, Calendar } from 'lucide-react';
+import { Search, Plus, Edit3, Trash2, X, ArrowUpRight, ArrowDownLeft, Calendar, ChevronDown, Tag } from 'lucide-react';
 
 interface MobileBillsViewProps {
   expenses: Expense[];
@@ -21,6 +21,10 @@ interface MobileBillsViewProps {
   onDeleteExpense: (id: string) => void;
   onLoadSample?: () => void;
   tripName?: string;
+  groups?: Group[];
+  activeGroupId?: string;
+  onSelectGroup?: (id: string) => void;
+  onOpenAddGroup?: () => void;
 }
 
 export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
@@ -33,9 +37,14 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   onEditExpense,
   onDeleteExpense,
   tripName = 'Road Trip 2026',
+  groups,
+  activeGroupId,
+  onSelectGroup,
+  onOpenAddGroup,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [isGroupMenuOpen, setIsGroupMenuOpen] = useState(false);
 
   const memberMap = new Map<string, Member>();
   members.forEach((m) => memberMap.set(m.id, m));
@@ -150,9 +159,67 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
             </span>
           </div>
 
-          <span className="text-[10px] font-bold uppercase tracking-wider bg-[#F7F8F5] px-2.5 py-0.5 rounded-full text-[#718096] border border-[#E4EAF0]">
-            {tripName}
-          </span>
+          {groups && groups.length > 0 ? (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsGroupMenuOpen(!isGroupMenuOpen)}
+                className="text-[10px] font-bold uppercase tracking-wider bg-[#F7F8F5] active:bg-[#E4EAF0] px-2.5 py-1 rounded-full text-[#145B4A] border border-[#E4EAF0] flex items-center gap-1 transition"
+                title="Switch trip or create a new group"
+              >
+                <Tag className="w-2.5 h-2.5 text-[#78C5A7]" />
+                <span className="truncate max-w-[100px]">{tripName}</span>
+                <ChevronDown className="w-3 h-3 text-[#145B4A]" />
+              </button>
+              {isGroupMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsGroupMenuOpen(false)} />
+                  <div className="absolute right-0 mt-1 w-56 bg-white rounded-2xl shadow-2xl border border-[#E4EAF0] p-2 z-50 text-[#192B3D] animate-in fade-in zoom-in-95 duration-100">
+                    <div className="px-2 py-1 text-[10px] font-bold text-[#718096] uppercase tracking-wider">
+                      Trip / Group
+                    </div>
+                    <div className="space-y-1 max-h-48 overflow-y-auto">
+                      {groups.map((g) => (
+                        <button
+                          key={g.id}
+                          type="button"
+                          onClick={() => {
+                            onSelectGroup?.(g.id);
+                            setIsGroupMenuOpen(false);
+                          }}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-left transition ${
+                            g.id === activeGroupId
+                              ? 'bg-[#145B4A] text-white'
+                              : 'hover:bg-[#F7F8F5] text-[#192B3D]'
+                          }`}
+                        >
+                          <span className="truncate">{g.name}</span>
+                          {g.id === activeGroupId && <span className="w-2 h-2 rounded-full bg-[#78C5A7]" />}
+                        </button>
+                      ))}
+                    </div>
+                    {onOpenAddGroup && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsGroupMenuOpen(false);
+                          onOpenAddGroup();
+                        }}
+                        className="w-full mt-1.5 pt-1.5 border-t border-[#E4EAF0] flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-black text-[#145B4A] bg-[#78C5A7]/20 hover:bg-[#78C5A7]/30 transition"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>+ New Group</span>
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#F7F8F5] px-2.5 py-0.5 rounded-full text-[#718096] border border-[#E4EAF0]">
+              {tripName}
+            </span>
+          )}
         </div>
 
         {/* Large Net Balance Number */}

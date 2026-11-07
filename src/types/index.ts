@@ -28,6 +28,7 @@ export interface SplitShare {
 
 export interface Expense {
   id: string;
+  groupId?: string; // ID of the group this expense belongs to
   title: string;
   amount: number;
   date: string;
@@ -39,6 +40,15 @@ export interface Expense {
   shares?: Record<string, number>; // memberId -> ratio/shares if splitMode === 'SHARES'
   type?: ExpenseType; // 'EXPENSE' (default) or 'PAYMENT' (settlement transfer)
   notes?: string;
+  createdAt: number;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  location?: string;
+  currency?: string;
+  memberIds: string[];
   createdAt: number;
 }
 

@@ -1,7 +1,9 @@
-import type { Member, Expense, TripSettings } from '../types';
-import { DEFAULT_MEMBERS, DEFAULT_TRIP_SETTINGS } from './sampleData';
+import type { Member, Expense, TripSettings, Group } from '../types';
+import { DEFAULT_MEMBERS, DEFAULT_TRIP_SETTINGS, DEFAULT_GROUPS, DEFAULT_GROUP_ID } from './sampleData';
 
 const STORAGE_KEYS = {
+  GROUPS: 'triptally_groups_v1',
+  ACTIVE_GROUP_ID: 'triptally_active_group_v1',
   MEMBERS: 'triptally_members_v1',
   EXPENSES: 'triptally_expenses_v1',
   SETTINGS: 'triptally_settings_v1',
@@ -18,6 +20,45 @@ const STORAGE_KEYS = {
   LEGACY_UPDATED_AT: 'goa_splitwise_updated_at_v1',
   LEGACY_IS_INITIALIZED: 'goa_splitwise_initialized_v1',
 };
+
+export function loadGroups(): Group[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.GROUPS);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load groups', e);
+  }
+  return DEFAULT_GROUPS;
+}
+
+export function saveGroups(groups: Group[]) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.GROUPS, JSON.stringify(groups));
+  } catch (e) {
+    console.error('Failed to save groups', e);
+  }
+}
+
+export function loadActiveGroupId(): string {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.ACTIVE_GROUP_ID) || DEFAULT_GROUP_ID;
+  } catch {
+    return DEFAULT_GROUP_ID;
+  }
+}
+
+export function saveActiveGroupId(id: string) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.ACTIVE_GROUP_ID, id);
+  } catch (e) {
+    console.error('Failed to save active group id', e);
+  }
+}
 
 export function loadTripSettings(): TripSettings {
   try {
@@ -47,16 +88,26 @@ export function saveTripSettings(settings: TripSettings) {
 }
 
 /**
- * Enforce the 7 non-editable member names while preserving any custom UPI IDs
+ * Enforce the 7 default members while preserving any custom UPI IDs and user-added friends
  */
 export function enforceFixedMembers(members?: Member[]): Member[] {
-  return DEFAULT_MEMBERS.map((fixed) => {
-    const existing = members?.find((m) => m.id === fixed.id);
+  if (!members || members.length === 0) return DEFAULT_MEMBERS;
+
+  // Preserve the default 7 members with any updated UPI IDs
+  const defaultMapped = DEFAULT_MEMBERS.map((fixed) => {
+    const existing = members.find((m) => m.id === fixed.id);
     return {
       ...fixed,
       upiId: existing?.upiId || fixed.upiId,
     };
   });
+
+  // Preserve any custom friends created by the user
+  const customMembers = members.filter(
+    (m) => !DEFAULT_MEMBERS.some((fixed) => fixed.id === m.id)
+  );
+
+  return [...defaultMapped, ...customMembers];
 }
 
 export function loadMembers(): Member[] {

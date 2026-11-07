@@ -1,9 +1,13 @@
 import React from 'react';
-import type { Member, MemberBalance } from '../types';
+import type { Member, MemberBalance, Group } from '../types';
 import { formatCurrency } from '../utils/settlement';
-import { LayoutDashboard, Receipt, Activity, Tag } from 'lucide-react';
+import { LayoutDashboard, Receipt, Activity, Tag, Plus, UserPlus } from 'lucide-react';
 
 interface SplitwiseLeftSidebarProps {
+  groups: Group[];
+  activeGroupId: string;
+  onSelectGroup: (groupId: string) => void;
+  onOpenAddGroup: () => void;
   members: Member[];
   balances: MemberBalance[];
   currentUserId: string | null;
@@ -12,9 +16,14 @@ interface SplitwiseLeftSidebarProps {
   activeView: 'dashboard' | 'all' | 'recent';
   onChangeView: (v: 'dashboard' | 'all' | 'recent') => void;
   onOpenMembers: () => void;
+  onOpenAddFriend: () => void;
 }
 
 export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
+  groups,
+  activeGroupId,
+  onSelectGroup,
+  onOpenAddGroup,
   members,
   balances,
   currentUserId,
@@ -23,6 +32,7 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
   activeView,
   onChangeView,
   onOpenMembers,
+  onOpenAddFriend,
 }) => {
   const balanceMap = new Map<string, number>();
   balances.forEach((b) => balanceMap.set(b.memberId, b.netBalance));
@@ -80,33 +90,69 @@ export const SplitwiseLeftSidebar: React.FC<SplitwiseLeftSidebarProps> = ({
       {/* GROUPS Section */}
       <div>
         <div className="flex items-center justify-between px-3 mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#718096]">
-          <span>Active Trip</span>
-          <span className="text-[10px] text-[#145B4A] bg-[#78C5A7]/20 px-2 py-0.5 rounded-full font-bold">1 active</span>
+          <span>Groups ({groups.length})</span>
+          <button
+            onClick={onOpenAddGroup}
+            className="text-[#145B4A] hover:underline font-bold text-xs flex items-center gap-1 active:scale-95 transition"
+            title="Create new group / trip"
+          >
+            <Plus className="w-3.5 h-3.5 text-[#145B4A]" />
+            <span>New</span>
+          </button>
         </div>
 
-        <button
-          onClick={() => {
-            onSelectFriend(null);
-            onChangeView('all');
-          }}
-          className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl font-semibold text-[#192B3D] bg-white border border-[#E4EAF0] shadow-2xs hover:border-[#78C5A7] transition text-left"
-        >
-          <Tag className="w-3.5 h-3.5 text-[#145B4A]" />
-          <span className="truncate">TripTally Group</span>
-        </button>
+        <div className="space-y-1">
+          {groups.map((group) => {
+            const isActive = group.id === activeGroupId;
+            return (
+              <button
+                key={group.id}
+                onClick={() => {
+                  onSelectFriend(null);
+                  onSelectGroup(group.id);
+                  onChangeView('dashboard');
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-xl transition text-left text-xs ${
+                  isActive
+                    ? 'bg-[#145B4A] text-white font-bold shadow-xs'
+                    : 'bg-white border border-[#E4EAF0] text-[#192B3D] hover:border-[#78C5A7]'
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <Tag className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#78C5A7]' : 'text-[#145B4A]'}`} />
+                  <span className="truncate">{group.name}</span>
+                </div>
+                {isActive && (
+                  <span className="w-2 h-2 rounded-full bg-[#78C5A7] shrink-0" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* FRIENDS Section (The 7 Friends) */}
+      {/* FRIENDS Section */}
       <div>
         <div className="flex items-center justify-between px-3 mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#718096]">
           <span>Friends ({members.length})</span>
-          <button
-            onClick={onOpenMembers}
-            className="text-[#145B4A] hover:underline font-bold text-xs"
-            title="Configure UPI IDs"
-          >
-            UPI IDs
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onOpenAddFriend}
+              className="text-[#145B4A] hover:underline font-bold text-xs flex items-center gap-0.5 active:scale-95 transition"
+              title="Add a new friend"
+            >
+              <UserPlus className="w-3 h-3 text-[#145B4A]" />
+              <span>Add</span>
+            </button>
+            <span className="text-slate-300">•</span>
+            <button
+              onClick={onOpenMembers}
+              className="text-[#718096] hover:text-[#192B3D] font-bold text-xs active:scale-95 transition"
+              title="Configure UPI IDs"
+            >
+              UPI IDs
+            </button>
+          </div>
         </div>
 
         <div className="space-y-1">
