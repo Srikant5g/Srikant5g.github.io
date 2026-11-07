@@ -299,7 +299,7 @@ export function App() {
       type: 'delete_expense',
       expenseId: id,
       actionTitle: 'Delete Expense',
-      actionDescription: `Enter Security PIN (0852) to delete ${billTitle}`,
+      actionDescription: `Enter Security PIN to delete ${billTitle}`,
     });
     setIsPinModalOpen(true);
   };
@@ -309,7 +309,7 @@ export function App() {
     setPendingPinAction({
       type: 'reset_all',
       actionTitle: 'Clear All Expenses',
-      actionDescription: `Enter Security PIN (0852) to permanently clear all ${expenses.length} bills and sync across devices`,
+      actionDescription: `Enter Security PIN to permanently clear all ${expenses.length} bills and sync across devices`,
     });
     setIsPinModalOpen(true);
   };

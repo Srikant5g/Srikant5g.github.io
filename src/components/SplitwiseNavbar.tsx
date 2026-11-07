@@ -149,7 +149,7 @@ export const SplitwiseNavbar: React.FC<SplitwiseNavbarProps> = ({
             <button
               onClick={onResetData}
               className="hover:underline opacity-90 hover:opacity-100 flex items-center gap-1"
-              title="Reset all bills (Requires PIN 0852)"
+              title="Reset all bills (Requires Security PIN)"
             >
               <RotateCcw className="w-3 h-3" />
               Reset

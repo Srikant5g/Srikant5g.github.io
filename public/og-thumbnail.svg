@@ -192,7 +192,7 @@
     <text x="195" y="31" fill="#6ee7b7" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">💳 1-Tap UPI</text>
     <text x="290" y="31" fill="#cbd5e1" font-family="-apple-system, sans-serif" font-size="12">•</text>
     <!-- Bullet 3 -->
-    <text x="310" y="31" fill="#fbbf24" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">🔒 PIN 0852 Protected</text>
+    <text x="310" y="31" fill="#fbbf24" font-family="-apple-system, sans-serif" font-size="12" font-weight="700">🔒 PIN Protected</text>
   </g>
 
   <!-- Floating URL badge in top right -->

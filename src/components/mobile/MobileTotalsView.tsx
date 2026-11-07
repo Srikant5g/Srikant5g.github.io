@@ -120,10 +120,10 @@ export const MobileTotalsView: React.FC<MobileTotalsViewProps> = ({
           <button
             onClick={onResetData}
             className="py-2 px-3 rounded-xl border border-rose-200 text-rose-600 bg-rose-50/50 hover:bg-rose-100 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
-            title="Reset all trip expenses (Guarded by PIN 0852)"
+            title="Reset all trip expenses (Requires Security PIN)"
           >
             <Lock className="w-3.5 h-3.5 text-rose-500" />
-            <span>Reset (PIN 0852)</span>
+            <span>Reset Trip History</span>
           </button>
         </div>
       </div>

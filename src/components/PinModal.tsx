@@ -44,7 +44,7 @@ export const PinModal: React.FC<PinModalProps> = ({
         onClose();
       }, 300);
     } else {
-      setError('Incorrect PIN. Required: 0852');
+      setError('Incorrect PIN. Please try again.');
       setTimeout(() => {
         setPin('');
       }, 500);
@@ -193,7 +193,7 @@ export const PinModal: React.FC<PinModalProps> = ({
 
           {!error && !isSuccess && (
             <p className="text-[11px] text-slate-400 mt-2 font-medium">
-              Enter PIN <span className="font-mono font-bold text-slate-600">0852</span> to proceed
+              Enter 4-digit security PIN to proceed
             </p>
           )}
 

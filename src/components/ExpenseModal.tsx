@@ -465,7 +465,7 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
                   onDeleteExpense(id);
                 }}
                 className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold text-rose-600 hover:bg-rose-100 hover:border-rose-300 bg-rose-50 border border-rose-200 transition flex items-center justify-center gap-1.5 order-3 sm:order-1 active:scale-95"
-                title="Delete this bill (Requires PIN 0852)"
+                title="Delete this bill (Requires Security PIN)"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Delete Bill</span>

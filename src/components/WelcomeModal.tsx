@@ -88,7 +88,7 @@ export const WelcomeModal: React.FC<WelcomeModalProps> = ({
               <div className="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
                 <ShieldCheck className="w-3.5 h-3.5" />
               </div>
-              <span className="font-semibold">Protected with Security PIN (0852)</span>
+              <span className="font-semibold">Protected with Security PIN</span>
             </div>
           </div>
         </div>

@@ -451,7 +451,7 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
                             onDeleteExpense(expense.id);
                           }}
                           className="p-1.5 sm:px-2 sm:py-1 hover:text-rose-600 hover:bg-rose-50 rounded-lg text-slate-400 transition flex items-center gap-1"
-                          title="Delete Bill (Requires PIN 0852)"
+                          title="Delete Bill (Requires Security PIN)"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           <span className="hidden sm:inline text-xs font-semibold">Delete</span>
