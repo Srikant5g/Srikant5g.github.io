@@ -19,7 +19,7 @@ interface MobileBillsViewProps {
   onOpenAddExpense: () => void;
   onEditExpense: (expense: Expense) => void;
   onDeleteExpense: (id: string) => void;
-  onLoadSample: () => void;
+  onLoadSample?: () => void;
   tripName?: string;
 }
 
@@ -32,7 +32,6 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
   onOpenAddExpense,
   onEditExpense,
   onDeleteExpense,
-  onLoadSample,
   tripName = 'Road Trip 2026',
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -311,23 +310,15 @@ export const MobileBillsView: React.FC<MobileBillsViewProps> = ({
           <p className="text-xs text-[#718096] max-w-xs mx-auto">
             {searchTerm || selectedCategory !== 'ALL'
               ? 'Try adjusting your search terms or clearing the category filter.'
-              : 'Start tracking bills for your trip or load the sample trip expenses.'}
+              : 'Start logging your trip fuel, meals, hotel, tolls, and activities!'}
           </p>
-          <div className="flex flex-col gap-2 pt-2 max-w-xs mx-auto">
+          <div className="pt-2 max-w-xs mx-auto">
             <button
               onClick={onOpenAddExpense}
               className="w-full py-2.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4639] text-white font-bold text-xs shadow-xs active:scale-95 transition"
             >
               + Add First Expense
             </button>
-            {expenses.length === 0 && (
-              <button
-                onClick={onLoadSample}
-                className="w-full py-2.5 rounded-xl bg-white border border-[#E4EAF0] text-[#192B3D] font-bold text-xs shadow-xs active:scale-95 transition"
-              >
-                Load Sample Expenses
-              </button>
-            )}
           </div>
         </div>
       ) : (

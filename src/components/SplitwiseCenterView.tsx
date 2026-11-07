@@ -32,7 +32,6 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
   onOpenSettleUp,
   onEditExpense,
   onDeleteExpense,
-  onLoadSample,
 }) => {
   const [internalTab, setInternalTab] = useState<'expenses' | 'debts' | 'breakdown'>('expenses');
   const [searchTerm, setSearchTerm] = useState('');
@@ -335,44 +334,27 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
 
           {/* Expenses List */}
           {filtered.length === 0 ? (
-            <div className="py-10 px-4 text-center max-w-lg mx-auto space-y-4">
-              <div className="rounded-3xl overflow-hidden border border-[#E4EAF0] shadow-sm bg-[#145B4A] relative">
-                <img
-                  src="/og-thumbnail.svg"
-                  alt="Welcome to TripTally"
-                  className="w-full h-44 object-cover object-center"
-                />
+            <div className="py-14 px-4 text-center max-w-md mx-auto space-y-4">
+              <div className="w-16 h-16 rounded-2xl bg-[#78C5A7]/15 border border-[#78C5A7]/30 text-[#145B4A] flex items-center justify-center mx-auto text-2xl shadow-2xs">
+                🧾
               </div>
 
               <div>
-                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#78C5A7]/20 text-[#145B4A] border border-[#78C5A7]/40 text-[11px] font-black uppercase tracking-wider">
-                  <Sparkles className="w-3 h-3" />
-                  TripTally
-                </span>
-                <h3 className="font-black text-[#192B3D] text-lg mt-2">
+                <h3 className="font-black text-[#192B3D] text-base sm:text-lg">
                   No expenses found
                 </h3>
-                <p className="text-xs text-[#718096] mt-1 max-w-md mx-auto leading-relaxed">
+                <p className="text-xs text-[#718096] mt-1.5 max-w-sm mx-auto leading-relaxed">
                   Start logging your trip fuel, meals, hotel, tolls, and activities for your group!
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+              <div className="pt-2">
                 <button
                   onClick={onOpenAddExpense}
-                  className="px-5 py-2.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95"
+                  className="px-6 py-2.5 rounded-xl bg-[#145B4A] hover:bg-[#0f4437] text-white font-bold text-xs sm:text-sm shadow-xs transition active:scale-95 inline-flex items-center gap-2"
                 >
-                  + Add Expense
+                  <span>+ Add Expense</span>
                 </button>
-                {onLoadSample && (
-                  <button
-                    onClick={onLoadSample}
-                    className="px-4 py-2.5 rounded-xl bg-[#78C5A7]/20 hover:bg-[#78C5A7]/30 text-[#145B4A] border border-[#78C5A7]/40 font-bold text-xs sm:text-sm shadow-xs transition flex items-center gap-1.5 active:scale-95"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Load Sample Bills</span>
-                  </button>
-                )}
               </div>
             </div>
           ) : (
