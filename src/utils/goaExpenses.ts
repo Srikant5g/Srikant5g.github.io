@@ -158,7 +158,11 @@ export const GOA_TRIP_EXPENSES: Expense[] = [
     "splitMemberIds": [
       "m3",
       "m4",
-      "m6"
+      "m6",
+      "m2",
+      "m1",
+      "m5",
+      "m7"
     ],
     "type": "EXPENSE",
     "groupId": "group_default",
@@ -166,7 +170,7 @@ export const GOA_TRIP_EXPENSES: Expense[] = [
     "createdAt": 1795360473478
   },
   {
-    "title": "Domino\u2019s",
+    "title": "Domino’s",
     "amount": 1200,
     "date": "2026-11-22",
     "paidById": "m6",
@@ -232,7 +236,7 @@ export const GOA_TRIP_EXPENSES: Expense[] = [
     "title": "Room",
     "amount": 6000,
     "date": "2026-11-22",
-    "paidById": "m1",
+    "paidById": "m2",
     "category": "Stay & Hotel",
     "splitMode": "EQUAL",
     "splitMemberIds": [
