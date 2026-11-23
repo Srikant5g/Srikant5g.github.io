@@ -32,7 +32,7 @@ export const AVATAR_COLORS = [
 ];
 
 export const DEFAULT_MEMBERS: Member[] = [
-  { id: 'm1', name: 'Srikanth G', avatarColor: 'bg-teal-500', upiId: 'srikanth@upi' },
+  { id: 'm1', name: 'Srikanth G', avatarColor: 'bg-teal-500', upiId: '98866777@ybl' },
   { id: 'm2', name: 'Sajjad Hussain', avatarColor: 'bg-emerald-500', upiId: 'sajjad@okhdfc' },
   { id: 'm3', name: 'Raghavendra G', avatarColor: 'bg-indigo-500', upiId: 'raghavendra@paytm' },
   { id: 'm4', name: 'Mohan Reddy P', avatarColor: 'bg-purple-500', upiId: 'mohan@ybl' },

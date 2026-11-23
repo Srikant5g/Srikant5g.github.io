@@ -109,11 +109,50 @@ export async function pushToCloud(
 }
 
 /**
+ * Resolves cloud payload from either inline JSON message or ntfy attachment (for payloads > 4KB)
+ */
+async function resolvePayloadFromItem(item: any): Promise<CloudPayload | null> {
+  if (!item) return null;
+
+  // 1. Direct message JSON
+  if (item.message && typeof item.message === 'string') {
+    try {
+      const parsed = JSON.parse(item.message);
+      if (parsed && typeof parsed.updatedAt === 'number') {
+        return parsed as CloudPayload;
+      }
+    } catch {
+      // Not direct JSON, might be attachment notification ("You received a file: attachment.json")
+    }
+  }
+
+  // 2. ntfy attachment (when payload exceeds 4,096 bytes)
+  if (item.attachment && item.attachment.url) {
+    try {
+      const attachmentUrl = item.attachment.url.startsWith('http')
+        ? item.attachment.url
+        : `https://ntfy.sh${item.attachment.url}`;
+      const res = await fetch(attachmentUrl, { cache: 'no-store' });
+      if (res.ok) {
+        const parsed = await res.json();
+        if (parsed && typeof parsed.updatedAt === 'number') {
+          return parsed as CloudPayload;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to fetch attachment from ntfy:', e);
+    }
+  }
+
+  return null;
+}
+
+/**
  * Pull latest state from cloud
  */
 export async function pullFromCloud(): Promise<CloudPayload | null> {
   try {
-    const res = await fetch(`${NTFY_BASE_URL}/json?poll=1&since=latest`, {
+    const res = await fetch(`${NTFY_BASE_URL}/json?poll=1&since=all`, {
       method: 'GET',
       cache: 'no-store',
     });
@@ -125,16 +164,14 @@ export async function pullFromCloud(): Promise<CloudPayload | null> {
     const text = await res.text();
     if (!text.trim()) return null;
 
-    // ntfy /json?poll=1 may return line-delimited JSON messages. We take the last message.
+    // ntfy /json?poll=1 may return line-delimited JSON messages. We iterate backwards from the newest.
     const lines = text.trim().split('\n');
     for (let i = lines.length - 1; i >= 0; i--) {
       try {
         const item = JSON.parse(lines[i]);
-        if (item && item.message) {
-          const parsed = JSON.parse(item.message);
-          if (parsed && typeof parsed.updatedAt === 'number') {
-            return parsed as CloudPayload;
-          }
+        const payload = await resolvePayloadFromItem(item);
+        if (payload) {
+          return payload;
         }
       } catch {
         continue;
@@ -157,15 +194,13 @@ export function listenToCloudEvents(onRemotePayload: (payload: CloudPayload) => 
   try {
     if (typeof window !== 'undefined' && 'EventSource' in window) {
       eventSource = new EventSource(`${NTFY_BASE_URL}/sse`);
-      eventSource.onmessage = (event) => {
+      eventSource.onmessage = async (event) => {
         try {
           if (!event.data) return;
           const parsed = JSON.parse(event.data);
-          if (parsed && parsed.message) {
-            const payload = JSON.parse(parsed.message);
-            if (payload && typeof payload.updatedAt === 'number') {
-              onRemotePayload(payload as CloudPayload);
-            }
+          const payload = await resolvePayloadFromItem(parsed);
+          if (payload) {
+            onRemotePayload(payload);
           }
         } catch (e) {
           console.warn('Error parsing cloud SSE message', e);

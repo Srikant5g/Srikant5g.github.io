@@ -17,6 +17,7 @@ import {
   loadSavedUserId,
   saveCurrentUserId,
   mergeGroups,
+  mergeExpenses,
 } from './utils/storage';
 import {
   pullFromCloud,
@@ -135,12 +136,16 @@ export function App() {
       lastUpdatedRef.current = ts;
       setLastUpdatedAt(ts);
       setExpenses((prev) => {
-        if (prev.length === cloudExpenses.length && JSON.stringify(prev) === JSON.stringify(cloudExpenses)) {
+        const merged = isCleared ? cloudExpenses : mergeExpenses(prev, cloudExpenses);
+        if (prev.length === merged.length && JSON.stringify(prev) === JSON.stringify(merged)) {
           return prev;
         }
-        return cloudExpenses;
+        saveExpenses(merged);
+        return merged;
       });
-      saveExpenses(cloudExpenses);
+      if (isCleared) {
+        saveExpenses(cloudExpenses);
+      }
 
       if (cloudMembers && cloudMembers.length > 0) {
         const enforced = enforceFixedMembers(cloudMembers);

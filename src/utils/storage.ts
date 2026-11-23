@@ -1,5 +1,6 @@
 import type { Member, Expense, TripSettings, Group } from '../types';
 import { DEFAULT_MEMBERS, DEFAULT_TRIP_SETTINGS, DEFAULT_GROUPS, DEFAULT_GROUP_ID } from './sampleData';
+import { GOA_TRIP_EXPENSES } from './goaExpenses';
 
 const STORAGE_KEYS = {
   GROUPS: 'triptally_groups_v1',
@@ -233,6 +234,17 @@ export function setLastUpdatedAt(ts: number) {
   }
 }
 
+export function mergeExpenses(localExpenses: Expense[], remoteExpenses: Expense[]): Expense[] {
+  const map = new Map<string, Expense>();
+  (localExpenses || []).forEach((e) => {
+    if (e && e.id) map.set(e.id, e);
+  });
+  (remoteExpenses || []).forEach((e) => {
+    if (e && e.id) map.set(e.id, e);
+  });
+  return Array.from(map.values()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+}
+
 export function loadExpenses(): Expense[] {
   try {
     const raw =
@@ -241,17 +253,14 @@ export function loadExpenses(): Expense[] {
       localStorage.getItem(STORAGE_KEYS.LEGACY_EXPENSES);
     if (raw !== null) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
-    }
-    // If explicitly initialized and empty, return empty array
-    if (isTripInitialized()) {
-      return [];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return mergeExpenses(parsed, GOA_TRIP_EXPENSES);
+      }
     }
   } catch (e) {
     console.error('Failed to load expenses', e);
   }
-  // For fresh first-time sessions, load empty or sample
-  return [];
+  return GOA_TRIP_EXPENSES;
 }
 
 export function saveExpenses(expenses: Expense[]) {
