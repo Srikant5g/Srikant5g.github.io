@@ -438,10 +438,10 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
         <>
           {/* The 3-Box Balance Banner */}
           <div className="grid grid-cols-3 border-b border-[#E4EAF0] text-center py-4 bg-white">
-        {/* Total Balance */}
+        {/* Net Balance */}
         <div className="border-r border-[#E4EAF0] px-2 sm:px-4">
           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#718096] block">
-            total balance
+            net balance
           </span>
           <span
             className={`text-base sm:text-2xl font-black mt-1 block truncate ${
@@ -455,26 +455,31 @@ export const SplitwiseCenterView: React.FC<SplitwiseCenterViewProps> = ({
             {netBalance > 0.01 && '+'}
             {formatCurrency(netBalance)}
           </span>
+          <span className="text-[10px] font-semibold text-[#145B4A] hidden sm:block">
+            {netBalance > 0.01 ? 'you get back' : netBalance < -0.01 ? 'you need to pay' : 'settled up'}
+          </span>
         </div>
 
-        {/* You Owe */}
+        {/* Total Lent (Paid for Others) */}
         <div className="border-r border-[#E4EAF0] px-2 sm:px-4">
           <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#718096] block">
-            you owe
-          </span>
-          <span className="text-base sm:text-2xl font-black text-[#FF784F] mt-1 block truncate">
-            {formatCurrency(youOweTotal)}
-          </span>
-        </div>
-
-        {/* You Are Owed */}
-        <div className="px-2 sm:px-4">
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#718096] block">
-            you are owed
+            total lent
           </span>
           <span className="text-base sm:text-2xl font-black text-[#145B4A] mt-1 block truncate">
             {formatCurrency(youAreOwedTotal)}
           </span>
+          <span className="text-[10px] text-[#718096] hidden sm:block">paid for friends</span>
+        </div>
+
+        {/* Total Borrowed (Your Share of Friends' Bills) */}
+        <div className="px-2 sm:px-4">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#718096] block">
+            total borrowed
+          </span>
+          <span className="text-base sm:text-2xl font-black text-[#FF784F] mt-1 block truncate">
+            {formatCurrency(youOweTotal)}
+          </span>
+          <span className="text-[10px] text-[#718096] hidden sm:block">your share of bills</span>
         </div>
       </div>
 
